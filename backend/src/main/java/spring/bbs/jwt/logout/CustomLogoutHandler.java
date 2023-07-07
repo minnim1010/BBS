@@ -38,7 +38,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
         long expiration = jwtProvider.getExpiration(token);
         logger.debug("expiration: {}", expiration);
-        redisTemplate.opsForValue().set("logout", token, expiration, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(token, "access_token", expiration, TimeUnit.SECONDS);
 
         authentication = null;
     }

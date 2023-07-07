@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 
@@ -36,7 +35,7 @@ public class JwtProvider implements InitializingBean {
     private Key key;
 
     public JwtProvider(@Value("${jwt.secret}") String secret,
-                       @Value("${jwt.token-validity-in-seconds}") long tokenValidMilSeconds,
+                       @Value("${jwt.token-validity-in-miliseconds}") long tokenValidMilSeconds,
                        RedisTemplate<String, Object> redisTemplate) {
         this.secret = secret;
         this.tokenValidMilSeconds = tokenValidMilSeconds;
@@ -57,6 +56,9 @@ public class JwtProvider implements InitializingBean {
         long createdTime = (new Date()).getTime();
         Date expiredTime = new Date(createdTime + this.tokenValidMilSeconds);
 
+        logger.debug("{}", createdTime);
+        logger.debug("{}", expiredTime);
+
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
@@ -76,8 +78,6 @@ public class JwtProvider implements InitializingBean {
         String role = claims.get(AUTHORITIES_KEY).toString();
         Authority authority = new Authority(role);
         List<GrantedAuthority> grantedAuthority = List.of(new SimpleGrantedAuthority(role));
-
-        logger.debug("JwtProvider.getAuthentication {}", role);
 
         Member member = new Member(claims.getSubject(), "", "", true, authority);
 
@@ -118,8 +118,7 @@ public class JwtProvider implements InitializingBean {
         return false;
     }
 
-    public boolean isLogoutToken(String name){
-        Object result = redisTemplate.opsForValue().get(name);
-        return ObjectUtils.isEmpty(result);
+    public boolean isLogoutToken(String token){
+        return redisTemplate.opsForValue().get(token) != null;
     }
 }

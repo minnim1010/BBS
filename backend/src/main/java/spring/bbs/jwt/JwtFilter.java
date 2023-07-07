@@ -17,7 +17,7 @@ import java.io.IOException;
 public class JwtFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(
-            GenericFilterBean.class);
+            JwtFilter.class);
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private final JwtProvider jwtProvider;
@@ -29,6 +29,8 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+
+        logger.debug("JwtFilter.doFilter");
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String jwt = resolveToken(httpServletRequest);

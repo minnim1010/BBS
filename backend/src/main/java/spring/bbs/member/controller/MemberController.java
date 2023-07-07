@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
@@ -27,6 +30,8 @@ public class MemberController {
 
     @PostMapping("/join")
     public ResponseEntity<JoinResponse> join(JoinRequest req){
+        logger.debug("MemberController.join");
+        logger.debug("req = {}", req);
         return ResponseEntity.ok(memberService.createMember(req));
     }
 
@@ -36,6 +41,6 @@ public class MemberController {
         logger.debug("MemberController.withdrawal");
         logger.debug("{}", member);
         memberService.deleteMember(member.getName());
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

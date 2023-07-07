@@ -5,7 +5,6 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 
 public class RequestToMember {
-
     public static Member JoinRequestToMember(JoinRequest req, String encodedPassword){
         return new Member(req.getName(), encodedPassword, req.getEmail(),
                 true, new Authority("ROLE_USER"));
