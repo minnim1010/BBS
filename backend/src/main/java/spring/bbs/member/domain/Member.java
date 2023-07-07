@@ -1,28 +1,29 @@
 package spring.bbs.member.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String name;
     private String password;
     private String email;
     private boolean activated;
+    @OneToOne(cascade = CascadeType.DETACH)
+    private Authority authority;
 
     public Member() {
     }
 
-    public Member(String name, String password, String email, boolean activated) {
+    public Member(String name, String password, String email, boolean activated, Authority role) {
         this.name = name;
         this.password = password;
         this.email = email;
         this.activated = activated;
+        this.authority = role;
     }
 
     public Long getId() {
@@ -65,6 +66,14 @@ public class Member {
         this.activated = activated;
     }
 
+    public Authority getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(Authority role) {
+        this.authority = role;
+    }
+
     @Override
     public String toString() {
         return "Member{" +
@@ -73,6 +82,7 @@ public class Member {
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", activated=" + activated +
+                ", role=" + authority.getRole() +
                 '}';
     }
 }

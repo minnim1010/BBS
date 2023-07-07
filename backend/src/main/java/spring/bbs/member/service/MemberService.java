@@ -30,9 +30,9 @@ public class MemberService {
     @Transactional
     public JoinResponse createMember(JoinRequest req){
         isSamePassword(req.getPassword(), req.getCheckPassword());
+        isValidName(req.getName());
 
         String encodedPassword = passwordEncoder.encode(req.getPassword());
-
         Member member = JoinRequestToMember(req, encodedPassword);
         Member savedMember = memberRepository.save(member);
 
@@ -45,6 +45,25 @@ public class MemberService {
         if(password.equals(checkPassword))
             return true;
 
+        logger.debug("{} {}", password, checkPassword);
         throw new RuntimeException("Passwords do not match.");
+    }
+
+    private boolean isValidName(String name){
+        if(memberRepository.existsByName(name))
+            throw new RuntimeException("Username already exists.");
+
+        return true;
+    }
+
+    @Transactional
+    public void deleteMember(String name){
+        Member deleteMember = getMember(name);
+        memberRepository.delete(deleteMember);
+    }
+
+    private Member getMember(String name) {
+        return memberRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("Member doesn't exist."));
     }
 }

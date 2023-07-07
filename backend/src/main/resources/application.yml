@@ -18,6 +18,10 @@ spring:
   #                dialect: org.hibernate.dialect.H2Dialect
   #                "[format_sql]": true
   #                "[show_sql]": true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   file:
@@ -25,13 +29,14 @@ logging:
 
   level:
     root: info
+    org.springframework.security: info
     spring:
       bbs: debug
 
 jwt:
   header: Authorization
   secret: ${jwt.secret}
-  token-validity-in-seconds: 86400
+  token-validity-in-seconds: 43200
 
 springdoc:
   version: v1.0.0
