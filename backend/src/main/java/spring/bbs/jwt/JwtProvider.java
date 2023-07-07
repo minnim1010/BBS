@@ -19,16 +19,11 @@ import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 
 import java.security.Key;
-import java.util.Collection;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
-/*
-JwtProvider
-Token 발행 및 유효성 검사
-Token 기반 Authentication 생성
- */
+
 @Component
 public class JwtProvider implements InitializingBean {
 
@@ -49,7 +44,7 @@ public class JwtProvider implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
