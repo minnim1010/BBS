@@ -5,8 +5,8 @@ import org.springframework.util.StringUtils;
 public class PostListRequest {
     private int page;
     private String category;
-    private String scope;
-    private String keyword;
+    private String searchScope;
+    private String searchKeyword;
 
     public PostListRequest() {
     }
@@ -14,8 +14,8 @@ public class PostListRequest {
     public PostListRequest(int page, String category, String scope, String keyword) {
         this.page = page;
         this.category = category;
-        this.scope = scope;
-        this.keyword = keyword;
+        this.searchScope = scope;
+        this.searchKeyword = keyword;
 
         if(!StringUtils.hasText(scope))
             scope = "title";
@@ -37,20 +37,20 @@ public class PostListRequest {
         this.category = category;
     }
 
-    public String getKeyword() {
-        return keyword;
+    public String getSearchKeyword() {
+        return searchKeyword;
     }
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
+    public void setSearchKeyword(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
     }
 
-    public String getScope() {
-        return scope;
+    public String getSearchScope() {
+        return searchScope;
     }
 
-    public void setScope(String scope) {
-        this.scope = scope;
+    public void setSearchScope(String searchScope) {
+        this.searchScope = searchScope;
     }
 
 }

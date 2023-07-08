@@ -1,9 +1,6 @@
 package spring.bbs.post.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import spring.bbs.member.domain.Member;
 
 import java.time.LocalDateTime;
@@ -11,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Post {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String title;
     @Column(columnDefinition = "TEXT")
@@ -28,22 +26,6 @@ public class Post {
                 LocalDateTime modifiedTime,
                 Member author,
                 Category category) {
-        this.title = title;
-        this.content = content;
-        this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
-        this.author = author;
-        this.category = category;
-    }
-
-    public Post(long id,
-                String title,
-                String content,
-                LocalDateTime createdTime,
-                LocalDateTime modifiedTime,
-                Member author,
-                Category category) {
-        this.id = id;
         this.title = title;
         this.content = content;
         this.createdTime = createdTime;

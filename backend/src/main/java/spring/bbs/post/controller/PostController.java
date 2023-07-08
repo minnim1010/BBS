@@ -1,11 +1,10 @@
 package spring.bbs.post.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import spring.bbs.post.dto.entity.PostList;
+import spring.bbs.post.domain.Post;
 import spring.bbs.post.dto.request.PostListRequest;
 import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.dto.response.PostResponse;
@@ -16,9 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/posts")
 public class PostController {
-
-    private final Logger logger = LoggerFactory.getLogger(
-            PostController.class);
 
     private final PostService postService;
 
@@ -33,9 +29,9 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostList>> LookupPostList(@ModelAttribute PostListRequest req){
-        List<PostList> response = postService.getPostList(
-                req.getCategory(), req.getPage(), req.getScope(), req.getKeyword());
+    public ResponseEntity<List<Post>> lookupPostList(@ModelAttribute PostListRequest req){
+        List<Post> response = postService.getPostList(
+                req.getCategory(), req.getPage(), req.getSearchScope(), req.getSearchKeyword());
 
         return ResponseEntity.ok(response);
     }
@@ -44,6 +40,21 @@ public class PostController {
     @Secured("ROLE_USER")
     public ResponseEntity<PostResponse> writePost(PostRequest req){
         PostResponse response = postService.createPost(req);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("{id}")
+    @Secured("ROLE_USER")
+    public ResponseEntity<Void> deletePost(@PathVariable("id") long postId){
+        postService.deletePost(postId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("{id}")
+    @Secured("ROLE_USER")
+    public ResponseEntity<PostResponse> modifyPost(PostRequest req,
+                                                   @PathVariable("id") long postId){
+        PostResponse response = postService.updatePost(req, postId);
         return ResponseEntity.ok(response);
     }
 }
