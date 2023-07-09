@@ -1,21 +1,32 @@
 package spring.bbs.post.dto.response;
 
-import spring.bbs.member.domain.Member;
+import spring.bbs.member.dto.response.MemberNameResponse;
 
 import java.time.LocalDateTime;
 
 public class PostListResponse {
+    private long id;
     private String title;
     private LocalDateTime createdTime;
-    private Member author;
+    private MemberNameResponse author;
 
     public PostListResponse() {
     }
 
-    public PostListResponse(String title, LocalDateTime createdTime, Member author) {
+    public PostListResponse(long id, String title, LocalDateTime createdTime, MemberNameResponse memberResponse) {
+        this.id = id;
         this.title = title;
         this.createdTime = createdTime;
-        this.author = author;
+        this.author = memberResponse;
+    }
+
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -34,11 +45,11 @@ public class PostListResponse {
         this.createdTime = createdTime;
     }
 
-    public Member getAuthor() {
+    public MemberNameResponse getAuthor() {
         return author;
     }
 
-    public void setAuthor(Member author) {
+    public void setAuthor(MemberNameResponse author) {
         this.author = author;
     }
 }

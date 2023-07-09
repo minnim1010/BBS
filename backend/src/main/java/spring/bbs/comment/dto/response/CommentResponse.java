@@ -1,8 +1,6 @@
 package spring.bbs.comment.dto.response;
 
-import spring.bbs.comment.domain.Comment;
-import spring.bbs.member.domain.Member;
-import spring.bbs.post.domain.Post;
+import spring.bbs.member.dto.response.MemberNameResponse;
 
 import java.time.LocalDateTime;
 
@@ -11,9 +9,8 @@ public class CommentResponse {
     private String content;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
-    private Member author;
-    private Post postId;
-    private Comment parentComment;
+    private MemberNameResponse author;
+    private Long parentCommentId;
 
     public CommentResponse() {
     }
@@ -22,16 +19,14 @@ public class CommentResponse {
                                  String content,
                                  LocalDateTime createdTime,
                                  LocalDateTime modifiedTime,
-                                 Member author,
-                                 Post postId,
-                                 Comment parentComment) {
+                                 String authorName,
+                                 Long parentCommentId) {
         this.id = id;
         this.content = content;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
-        this.author = author;
-        this.postId = postId;
-        this.parentComment = parentComment;
+        this.author = new MemberNameResponse(authorName);
+        this.parentCommentId = parentCommentId;
     }
 
     public long getId() {
@@ -66,27 +61,19 @@ public class CommentResponse {
         this.modifiedTime = modifiedTime;
     }
 
-    public Member getAuthor() {
+    public MemberNameResponse getAuthor() {
         return author;
     }
 
-    public void setAuthor(Member author) {
+    public void setAuthor(MemberNameResponse author) {
         this.author = author;
     }
 
-    public Post getPostId() {
-        return postId;
+    public Long getParentComment() {
+        return parentCommentId;
     }
 
-    public void setPostId(Post postId) {
-        this.postId = postId;
-    }
-
-    public Comment getParentComment() {
-        return parentComment;
-    }
-
-    public void setParentComment(Comment parentComment) {
-        this.parentComment = parentComment;
+    public void setParentCommentId(Long parentCommentId) {
+        this.parentCommentId = parentCommentId;
     }
 }

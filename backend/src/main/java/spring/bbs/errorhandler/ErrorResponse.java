@@ -1,7 +1,8 @@
-package spring.bbs.jwt.dto.response;
+package spring.bbs.errorhandler;
 
 public class ErrorResponse {
     private String description;
+
     private String errorMessage;
 
     public ErrorResponse() {
@@ -18,5 +19,13 @@ public class ErrorResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

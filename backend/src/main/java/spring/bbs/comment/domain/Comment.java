@@ -18,7 +18,6 @@ public class Comment {
     @ManyToOne
     private Member author;
     @ManyToOne
-
     private Post postId;
     @OneToOne
     private Comment parentComment;

@@ -8,12 +8,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.bbs.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Category;
 import spring.bbs.post.domain.Post;
+import spring.bbs.post.dto.request.PostListRequest;
 import spring.bbs.post.dto.request.PostRequest;
+import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
+import spring.bbs.post.dto.util.PostToResponse;
 import spring.bbs.post.repository.PostRepository;
 import spring.bbs.util.SecurityUtil;
 
@@ -42,16 +46,18 @@ public class PostService {
         return convertPostToResponse(_getPost(postId));
     }
 
-    public List<Post> getPostList(String category, int page, String searchScope, String searchKeyword) {
+    public List<PostListResponse> getPostList(PostListRequest req) {
         logger.debug("PostService.getPostList");
 
         final int pageSize = 10;
-        int offset = (page - 1) * pageSize;
+        int offset = (req.getPage() - 1) * pageSize;
         Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
+        Specification<Post> spec = getSpecification(req.getCategory(), req.getSearchScope(), req.getSearchKeyword());
+        List<Post> postList = postRepository.findAll(spec, pageable);
 
-        Specification<Post> spec = getSpecification(category, searchScope, searchKeyword);
-
-        return postRepository.findAll(spec, pageable);
+        return postList.stream()
+                .map(PostToResponse::convertPostToPostListResponse)
+                .toList();
     }
 
     private Specification<Post> getSpecification(String category, String searchScope, String searchKeyword){
@@ -115,17 +121,17 @@ public class PostService {
 
     private Post _getPost(long postId){
         return postRepository.findById(postId).orElseThrow(
-                () -> new RuntimeException("Post doesn't exist."));
+                () -> new DataNotFoundException("Post doesn't exist."));
     }
 
     private Member _getMember(String authorName){
         return memberRepository.findByName(authorName).orElseThrow(
-                () -> new RuntimeException("No member exists."));
+                () -> new DataNotFoundException("Member doesn't exist."));
     }
 
     private String _getCurrentLoginedUser(){
         return SecurityUtil.getCurrentUsername().orElseThrow(
-                () -> new RuntimeException("No logined."));
+                () -> new RuntimeException("Can't get current logined user."));
     }
 
     private void validAuthor(String authorName){

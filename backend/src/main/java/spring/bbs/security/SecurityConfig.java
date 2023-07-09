@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import spring.bbs.jwt.JwtAccessDeniedHandler;
 import spring.bbs.jwt.JwtAuthenticationEntryPoint;
 import spring.bbs.jwt.JwtProvider;
@@ -52,13 +51,13 @@ public class SecurityConfig {
                                 .accessDeniedHandler(jwtAccessDeniedHandler)
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-                .authorizeHttpRequests((authorizeHttpRequests) ->
-                        authorizeHttpRequests
-                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
-                                .anyRequest().authenticated())
+//                .authorizeHttpRequests((authorizeHttpRequests) ->
+//                        authorizeHttpRequests
+//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
+//                                .anyRequest().authenticated())
 
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

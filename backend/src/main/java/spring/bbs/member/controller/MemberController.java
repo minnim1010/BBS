@@ -4,13 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
@@ -35,12 +33,11 @@ public class MemberController {
         return ResponseEntity.ok(memberService.createMember(req));
     }
 
-    @DeleteMapping("/withdrawal")
-    @Secured("ROLE_USER")
-    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal Member member){
+    @DeleteMapping("/members")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Void> withdrawal(){
         logger.debug("MemberController.withdrawal");
-        logger.debug("{}", member);
-        memberService.deleteMember(member.getName());
+        memberService.deleteMember();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

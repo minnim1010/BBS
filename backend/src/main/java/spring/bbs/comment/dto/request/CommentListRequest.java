@@ -6,12 +6,12 @@ public class CommentListRequest {
     int page;
     String searchKeyword;
     @NotNull
-    long postId;
+    Long postId;
 
     public CommentListRequest() {
     }
 
-    public CommentListRequest(int page, String keyword, int postId) {
+    public CommentListRequest(int page, String keyword, long postId) {
         this.page = page;
         this.searchKeyword = keyword;
         this.postId = postId;

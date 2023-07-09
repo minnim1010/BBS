@@ -10,13 +10,13 @@ public class CommentCreateRequest {
     @NotBlank
     private String content;
     @NotNull
-    private int postId;
-    private int parentCommentId;
+    private Long postId;
+    private Long parentCommentId;
 
     public CommentCreateRequest() {
     }
 
-    public CommentCreateRequest(String content, int postId, int parentCommentId) {
+    public CommentCreateRequest(String content, long postId, long parentCommentId) {
         this.content = content;
         this.postId = postId;
         this.parentCommentId = parentCommentId;
@@ -30,19 +30,19 @@ public class CommentCreateRequest {
         this.content = content;
     }
 
-    public int getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(int postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
-    public int getParentCommentId() {
+    public Long getParentCommentId() {
         return parentCommentId;
     }
 
-    public void setParentCommentId(int parentCommentId) {
+    public void setParentCommentId(Long parentCommentId) {
         this.parentCommentId = parentCommentId;
     }
 

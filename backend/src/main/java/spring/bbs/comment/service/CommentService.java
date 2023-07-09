@@ -16,6 +16,7 @@ import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
 import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.comment.util.CommentToResponse;
+import spring.bbs.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
@@ -121,22 +122,22 @@ public class CommentService {
 
     private Post _getPost(long postId){
         return postRepository.findById(postId).orElseThrow(
-                () -> new RuntimeException("Post doesn't exist."));
+                () -> new DataNotFoundException("Post doesn't exist."));
     }
 
     private Member _getMember(String authorName){
         return memberRepository.findByName(authorName).orElseThrow(
-                () -> new RuntimeException("No member exists."));
+                () -> new DataNotFoundException("Member doesn't exist."));
     }
 
     private Comment _getComment(long commentId){
         return commentRepository.findById(commentId).orElseThrow(
-                () -> new RuntimeException("No comment exists."));
+                () -> new DataNotFoundException("Comment doesn't exist."));
     }
 
     private String _getCurrentLoginedUser(){
         return SecurityUtil.getCurrentUsername().orElseThrow(
-                () -> new RuntimeException("No logined."));
+                () -> new RuntimeException("Can't get current logined user."));
     }
 
     private void validAuthor(String authorName){

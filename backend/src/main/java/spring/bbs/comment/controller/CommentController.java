@@ -2,7 +2,7 @@ package spring.bbs.comment.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.comment.dto.request.CommentCreateRequest;
 import spring.bbs.comment.dto.request.CommentListRequest;
@@ -29,14 +29,14 @@ public class CommentController {
     }
 
     @PostMapping
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<CommentResponse> writeComment(CommentCreateRequest req){
         CommentResponse response = commentService.createComment(req);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("{id}")
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<CommentResponse> modifyComment(CommentUpdateRequest req,
                                                          @PathVariable(value="id") long commentId){
         CommentResponse response = commentService.updateComment(req, commentId);
@@ -44,9 +44,9 @@ public class CommentController {
     }
 
     @DeleteMapping("{id}")
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deleteComment(@PathVariable(value="id") long commentId){
         commentService.deleteComment(commentId);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }

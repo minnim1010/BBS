@@ -12,7 +12,7 @@ public class Member {
     private String password;
     private String email;
     private boolean activated;
-    @OneToOne(cascade = CascadeType.DETACH)
+    @ManyToOne
     private Authority authority;
 
     public Member() {
