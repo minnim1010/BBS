@@ -29,8 +29,6 @@ public class PostService {
     private final Logger logger = LoggerFactory.getLogger(
             PostService.class);
 
-    private final int pageSize = 10;
-
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
@@ -47,6 +45,7 @@ public class PostService {
     public List<Post> getPostList(String category, int page, String searchScope, String searchKeyword) {
         logger.debug("PostService.getPostList");
 
+        final int pageSize = 10;
         int offset = (page - 1) * pageSize;
         Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
 
@@ -131,6 +130,6 @@ public class PostService {
 
     private void validAuthor(String authorName){
         if(!authorName.equals(_getCurrentLoginedUser()))
-            new RuntimeException("No valid author.");
+            throw new RuntimeException("No valid author.");
     }
 }

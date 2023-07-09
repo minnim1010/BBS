@@ -17,6 +17,8 @@ public class PostListRequest {
         this.searchScope = scope;
         this.searchKeyword = keyword;
 
+        if(page <= 0)
+            page = 1;
         if(!StringUtils.hasText(scope))
             scope = "title";
     }

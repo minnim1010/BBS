@@ -29,7 +29,7 @@ public class SecurityUtil {
         } else if (authentication.getPrincipal() instanceof String)
             username = (String) authentication.getPrincipal();
 
-        LOGGER.info("Security Context: Find {}.", username);
+        LOGGER.info("Security Context: Find user:{}.", username);
 
         return Optional.ofNullable(username);
     }

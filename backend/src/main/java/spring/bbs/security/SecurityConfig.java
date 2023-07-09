@@ -57,8 +57,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
-                                .requestMatchers("/home", "/api/v1/join", "/api/v1/login",
-                                        "/api/v1/posts").permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
                                 .anyRequest().authenticated())
 
                 .sessionManagement((session) ->
