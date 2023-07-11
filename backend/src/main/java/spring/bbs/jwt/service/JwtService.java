@@ -27,6 +27,8 @@ public class JwtService {
     }
 
     public LoginResponse login(LoginRequest req){
+        logger.debug(req.toString());
+
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(req.getName(), req.getPassword());
 

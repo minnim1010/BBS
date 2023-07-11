@@ -23,21 +23,21 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponse>> lookupComments(CommentListRequest req){
+    public ResponseEntity<List<CommentResponse>> lookupComments(@RequestBody CommentListRequest req){
         List<CommentResponse> responseList = commentService.getCommentsByPost(req);
         return ResponseEntity.ok(responseList);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<CommentResponse> writeComment(CommentCreateRequest req){
+    public ResponseEntity<CommentResponse> writeComment(@RequestBody CommentCreateRequest req){
         CommentResponse response = commentService.createComment(req);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<CommentResponse> modifyComment(CommentUpdateRequest req,
+    public ResponseEntity<CommentResponse> modifyComment(@RequestBody CommentUpdateRequest req,
                                                          @PathVariable(value="id") long commentId){
         CommentResponse response = commentService.updateComment(req, commentId);
         return ResponseEntity.ok(response);
@@ -47,6 +47,6 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deleteComment(@PathVariable(value="id") long commentId){
         commentService.deleteComment(commentId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

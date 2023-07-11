@@ -1,14 +1,14 @@
-package spring.bbs.errorhandler;
+package spring.bbs.exceptionhandler;
 
-public class ErrorResponse {
+public class ExceptionResponse {
     private String description;
 
     private String errorMessage;
 
-    public ErrorResponse() {
+    public ExceptionResponse() {
     }
 
-    public ErrorResponse(String description, String errorMessage) {
+    public ExceptionResponse(String description, String errorMessage) {
         this.description = description;
         this.errorMessage = errorMessage;
     }

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import spring.bbs.exception.DataNotFoundException;
+import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;

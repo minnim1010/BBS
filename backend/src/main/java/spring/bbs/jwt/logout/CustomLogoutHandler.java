@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.StringUtils;
-import spring.bbs.exception.AuthorizeException;
+import spring.bbs.exceptionhandler.exception.AuthorizeException;
 import spring.bbs.jwt.JwtProvider;
 
 import java.util.concurrent.TimeUnit;

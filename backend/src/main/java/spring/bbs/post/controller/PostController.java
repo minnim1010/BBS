@@ -29,7 +29,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostListResponse>> lookupPostList(@ModelAttribute PostListRequest req){
+    public ResponseEntity<List<PostListResponse>> lookupPostList(@RequestBody PostListRequest req){
         List<PostListResponse> response = postService.getPostList(req);
 
         return ResponseEntity.ok(response);
@@ -37,7 +37,7 @@ public class PostController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<PostResponse> writePost(PostRequest req){
+    public ResponseEntity<PostResponse> writePost(@RequestBody PostRequest req){
         PostResponse response = postService.createPost(req);
         return ResponseEntity.ok(response);
     }
@@ -51,7 +51,7 @@ public class PostController {
 
     @PatchMapping("{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<PostResponse> modifyPost(PostRequest req,
+    public ResponseEntity<PostResponse> modifyPost(@RequestBody PostRequest req,
                                                    @PathVariable("id") long postId){
         PostResponse response = postService.updatePost(req, postId);
         return ResponseEntity.ok(response);

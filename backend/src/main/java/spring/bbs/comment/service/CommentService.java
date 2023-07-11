@@ -16,7 +16,7 @@ import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
 import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.comment.util.CommentToResponse;
-import spring.bbs.exception.DataNotFoundException;
+import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;

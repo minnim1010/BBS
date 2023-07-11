@@ -15,6 +15,9 @@ public class JoinRequest {
     private String checkPassword;
     private String email;
 
+    public JoinRequest() {
+    }
+
     public JoinRequest(String name, String password, String checkPassword, String email) {
         this.name = name;
         this.password = password;

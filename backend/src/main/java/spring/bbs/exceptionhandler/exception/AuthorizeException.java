@@ -1,4 +1,4 @@
-package spring.bbs.exception;
+package spring.bbs.exceptionhandler.exception;
 
 public class AuthorizeException extends RuntimeException{
     private static final long serialVersionUID = 3L;

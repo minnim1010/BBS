@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
@@ -27,7 +24,7 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<JoinResponse> join(JoinRequest req){
+    public ResponseEntity<JoinResponse> join(@RequestBody JoinRequest req){
         logger.debug("MemberController.join");
         logger.debug("req = {}", req);
         return ResponseEntity.ok(memberService.createMember(req));
