@@ -18,9 +18,6 @@ import spring.bbs.jwt.JwtAccessDeniedHandler;
 import spring.bbs.jwt.JwtAuthenticationEntryPoint;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.JwtSecurityConfig;
-import spring.bbs.jwt.logout.CustomLogoutHandler;
-import spring.bbs.jwt.logout.CustomLogoutSuccessHandler;
-
 
 @Configuration
 @EnableWebSecurity
@@ -54,12 +51,14 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-//                                .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
-                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
-                                .anyRequest().authenticated())
+                                .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
+//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+//                                .requestMatchers("/actuator").permitAll()
+//                                .anyRequest().authenticated())
 
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -69,12 +68,7 @@ public class SecurityConfig {
                                 new XFrameOptionsHeaderWriter(
                                         XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
 
-                .logout((logout) ->
-                        logout.logoutUrl("/api/v1/logout")
-                                .logoutSuccessHandler(new CustomLogoutSuccessHandler())
-                                .addLogoutHandler(new CustomLogoutHandler(jwtProvider, redisTemplate)))
-
-                .apply(new JwtSecurityConfig(jwtProvider));
+                .apply(new JwtSecurityConfig(jwtProvider, redisTemplate));
 
         return http.build();
     }

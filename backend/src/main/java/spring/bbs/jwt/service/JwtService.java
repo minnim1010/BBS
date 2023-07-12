@@ -2,14 +2,19 @@ package spring.bbs.jwt.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.LoginResponse;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class JwtService {
@@ -19,11 +24,14 @@ public class JwtService {
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public JwtService(JwtProvider jwtProvider,
-                      AuthenticationManagerBuilder authenticationManagerBuilder) {
+                      AuthenticationManagerBuilder authenticationManagerBuilder,
+                      RedisTemplate<String, Object> redisTemplate) {
         this.jwtProvider = jwtProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.redisTemplate = redisTemplate;
     }
 
     public LoginResponse login(LoginRequest req){
@@ -41,5 +49,19 @@ public class JwtService {
         logger.debug("logined {}", req.getName());
 
         return new LoginResponse(token);
+    }
+
+    public void logout(String headerToken){
+        logger.debug("headerToken: {}", headerToken);
+
+        if (!StringUtils.hasText(headerToken) || !headerToken.startsWith("Bearer "))
+            throw new BadCredentialsException("Token not found.");
+
+        String token = headerToken.substring(7);
+        if (!jwtProvider.isValidToken(token))
+            throw new BadCredentialsException("No valid token.");
+
+        long expiration = jwtProvider.getExpiration(token);
+        redisTemplate.opsForValue().set(token, "access_token", expiration, TimeUnit.SECONDS);
     }
 }

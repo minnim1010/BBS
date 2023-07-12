@@ -3,8 +3,8 @@ package spring.bbs.exceptionhandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import spring.bbs.exceptionhandler.exception.AuthorizeException;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 
 @ControllerAdvice(basePackages = {
@@ -28,8 +28,8 @@ public class ExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(AuthorizeException.class)
-    public ResponseEntity<ExceptionResponse> handleAuthorizeException(Exception ex) {
+    @org.springframework.web.bind.annotation.ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> handleBadCredentialsExceptionException(Exception ex) {
         ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
