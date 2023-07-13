@@ -12,14 +12,14 @@ import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.util.SecurityUtil;
 
-import static spring.bbs.member.dto.util.MemberToResponse.MemberToJoinResponse;
-import static spring.bbs.member.dto.util.RequestToMember.JoinRequestToMember;
+import static spring.bbs.member.dto.util.MemberToResponse.convertMemberToResponse;
+import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
 @Service
 public class MemberService {
 
     private final Logger logger = LoggerFactory.getLogger(
-            MemberService.class);
+            this.getClass());
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
@@ -35,18 +35,19 @@ public class MemberService {
         isValidName(req.getName());
 
         String encodedPassword = passwordEncoder.encode(req.getPassword());
-        Member member = JoinRequestToMember(req, encodedPassword);
+        Member member = convertRequestToMember(req, encodedPassword);
         Member savedMember = memberRepository.save(member);
 
         logger.debug("Saved member:\n {}", savedMember);
 
-        return MemberToJoinResponse(savedMember);
+        return convertMemberToResponse(savedMember);
     }
 
     @Transactional
     public void deleteMember(){
         Member deleteMember = _getMember(_getCurrentLoginedUser());
         memberRepository.delete(deleteMember);
+        logger.debug("delete member: {}", deleteMember.getName());
     }
 
     private boolean isSamePassword(String password, String checkPassword){
@@ -65,6 +66,7 @@ public class MemberService {
     }
 
     private Member _getMember(String name) {
+        logger.debug("{}", name);
         return memberRepository.findByName(name)
                 .orElseThrow(() -> new DataNotFoundException("Member doesn't exist."));
     }

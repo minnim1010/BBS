@@ -33,7 +33,7 @@ import static spring.bbs.comment.util.RequestToComment.convertRequestToComment;
 public class CommentService {
 
     private final Logger logger = LoggerFactory.getLogger(
-            CommentService.class);
+            this.getClass());
 
     private final int pageSize = 10;
 

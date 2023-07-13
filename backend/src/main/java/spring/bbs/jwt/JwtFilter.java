@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -18,10 +17,9 @@ import java.io.IOException;
 public class JwtFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(
-            JwtFilter.class);
+            this.getClass());
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    private final String LOGIN_URL = "/api/v1/login";
     private final JwtProvider jwtProvider;
 
     public JwtFilter(JwtProvider jwtProvider) {
@@ -36,17 +34,7 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
         String requestUri = httpServletRequest.getRequestURI();
 
-        if (requestUri.equals(LOGIN_URL)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        boolean isAuthenticated = authenticateToken(jwt, requestUri);
-        if (!isAuthenticated) {
-            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid token.");
-            return;
-        }
+        authenticateToken(jwt, requestUri);
 
         chain.doFilter(request, response);
     }
@@ -55,6 +43,7 @@ public class JwtFilter extends GenericFilterBean {
         if (StringUtils.hasText(jwt) && jwtProvider.isValidToken(jwt) && !jwtProvider.isLogoutToken(jwt)) {
             Authentication authentication = jwtProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.debug("Get principal {}", authentication.getPrincipal());
             logger.debug("{} stored in context: {}", authentication.getName(), requestUri);
             return true;
         }

@@ -56,8 +56,7 @@ public class JwtProvider implements InitializingBean {
         long createdTime = (new Date()).getTime();
         Date expiredTime = new Date(createdTime + this.tokenValidMilSeconds);
 
-        logger.debug("{}", createdTime);
-        logger.debug("{}", expiredTime);
+        logger.debug("Authentication.getName: {}", authentication.getName());
 
         return Jwts.builder()
                 .setSubject(authentication.getName())

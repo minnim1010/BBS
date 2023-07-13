@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtService {
 
     private final Logger logger = LoggerFactory.getLogger(
-            JwtService.class);
+            this.getClass());
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -46,7 +46,7 @@ public class JwtService {
 
         String token = jwtProvider.createToken(authentication);
 
-        logger.debug("logined {}", req.getName());
+        logger.debug("logined: {}", req.getName());
 
         return new LoginResponse(token);
     }

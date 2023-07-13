@@ -31,7 +31,7 @@ import static spring.bbs.post.dto.util.RequestToPost.convertRequestToPost;
 public class PostService {
 
     private final Logger logger = LoggerFactory.getLogger(
-            PostService.class);
+            this.getClass());
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
@@ -84,6 +84,7 @@ public class PostService {
         logger.debug("PostService.createPost");
 
         String authorName = _getCurrentLoginedUser();
+        logger.debug(authorName);
         Member author = _getMember(authorName);
 
         Post post = convertRequestToPost(req.getTitle(),

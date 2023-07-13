@@ -27,6 +27,7 @@ public class MemberController {
     public ResponseEntity<JoinResponse> join(@RequestBody JoinRequest req){
         logger.debug("MemberController.join");
         logger.debug("req = {}", req);
+
         return ResponseEntity.ok(memberService.createMember(req));
     }
 
@@ -34,6 +35,7 @@ public class MemberController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> withdrawal(){
         logger.debug("MemberController.withdrawal");
+
         memberService.deleteMember();
         return new ResponseEntity<>(HttpStatus.OK);
     }
