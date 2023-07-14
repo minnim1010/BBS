@@ -1,11 +1,9 @@
 package spring.bbs.post.dto.request;
 
-import org.springframework.util.StringUtils;
-
 public class PostListRequest {
-    private int page;
-    private String category;
-    private String searchScope;
+    private int page = 1;
+    private String category = "string";
+    private String searchScope = "title";
     private String searchKeyword;
 
     public PostListRequest() {
@@ -16,11 +14,6 @@ public class PostListRequest {
         this.category = category;
         this.searchScope = scope;
         this.searchKeyword = keyword;
-
-        if(page <= 0)
-            page = 1;
-        if(!StringUtils.hasText(scope))
-            scope = "title";
     }
 
     public int getPage() {

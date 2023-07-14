@@ -1,6 +1,6 @@
 package spring.bbs.comment.dto.response;
 
-import spring.bbs.member.dto.response.MemberNameResponse;
+import spring.bbs.member.dto.response.MemberResponse;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +9,7 @@ public class CommentResponse {
     private String content;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
-    private MemberNameResponse author;
+    private MemberResponse authorResponse;
     private Long parentCommentId;
 
     public CommentResponse() {
@@ -19,13 +19,14 @@ public class CommentResponse {
                                  String content,
                                  LocalDateTime createdTime,
                                  LocalDateTime modifiedTime,
+                                 Long authorId,
                                  String authorName,
                                  Long parentCommentId) {
         this.id = id;
         this.content = content;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
-        this.author = new MemberNameResponse(authorName);
+        this.authorResponse = new MemberResponse(authorId, authorName);
         this.parentCommentId = parentCommentId;
     }
 
@@ -61,12 +62,12 @@ public class CommentResponse {
         this.modifiedTime = modifiedTime;
     }
 
-    public MemberNameResponse getAuthor() {
-        return author;
+    public MemberResponse getAuthorResponse() {
+        return authorResponse;
     }
 
-    public void setAuthor(MemberNameResponse author) {
-        this.author = author;
+    public void setAuthorResponse(MemberResponse authorResponse) {
+        this.authorResponse = authorResponse;
     }
 
     public Long getParentComment() {

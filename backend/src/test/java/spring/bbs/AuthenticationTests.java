@@ -36,19 +36,24 @@ public abstract class AuthenticationTests {
     protected JwtProvider jwtProvider;
 
     @PostConstruct
-    private void createUser() {
-        memberRepository.findByName(memberName)
+    private void init() {
+        createMember(memberName);
+    }
+
+    protected Member createMember(String name){
+        memberRepository.findByName(name)
                 .ifPresent(m -> memberRepository.delete(m));
 
         Member member = new Member();
-        member.setName(memberName);
-        member.setPassword(passwordEncoder.encode(memberName));
-        member.setEmail(memberName + "@test.com");
+        member.setName(name);
+        member.setPassword(passwordEncoder.encode(name));
+        member.setEmail(name + "@test.com");
         member.setActivated(true);
         member.setAuthority(new Authority(memberRole));
         Member savedMember = memberRepository.save(member);
 
         logger.debug("saved member: {}", savedMember.getName());
+        return savedMember;
     }
 
     protected String getJwtToken(){

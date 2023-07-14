@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static spring.bbs.post.dto.util.PostToResponse.convertPostToResponse;
-import static spring.bbs.post.dto.util.RequestToPost.convertRequestToPost;
+import static spring.bbs.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
 @Service
 public class PostService {
@@ -48,6 +48,9 @@ public class PostService {
 
     public List<PostListResponse> getPostList(PostListRequest req) {
         logger.debug("PostService.getPostList");
+
+        if(req == null)
+            req = new PostListRequest();
 
         final int pageSize = 10;
         int offset = (req.getPage() - 1) * pageSize;
@@ -87,12 +90,7 @@ public class PostService {
         logger.debug(authorName);
         Member author = _getMember(authorName);
 
-        Post post = convertRequestToPost(req.getTitle(),
-                req.getContent(),
-                LocalDateTime.now(),
-                null,
-                author,
-                new Category(req.getCategory()));
+        Post post = convertCreateRequestToPost(req, author, new Category(req.getCategory()));
         Post savedPost = postRepository.save(post);
 
         return convertPostToResponse(savedPost);

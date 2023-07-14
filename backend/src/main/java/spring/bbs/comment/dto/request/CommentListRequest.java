@@ -1,12 +1,14 @@
 package spring.bbs.comment.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public class CommentListRequest {
-    int page;
-    String searchKeyword;
     @NotNull
-    Long postId;
+    @NotEmpty
+    private Long postId;
+    private int page = 1;
+    private String searchKeyword;
 
     public CommentListRequest() {
     }
@@ -15,9 +17,6 @@ public class CommentListRequest {
         this.page = page;
         this.searchKeyword = keyword;
         this.postId = postId;
-
-        if(page <= 0)
-            page = 1;
     }
 
     public int getPage() {

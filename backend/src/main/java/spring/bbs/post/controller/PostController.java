@@ -29,7 +29,8 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostListResponse>> lookupPostList(@RequestBody PostListRequest req){
+    public ResponseEntity<List<PostListResponse>> lookupPostList(
+            @RequestBody(required = false) PostListRequest req){
         List<PostListResponse> response = postService.getPostList(req);
 
         return ResponseEntity.ok(response);
@@ -42,14 +43,14 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deletePost(@PathVariable("id") long postId){
         postService.deletePost(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<PostResponse> modifyPost(@RequestBody PostRequest req,
                                                    @PathVariable("id") long postId){

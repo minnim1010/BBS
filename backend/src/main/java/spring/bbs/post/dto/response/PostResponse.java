@@ -1,6 +1,6 @@
 package spring.bbs.post.dto.response;
 
-import spring.bbs.member.domain.Member;
+import spring.bbs.member.dto.response.MemberResponse;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +10,7 @@ public class PostResponse {
     private String content;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
-    private Member author;
+    private MemberResponse authorResponse;
     private String category;
 
     public PostResponse() {
@@ -21,14 +21,14 @@ public class PostResponse {
                         String content,
                         LocalDateTime createdTime,
                         LocalDateTime modifiedTime,
-                        Member author,
+                        MemberResponse author,
                         String category) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
-        this.author = author;
+        this.authorResponse = author;
         this.category = category;
     }
 
@@ -72,12 +72,12 @@ public class PostResponse {
         this.modifiedTime = modifiedTime;
     }
 
-    public Member getAuthor() {
-        return author;
+    public MemberResponse getAuthorResponse() {
+        return authorResponse;
     }
 
-    public void setAuthor(Member author) {
-        this.author = author;
+    public void setAuthorResponse(MemberResponse authorResponse) {
+        this.authorResponse = authorResponse;
     }
 
     public String getCategory() {

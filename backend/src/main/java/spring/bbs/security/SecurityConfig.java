@@ -51,19 +51,6 @@ public class SecurityConfig {
                                 .accessDeniedHandler(jwtAccessDeniedHandler)
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-                .authorizeHttpRequests((request) ->
-                        request
-                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
-                                .requestMatchers("/home", "/error").permitAll()
-                                .requestMatchers("/api/v1/login", "/api/v1/join").permitAll()
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/posts",
-                                        "/api/v1/comments",
-                                        "/api/v1/posts/^[0-9]+$").permitAll()
-                                .anyRequest().authenticated())
-
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -71,6 +58,17 @@ public class SecurityConfig {
                         headers.addHeaderWriter(
                                 new XFrameOptionsHeaderWriter(
                                         XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
+
+                .authorizeHttpRequests((request) ->
+                        request
+                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+                                .requestMatchers("/home", "/error").permitAll()
+                                .requestMatchers("/api/v1/login", "/api/v1/join").permitAll()
+                                .requestMatchers("/api/v1/logout").authenticated()
+                                .requestMatchers(HttpMethod.GET).permitAll()
+                                .anyRequest().authenticated())
 
                 .apply(new JwtSecurityConfig(jwtProvider, redisTemplate));
 

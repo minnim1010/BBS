@@ -35,7 +35,7 @@ public class JwtController {
     }
 
     @GetMapping("/logout")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     public String logout(HttpServletRequest request) {
         String headerToken = request.getHeader("Authorization");
         jwtService.logout(headerToken);
