@@ -44,6 +44,7 @@ public class PostIntegrationTests extends AuthenticationTests {
     private PostRepository postRepository;
 
     private final String username = "postTest";
+    private final String otherUsername = "postTest2";
 
     public PostIntegrationTests(){
         setMemberName(username);
@@ -58,17 +59,12 @@ public class PostIntegrationTests extends AuthenticationTests {
         });
     }
 
-    private Post createPost() throws Exception{
+    private Post createPostByAuthor(String memberName) throws Exception{
         PostRequest req = objectMapper
                 .readValue(new File(CreatePostDataPath), PostRequest.class);
 
-        Member author = getExistedMember();
+        Member author = getMember(memberName);
         return postRepository.save(convertCreateRequestToPost(req, author, new Category(req.getCategory())));
-    }
-
-    private Member getExistedMember() {
-        return memberRepository.findByName(memberName)
-                .orElseGet(() -> createMember(memberName));
     }
 
     private List<Post> createPostList() throws Exception{
@@ -76,7 +72,7 @@ public class PostIntegrationTests extends AuthenticationTests {
                 .readValue(new File(PostListDataPath), new TypeReference<>() {
                 });
 
-        Member author = getExistedMember();
+        Member author = getMember(username);
         List<Post> postList = postRequestList.stream()
                 .map(p -> convertCreateRequestToPost(p, author, new Category(p.getCategory())))
                 .collect(Collectors.toList());
@@ -84,11 +80,16 @@ public class PostIntegrationTests extends AuthenticationTests {
         return postRepository.saveAll(postList);
     }
 
+    private Member getMember(String name) {
+        return memberRepository.findByName(name)
+                .orElseGet(() -> createMember(name));
+    }
+
     @Test
     @DisplayName("게시글 조회 성공")
     void givenExistedPost_thenGetPost() throws Exception {
         //given
-        Post post = createPost();
+        Post post = createPostByAuthor(username);
         //when
         ResultActions response = mockMvc.perform(get("/api/v1/posts/{id}", post.getId()));
 
@@ -100,7 +101,20 @@ public class PostIntegrationTests extends AuthenticationTests {
     }
 
     @Test
-    @DisplayName("게시글 목 조회 성공")
+    @DisplayName("게시글 조회 실패: 존재하지 않는 게시글")
+    void givenNonExistedPost_thenDataNotFoundError() throws Exception {
+        //given
+        Post post = createPostByAuthor(username);
+        postRepository.delete(post);
+        //when
+        ResultActions response = mockMvc.perform(get("/api/v1/posts/{id}", post.getId()));
+
+        response.andDo(print()).
+                andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("게시글 목록 조회 성공")
     void givenExistedPosts_thenGetPostList() throws Exception {
         //given
         List<Post> post = createPostList();
@@ -116,7 +130,6 @@ public class PostIntegrationTests extends AuthenticationTests {
                 .andExpect(jsonPath("$[2].title", is(post.get(0).getTitle())))
                 .andExpect(jsonPath("$[2].authorResponse.name", is(post.get(0).getAuthor().getName())));
     }
-
 
     @Test
     @DisplayName("게시글 생성 성공")
@@ -143,10 +156,10 @@ public class PostIntegrationTests extends AuthenticationTests {
     @DisplayName("게시글 수정 성공")
     void givenExistedPost_thenGetUpdatedPost() throws Exception {
         //given
-        Long postId = createPost().getId();
+        Long postId = createPostByAuthor(username).getId();
 
         PostRequest req = objectMapper
-                .readValue(new File(CreatePostDataPath), PostRequest.class);
+                .readValue(new File(UpdatePostDataPath), PostRequest.class);
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
         //when
@@ -163,10 +176,54 @@ public class PostIntegrationTests extends AuthenticationTests {
     }
 
     @Test
+    @DisplayName("게시글 수정 실패: 존재하지 않는 게시글")
+    void givenNonExistedPost_whenUpdate_thenDataNotFoundError() throws Exception {
+        //given
+        Post post = createPostByAuthor(username);
+        postRepository.delete(post);
+
+        String token = getJwtToken();
+        String tokenHeader = getJwtTokenHeader(token);
+
+        PostRequest req = objectMapper
+                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        //when
+        ResultActions response = mockMvc.perform(patch("/api/v1/posts/{id}", post.getId())
+                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)));
+        //then
+        response.andDo(print()).
+                andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 실패: 유효하지 않은 사용자")
+    void givenExistedPost_AndOtherUser_whenUpdate_thenForbiddenError() throws Exception {
+        //given
+        Long postId = createPostByAuthor(username).getId();
+
+        String token = getJwtToken(otherUsername);
+        String tokenHeader = getJwtTokenHeader(token);
+
+        PostRequest req = objectMapper
+                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        //when
+        ResultActions response = mockMvc.perform(patch("/api/v1/posts/{id}", postId)
+                .header(AUTHENTICATION_HEADER, tokenHeader)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)));
+        //then
+        response.andDo(print()).
+                andExpect(status().isForbidden());
+    }
+
+
+    @Test
     @DisplayName("게시글 삭제 성공")
     void givenExistedPost_thenPostDelete() throws Exception {
         //given
-        Long postId = createPost().getId();
+        Long postId = createPostByAuthor(username).getId();
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
         //when
@@ -176,6 +233,42 @@ public class PostIntegrationTests extends AuthenticationTests {
         response.andDo(print()).
                 andExpect(status().isOk());
         assert(postRepository.findById(postId).isEmpty());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 실패: 존재하지 않는 게시글")
+    void givenNonExistedPost_whenDelete_thenDataNotFoundError() throws Exception {
+        //given
+        Post post = createPostByAuthor(username);
+        postRepository.delete(post);
+
+        String token = getJwtToken();
+        String tokenHeader = getJwtTokenHeader(token);
+        //when
+        ResultActions response = mockMvc.perform(delete("/api/v1/posts/{id}", post.getId())
+                .header(AUTHENTICATION_HEADER, tokenHeader)
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        response.andDo(print()).
+                andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    @DisplayName("게시글 삭제 실패: 유효하지 않은 사용자")
+    void givenExistedPost_AndOtherUser_whenDelete_thenForbiddenError() throws Exception {
+        //given
+        Long postId = createPostByAuthor(username).getId();
+
+        String token = getJwtToken(otherUsername);
+        String tokenHeader = getJwtTokenHeader(token);
+        //when
+        ResultActions response = mockMvc.perform(delete("/api/v1/posts/{id}", postId)
+                .header(AUTHENTICATION_HEADER, tokenHeader)
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        response.andDo(print()).
+                andExpect(status().isForbidden());
     }
 
 }

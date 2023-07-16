@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
@@ -130,11 +132,11 @@ public class PostService {
 
     private String _getCurrentLoginedUser(){
         return SecurityUtil.getCurrentUsername().orElseThrow(
-                () -> new RuntimeException("Can't get current logined user."));
+                () -> new BadCredentialsException("Can't get current logined user."));
     }
 
     private void validAuthor(String authorName){
         if(!authorName.equals(_getCurrentLoginedUser()))
-            throw new RuntimeException("No valid author.");
+            throw new AccessDeniedException("No valid author.");
     }
 }
