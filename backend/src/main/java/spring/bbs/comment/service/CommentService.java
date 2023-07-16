@@ -14,8 +14,8 @@ import spring.bbs.comment.dto.request.CommentCreateRequest;
 import spring.bbs.comment.dto.request.CommentListRequest;
 import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
+import spring.bbs.comment.dto.util.CommentToResponse;
 import spring.bbs.comment.repository.CommentRepository;
-import spring.bbs.comment.util.CommentToResponse;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -26,8 +26,8 @@ import spring.bbs.util.SecurityUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static spring.bbs.comment.util.CommentToResponse.convertCommentToResponse;
-import static spring.bbs.comment.util.RequestToComment.convertRequestToComment;
+import static spring.bbs.comment.dto.util.CommentToResponse.convertCommentToResponse;
+import static spring.bbs.comment.dto.util.RequestToComment.convertRequestToComment;
 
 @Service
 public class CommentService {

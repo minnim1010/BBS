@@ -1,4 +1,4 @@
-package spring.bbs.comment.util;
+package spring.bbs.comment.dto.util;
 
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.member.domain.Member;

@@ -11,7 +11,7 @@ public class CommentCreateRequest {
     private String content;
     @NotNull
     private Long postId;
-    private Long parentCommentId;
+    private Long parentCommentId = 0L;
 
     public CommentCreateRequest() {
     }

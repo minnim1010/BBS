@@ -33,7 +33,7 @@ public class MemberIntegrationTests extends AuthenticationTests {
     @Autowired
     private MemberRepository memberRepository;
 
-    private final String username = "memberTest";
+    private final String username = "memberTestUser";
 
     public MemberIntegrationTests(){
         setMemberName(username);

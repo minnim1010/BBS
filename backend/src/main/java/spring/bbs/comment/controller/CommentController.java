@@ -35,7 +35,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<CommentResponse> modifyComment(@RequestBody CommentUpdateRequest req,
                                                          @PathVariable(value="id") long commentId){
@@ -43,7 +43,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deleteComment(@PathVariable(value="id") long commentId){
         commentService.deleteComment(commentId);

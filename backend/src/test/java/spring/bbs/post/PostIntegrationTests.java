@@ -17,6 +17,7 @@ import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.repository.PostRepository;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,12 @@ import static spring.bbs.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
 public class PostIntegrationTests extends AuthenticationTests {
 
-    private final String CreatePostDataPath
-            = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
-    private final String PostListDataPath
-            = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/PostListData.json";
-    private final String UpdatePostDataPath
-            = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/UpdatePostData.json";
+    private final String username = "postTestUser1";
+    private final String otherUsername = "postTestUser2";
+
+    private PostRequest createPostData;
+    private PostRequest updatePostData;
+    private List<PostRequest> postListData;
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,9 +43,6 @@ public class PostIntegrationTests extends AuthenticationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private PostRepository postRepository;
-
-    private final String username = "postTest";
-    private final String otherUsername = "postTest2";
 
     public PostIntegrationTests(){
         setMemberName(username);
@@ -60,18 +58,14 @@ public class PostIntegrationTests extends AuthenticationTests {
     }
 
     private Post createPostByAuthor(String memberName) throws Exception{
-        PostRequest req = objectMapper
-                .readValue(new File(CreatePostDataPath), PostRequest.class);
-
+        PostRequest req = getCreatePostDataRequest();
         Member author = getMember(memberName);
-        return postRepository.save(convertCreateRequestToPost(req, author, new Category(req.getCategory())));
+        Post post = convertCreateRequestToPost(req, author, new Category(req.getCategory()));
+        return postRepository.save(post);
     }
 
     private List<Post> createPostList() throws Exception{
-        List<PostRequest> postRequestList = objectMapper
-                .readValue(new File(PostListDataPath), new TypeReference<>() {
-                });
-
+        List<PostRequest> postRequestList = getPostListDataRequest();
         Member author = getMember(username);
         List<Post> postList = postRequestList.stream()
                 .map(p -> convertCreateRequestToPost(p, author, new Category(p.getCategory())))
@@ -83,6 +77,33 @@ public class PostIntegrationTests extends AuthenticationTests {
     private Member getMember(String name) {
         return memberRepository.findByName(name)
                 .orElseGet(() -> createMember(name));
+    }
+
+    private PostRequest getCreatePostDataRequest() throws IOException {
+        final String CreatePostDataPath
+                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
+        if(createPostData == null)
+            createPostData = objectMapper
+                    .readValue(new File(CreatePostDataPath), PostRequest.class);
+        return createPostData;
+    }
+
+    private PostRequest getUpdatePostDataRequest() throws IOException {
+        final String UpdatePostDataPath
+                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/UpdatePostData.json";
+        if(updatePostData == null)
+            updatePostData = objectMapper
+                    .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        return updatePostData;
+    }
+
+    private List<PostRequest> getPostListDataRequest() throws IOException {
+        final String PostListDataPath
+                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/PostListData.json";
+        if(postListData == null)
+            postListData = objectMapper
+                    .readValue(new File(PostListDataPath), new TypeReference<>() {});
+        return postListData;
     }
 
     @Test
@@ -135,8 +156,7 @@ public class PostIntegrationTests extends AuthenticationTests {
     @DisplayName("게시글 생성 성공")
     void givenNewPost_thenGetNewPost() throws Exception {
         //given
-        PostRequest req = objectMapper
-                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        PostRequest req = getCreatePostDataRequest();
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
 
@@ -158,8 +178,7 @@ public class PostIntegrationTests extends AuthenticationTests {
         //given
         Long postId = createPostByAuthor(username).getId();
 
-        PostRequest req = objectMapper
-                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        PostRequest req = getUpdatePostDataRequest();
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
         //when
@@ -185,8 +204,7 @@ public class PostIntegrationTests extends AuthenticationTests {
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
 
-        PostRequest req = objectMapper
-                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        PostRequest req = getUpdatePostDataRequest();
         //when
         ResultActions response = mockMvc.perform(patch("/api/v1/posts/{id}", post.getId())
                         .header(AUTHENTICATION_HEADER, tokenHeader)
@@ -206,8 +224,7 @@ public class PostIntegrationTests extends AuthenticationTests {
         String token = getJwtToken(otherUsername);
         String tokenHeader = getJwtTokenHeader(token);
 
-        PostRequest req = objectMapper
-                .readValue(new File(UpdatePostDataPath), PostRequest.class);
+        PostRequest req = getUpdatePostDataRequest();
         //when
         ResultActions response = mockMvc.perform(patch("/api/v1/posts/{id}", postId)
                 .header(AUTHENTICATION_HEADER, tokenHeader)

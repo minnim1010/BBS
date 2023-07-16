@@ -1,6 +1,6 @@
 {
-  "name": "memberTest",
-  "password": "memberTest",
-  "checkPassword": "memberTest",
+  "name": "memberTestUser",
+  "password": "memberTestUser",
+  "checkPassword": "memberTestUser",
   "email": "memberTest@test.com"
 }

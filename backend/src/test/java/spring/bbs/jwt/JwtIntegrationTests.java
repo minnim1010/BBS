@@ -24,10 +24,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private JwtProvider jwtProvider;
 
-    private final String username = "JwtTest";
+    private final String username = "JwtTestUser";
 
     public JwtIntegrationTests(){
         setMemberName(username);
