@@ -15,7 +15,7 @@ import spring.bbs.member.service.MemberService;
 public class MemberController {
 
     private final Logger logger = LoggerFactory.getLogger(
-            MemberController.class);
+            this.getClass());
 
     private final MemberService memberService;
 

@@ -75,11 +75,11 @@ public abstract class AuthenticationTests {
         return "Bearer " + token;
     }
 
-    public void setMemberName(String memberName) {
+    protected void setMemberName(String memberName) {
         this.memberName = memberName;
     }
 
-    public void setMemberRole(String memberRole) {
+    protected void setMemberRole(String memberRole) {
         this.memberRole = memberRole;
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
+import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 
 @ControllerAdvice(basePackages = {
         "spring.bbs.jwt.controller",
@@ -29,10 +31,24 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ExceptionResponse> handleBadCredentialsExceptionException(Exception ex) {
+    public ResponseEntity<ExceptionResponse> handleBadCredentialsException(Exception ex) {
         ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(ExistedMemberNameException.class)
+    public ResponseEntity<ExceptionResponse> handleExistedUserNameException(Exception ex) {
+        ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(NotSamePasswordException.class)
+    public ResponseEntity<ExceptionResponse> handleNotSamePasswordException(Exception ex) {
+        ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)

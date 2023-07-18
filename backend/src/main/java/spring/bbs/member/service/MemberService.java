@@ -2,10 +2,13 @@ package spring.bbs.member.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
+import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
@@ -55,12 +58,12 @@ public class MemberService {
             return true;
 
         logger.debug("{} {}", password, checkPassword);
-        throw new RuntimeException("Passwords do not match.");
+        throw new NotSamePasswordException("Passwords do not match.");
     }
 
     private boolean isValidName(String name){
         if(memberRepository.existsByName(name))
-            throw new RuntimeException("Username already exists.");
+            throw new ExistedMemberNameException("Username already exists.");
 
         return true;
     }
@@ -73,6 +76,6 @@ public class MemberService {
 
     private String _getCurrentLoginedUser(){
         return SecurityUtil.getCurrentUsername().orElseThrow(
-                () -> new RuntimeException("Can't get current logined user."));
+                () -> new BadCredentialsException("Can't get current logined user."));
     }
 }

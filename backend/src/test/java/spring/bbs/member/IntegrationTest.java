@@ -21,10 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
-public class MemberIntegrationTests extends AuthenticationTests {
+public class IntegrationTest extends AuthenticationTests {
 
-    private final String CreateMemberDataPath
-            = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/CreateMemberData.json";
+    private final String JoinRequestPath
+            = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,7 +35,7 @@ public class MemberIntegrationTests extends AuthenticationTests {
 
     private final String username = "memberTestUser";
 
-    public MemberIntegrationTests(){
+    public IntegrationTest(){
         setMemberName(username);
     }
 
@@ -44,7 +44,7 @@ public class MemberIntegrationTests extends AuthenticationTests {
     public void givenNewMember_thenGetNewMember() throws Exception {
         //given
         JoinRequest req = objectMapper
-                .readValue(new File(CreateMemberDataPath), JoinRequest.class);
+                .readValue(new File(JoinRequestPath), JoinRequest.class);
         logger.debug(req.toString());
 
         memberRepository.findByName(req.getName())
@@ -65,7 +65,7 @@ public class MemberIntegrationTests extends AuthenticationTests {
     public void givenExistedMember_thenMemberDelete() throws Exception {
         //given
         JoinRequest req = objectMapper
-                .readValue(new File(CreateMemberDataPath), JoinRequest.class);
+                .readValue(new File(JoinRequestPath), JoinRequest.class);
         logger.debug(req.toString());
 
         if(memberRepository.findByName(req.getName()).isEmpty())
@@ -87,7 +87,7 @@ public class MemberIntegrationTests extends AuthenticationTests {
     public void givenExistedMember_thenDataNotFoundError() throws Exception {
         //given
         JoinRequest req = objectMapper
-                .readValue(new File(CreateMemberDataPath), JoinRequest.class);
+                .readValue(new File(JoinRequestPath), JoinRequest.class);
         logger.debug(req.toString());
 
         memberRepository.findByName(req.getName()).ifPresent((m) ->
