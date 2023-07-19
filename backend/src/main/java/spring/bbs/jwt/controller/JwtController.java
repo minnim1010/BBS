@@ -28,18 +28,13 @@ public class JwtController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
         LoginResponse response = jwtService.login(req);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + response.getToken());
-
-        return new ResponseEntity<>(response, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public String logout(HttpServletRequest request) {
-        String headerToken = request.getHeader("Authorization");
-        jwtService.logout(headerToken);
-
+        jwtService.logout(request.getHeader("Authorization").substring(7));
         return "redirect:/home";
     }
 }

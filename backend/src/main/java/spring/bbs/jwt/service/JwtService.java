@@ -40,6 +40,8 @@ public class JwtService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(req.getName(), req.getPassword());
 
+        logger.debug("usernamepasswordfilter = {}", SecurityContextHolder.getContext().getAuthentication());
+
         Authentication authentication = authenticationManagerBuilder
                 .getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -51,16 +53,7 @@ public class JwtService {
         return new LoginResponse(token);
     }
 
-    public void logout(String headerToken){
-        logger.debug("headerToken: {}", headerToken);
-
-        if (!StringUtils.hasText(headerToken) || !headerToken.startsWith("Bearer "))
-            throw new BadCredentialsException("Token not found.");
-
-        String token = headerToken.substring(7);
-        if (!jwtProvider.isValidToken(token))
-            throw new BadCredentialsException("No valid token.");
-
+    public void logout(String token){
         long expiration = jwtProvider.getExpiration(token);
         redisTemplate.opsForValue().set(token, "access_token", expiration, TimeUnit.SECONDS);
     }

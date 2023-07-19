@@ -8,8 +8,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
-    private JwtProvider jwtProvider;
-    private RedisTemplate<String, Object> redisTemplate;
+    private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public JwtSecurityConfig(JwtProvider jwtProvider, RedisTemplate<String, Object> redisTemplate) {
         this.jwtProvider = jwtProvider;
