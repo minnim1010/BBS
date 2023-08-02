@@ -3,7 +3,7 @@ package spring.bbs.post.dto.request;
 public class PostListRequest {
     private int page = 1;
     private String category = "string";
-    private String searchScope = "title";
+    private String searchScope;
     private String searchKeyword;
 
     public PostListRequest() {

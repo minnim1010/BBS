@@ -34,8 +34,8 @@ public class MemberService {
 
     @Transactional
     public JoinResponse createMember(JoinRequest req){
-        isSamePassword(req.getPassword(), req.getCheckPassword());
-        isValidName(req.getName());
+        validatePassword(req.getPassword(), req.getCheckPassword());
+        validateName(req.getName());
 
         String encodedPassword = passwordEncoder.encode(req.getPassword());
         Member member = convertRequestToMember(req, encodedPassword);
@@ -48,24 +48,23 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(){
-        Member deleteMember = _getMember(_getCurrentLoginedUser());
+        Member deleteMember = getCurrentLoginedMember();
         memberRepository.delete(deleteMember);
         logger.debug("delete member: {}", deleteMember.getName());
     }
 
-    private boolean isSamePassword(String password, String checkPassword){
-        if(password.equals(checkPassword))
-            return true;
-
-        logger.debug("{} {}", password, checkPassword);
-        throw new NotSamePasswordException("Passwords do not match.");
+    private void validatePassword(String password, String checkPassword){
+        if(!password.equals(checkPassword))
+            throw new NotSamePasswordException("Passwords do not match.");
     }
 
-    private boolean isValidName(String name){
+    private void validateName(String name){
         if(memberRepository.existsByName(name))
             throw new ExistedMemberNameException("Username already exists.");
+    }
 
-        return true;
+    private Member getCurrentLoginedMember(){
+        return _getMember(_getCurrentLoginedUser());
     }
 
     private Member _getMember(String name) {

@@ -1,7 +1,8 @@
 package spring.bbs.post.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,8 +16,10 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Category;
 import spring.bbs.post.domain.Post;
+import spring.bbs.post.dto.request.MediaPostRequest;
 import spring.bbs.post.dto.request.PostListRequest;
 import spring.bbs.post.dto.request.PostRequest;
+import spring.bbs.post.dto.response.MediaPostResponse;
 import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
 import spring.bbs.post.dto.util.PostToResponse;
@@ -24,45 +27,35 @@ import spring.bbs.post.repository.PostRepository;
 import spring.bbs.util.SecurityUtil;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import static spring.bbs.post.dto.util.PostToResponse.convertPostToMediaResponse;
 import static spring.bbs.post.dto.util.PostToResponse.convertPostToResponse;
 import static spring.bbs.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PostService {
-
-    private final Logger logger = LoggerFactory.getLogger(
-            this.getClass());
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    public PostService(PostRepository postRepository, MemberRepository memberRepository) {
-        this.postRepository = postRepository;
-        this.memberRepository = memberRepository;
-    }
-
     public PostResponse getPost(long postId) {
-        logger.debug("PostService.getPost");
+        log.debug("PostService.getPost");
         return convertPostToResponse(_getPost(postId));
     }
 
-    public List<PostListResponse> getPostList(PostListRequest req) {
-        logger.debug("PostService.getPostList");
-
-        if(req == null)
-            req = new PostListRequest();
+    public Page<PostListResponse> getPostList(PostListRequest req) {
+        log.debug("PostService.getPostList");
 
         final int pageSize = 10;
-        int offset = (req.getPage() - 1) * pageSize;
-        Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
+        int page = req.getPage();
+        if(page <= 0)
+            page = 1;
+        Pageable pageable = PageRequest.of(page-1, pageSize, Sort.by("createdTime").descending());
         Specification<Post> spec = getSpecification(req.getCategory(), req.getSearchScope(), req.getSearchKeyword());
-        List<Post> postList = postRepository.findAll(spec, pageable);
-
-        return postList.stream()
-                .map(PostToResponse::convertPostToPostListResponse)
-                .toList();
+        Page<Post> postList = postRepository.findAll(spec, pageable);
+        return postList.map(PostToResponse::convertPostToPostListResponse);
     }
 
     private Specification<Post> getSpecification(String category, String searchScope, String searchKeyword){
@@ -71,31 +64,30 @@ public class PostService {
         if (category != null && !category.isEmpty()) {
             specification = specification.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("category"), new Category(category)));
-            logger.debug("Specification category: {}", category);
+            log.debug("Specification category: {}", category);
         }
 
         if (searchScope != null && !searchScope.isEmpty() && searchKeyword != null && !searchKeyword.isEmpty()) {
             specification = specification.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(root.get(searchScope), "%" + searchKeyword + "%"));
-            logger.debug("Specification searchScope: {}", searchScope);
-            logger.debug("Specification searchKeyword: {}", searchKeyword);
+            log.debug("Specification searchScope: {}", searchScope);
+            log.debug("Specification searchKeyword: {}", searchKeyword);
         }
 
         return specification;
     }
 
     @Transactional
-    public PostResponse createPost(PostRequest req) {
-        logger.debug("PostService.createPost");
+    public MediaPostResponse createPost(MediaPostRequest req) {
+        log.debug("PostService.createPost");
 
         String authorName = _getCurrentLoginedUser();
-        logger.debug(authorName);
         Member author = _getMember(authorName);
 
         Post post = convertCreateRequestToPost(req, author, new Category(req.getCategory()));
         Post savedPost = postRepository.save(post);
 
-        return convertPostToResponse(savedPost);
+        return convertPostToMediaResponse(savedPost);
     }
 
     @Transactional

@@ -1,13 +1,11 @@
 package spring.bbs.jwt.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import spring.bbs.jwt.JwtFilter;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.LoginResponse;
 import spring.bbs.jwt.service.JwtService;
@@ -17,7 +15,6 @@ import spring.bbs.jwt.service.JwtService;
 public class JwtController {
 
     private final JwtService jwtService;
-
 
     public JwtController(JwtService jwtService) {
         this.jwtService = jwtService;

@@ -49,7 +49,7 @@ public class PostIntegrationTests extends AuthenticationTests {
     }
 
     @AfterEach
-    private void deletePost(){
+    void deletePost(){
         memberRepository.findByName(memberName).ifPresent(author ->
         {
             List<Post> posts = postRepository.findAllByAuthor(author);
@@ -144,12 +144,12 @@ public class PostIntegrationTests extends AuthenticationTests {
 
         response.andDo(print()).
                 andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title", is(post.get(2).getTitle())))
-                .andExpect(jsonPath("$[0].authorResponse.name", is(post.get(2).getAuthor().getName())))
-                .andExpect(jsonPath("$[1].title", is(post.get(1).getTitle())))
-                .andExpect(jsonPath("$[1].authorResponse.name", is(post.get(1).getAuthor().getName())))
-                .andExpect(jsonPath("$[2].title", is(post.get(0).getTitle())))
-                .andExpect(jsonPath("$[2].authorResponse.name", is(post.get(0).getAuthor().getName())));
+                .andExpect(jsonPath("$.content.[0].title", is(post.get(2).getTitle())))
+                .andExpect(jsonPath("$.content.[0].authorResponse.name", is(post.get(2).getAuthor().getName())))
+                .andExpect(jsonPath("$.content.[1].title", is(post.get(1).getTitle())))
+                .andExpect(jsonPath("$.content.[1].authorResponse.name", is(post.get(1).getAuthor().getName())))
+                .andExpect(jsonPath("$.content.[2].title", is(post.get(0).getTitle())))
+                .andExpect(jsonPath("$.content.[2].authorResponse.name", is(post.get(0).getAuthor().getName())));
     }
 
     @Test
@@ -287,5 +287,4 @@ public class PostIntegrationTests extends AuthenticationTests {
         response.andDo(print()).
                 andExpect(status().isForbidden());
     }
-
 }

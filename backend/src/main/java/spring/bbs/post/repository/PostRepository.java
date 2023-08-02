@@ -1,5 +1,6 @@
 package spring.bbs.post.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findById(long postId);
-    List<Post> findAll(Specification<Post> specification, Pageable pageable);
+    Page<Post> findAll(Specification<Post> specification, Pageable pageable);
 
     List<Post> findAllByAuthor(Member author);
 }

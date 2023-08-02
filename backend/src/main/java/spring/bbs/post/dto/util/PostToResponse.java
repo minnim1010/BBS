@@ -2,6 +2,7 @@ package spring.bbs.post.dto.util;
 
 import spring.bbs.member.dto.response.MemberResponse;
 import spring.bbs.post.domain.Post;
+import spring.bbs.post.dto.response.MediaPostResponse;
 import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
 
@@ -12,6 +13,14 @@ public class PostToResponse {
                 new MemberResponse(post.getAuthor().getId(), post.getAuthor().getName()),
                 post.getCategory().getName());
     }
+
+    public static MediaPostResponse convertPostToMediaResponse(Post post) {
+        return new MediaPostResponse(post.getId(), post.getTitle(), post.getContent(),
+                post.getCreatedTime(), post.getModifiedTime(),
+                new MemberResponse(post.getAuthor().getId(), post.getAuthor().getName()),
+                post.getCategory().getName(), null);
+    }
+
 
     public static PostListResponse convertPostToPostListResponse(Post post){
         return new PostListResponse(post.getId(), post.getTitle(), post.getCreatedTime(),
