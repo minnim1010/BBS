@@ -1,67 +1,80 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from "axios";
 
-import PostListElement from "./PostListElement"
+import Loading from '../app/Loading';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthProvider';
 
-class PostList extends Component {
-    state = {
-        isLoading: true,
-        posts: [],
-        page: [],
-        request: {
-            page: 1,
-            category: "string",
-            searchScope: "",
-            searchKeyword: ""
-        }
-    };
+function PostList() {
+    const { auth, setAuth } = useContext(AuthContext);
 
-    getPostList = async () => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [posts, setPosts] = useState([]);
+    const [page, setPage] = useState([]);
+    const [params, setParams] = useState({
+        page: 1,
+        category: "string",
+        searchScope: "",
+        searchKeyword: ""
+    });
+
+    const getPostList = async () => {
         const url = "http://localhost:8081/api/v1/posts";
         const {
             data:
             response
-        } = await axios.get(url);
-        const posts = response.content;
+        } = await axios.get(url, { params });
+        setPosts(response.content);
         const { content, ...pageData } = response;
-        const page = pageData;
-        this.setState({ posts, isLoading: false, page });
+        setPage(pageData)
+        setIsLoading(false);
     }
 
-    componentDidMount() {
-        this.getPostList();
-    }
+    useEffect(() => {
+        getPostList();
+    }, []);
 
-    render() {
-        const { isLoading, posts } = this.state;
+    return (
+        <div>
+            {isLoading ? (
+                <Loading />
+            ) :
+                (<div>
+                    {posts.map((post, index) => {
+                        return (
+                            <PostListElement
+                                key={index}
+                                id={post.id}
+                                title={post.title}
+                                createdTime={post.createdTime}
+                                author={post.authorResponse}
+                            />
+                        );
+                    })}
 
-        return (
-            <div>
-                {isLoading ? (
-                    <div> <span> Loading...</span > </div>
-                ) :
-                    (<div>
-                        {posts.map((post, index) => {
-                            return (
-                                <PostListElement
-                                    key={index}
-                                    id={post.id}
-                                    title={post.title}
-                                    createdTime={post.createdTime}
-                                    author={post.authorResponse}
-                                />
-                            );
-                        })}
-                    </div>
-                    )}
-            </div>
-        );
-    }
+                    {
+                        (auth) ?
+                            <Link to="/posts/write"><button>글쓰기</button></Link>
+                            : null
+                    }
+
+                </div>
+                )}
+        </div>
+    );
 }
 
-PostList.propTypes = {
-
-};
+function PostListElement({ id, title, createdTime, author }) {
+    return (
+        <Link to={{ pathname: `/posts/${id}` }}>
+            <div>
+                <td>{id}</td>
+                <td>{title}</td>
+                <td>{author.name}</td>
+                <td>{createdTime}</td>
+            </div>
+        </Link>
+    );
+}
 
 export default PostList;

@@ -61,14 +61,13 @@ public class CommentIntegrationTests extends AuthenticationTests {
     }
 
     @PostConstruct
-    protected void init(){
+    protected void init() {
         super.init();
         createPost();
     }
 
     void createPost() {
-        final String CreatePostDataPath
-                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
+        final String CreatePostDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
         try {
             PostRequest req = objectMapper
                     .readValue(new File(CreatePostDataPath), PostRequest.class);
@@ -82,8 +81,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
 
     @AfterEach
     private void deleteComment() {
-        memberRepository.findByName(memberName).ifPresent(author ->
-        {
+        memberRepository.findByName(memberName).ifPresent(author -> {
             List<Comment> comments = commentRepository.findAllByAuthor(author);
             commentRepository.deleteAll(comments);
         });
@@ -110,55 +108,53 @@ public class CommentIntegrationTests extends AuthenticationTests {
     }
 
     private CommentCreateRequest getCreateCommentRequest() throws IOException {
-        final String CreateCommentDataPath
-                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequest.json";
-        if(commentCreateRequest == null)
+        final String CreateCommentDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequest.json";
+        if (commentCreateRequest == null)
             commentCreateRequest = objectMapper
                     .readValue(new File(CreateCommentDataPath), CommentCreateRequest.class);
         return commentCreateRequest;
     }
 
     private CommentUpdateRequest getUpdateCommentRequest() throws IOException {
-        final String UpdateCommentDataPath
-                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/UpdateCommentRequest.json";
-        if(commentUpdateRequest == null)
+        final String UpdateCommentDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/UpdateCommentRequest.json";
+        if (commentUpdateRequest == null)
             commentUpdateRequest = objectMapper
                     .readValue(new File(UpdateCommentDataPath), CommentUpdateRequest.class);
         return commentUpdateRequest;
     }
 
     private CommentListRequest getCommentListRequest() throws IOException {
-        final String CommentListRequestDataPath
-                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CommentListRequest.json";
-        if(commentListRequest == null)
+        final String CommentListRequestDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CommentListRequest.json";
+        if (commentListRequest == null)
             commentListRequest = objectMapper
                     .readValue(new File(CommentListRequestDataPath), CommentListRequest.class);
         return commentListRequest;
     }
 
     private List<CommentCreateRequest> getCreateCommentRequestList() throws IOException {
-        final String CreateCommentListDataPath
-                = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequestList.json";
-        if(commentCreateRequestList == null)
+        final String CreateCommentListDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequestList.json";
+        if (commentCreateRequestList == null)
             commentCreateRequestList = objectMapper
-                    .readValue(new File(CreateCommentListDataPath), new TypeReference<>() {});
+                    .readValue(new File(CreateCommentListDataPath), new TypeReference<>() {
+                    });
         return commentCreateRequestList;
     }
 
     @Test
     @DisplayName("댓글 목록 조회 성공")
     void givenCommentList_thenGetCommentList() throws Exception {
-        //given
+        // given
         List<Comment> commentList = createCommentCreateRequestList();
         CommentListRequest req = getCommentListRequest();
         req.setPostId(testPost.getId());
-        //when
+        // when
         ResultActions response = mockMvc.perform(get("/api/v1/comments")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print()).
-                andExpect(status().isOk())
+                .param("page", String.valueOf(req.getPage()))
+                .param("postId", String.valueOf(req.getPostId()))
+                .param("searchKeyword", String.valueOf(req.getKeyword())));
+        // then
+        response.andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].content", is(commentList.get(2).getContent())))
                 .andExpect(jsonPath("$[1].content", is(commentList.get(1).getContent())))
                 .andExpect(jsonPath("$[2].content", is(commentList.get(0).getContent())));
@@ -167,53 +163,50 @@ public class CommentIntegrationTests extends AuthenticationTests {
     @Test
     @DisplayName("댓글 생성 성공")
     void givenNewComment_thenGetNewComment() throws Exception {
-        //given
+        // given
         CommentCreateRequest req = getCreateCommentRequest();
         req.setPostId(testPost.getId());
         String tokenHeader = getJwtTokenHeader(getJwtToken());
-        //when
+        // when
         ResultActions response = mockMvc.perform(post("/api/v1/comments")
                 .header(AUTHENTICATION_HEADER, tokenHeader)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print()).
-                andExpect(status().isOk())
+        // then
+        response.andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", is(req.getContent())));
     }
 
     @Test
     @DisplayName("댓글 수정 성공")
     void givenExistedComment_thenGetUpdatedComment() throws Exception {
-        //given
+        // given
         Comment comment = createCommentByAuthor(memberName);
         CommentUpdateRequest req = getUpdateCommentRequest();
         String tokenHeader = getJwtTokenHeader(getJwtToken());
-        //when
+        // when
         ResultActions response = mockMvc.perform(patch("/api/v1/comments/{id}", comment.getId())
                 .header(AUTHENTICATION_HEADER, tokenHeader)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print()).
-                andExpect(status().isOk())
+        // then
+        response.andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", is(req.getContent())));
     }
 
     @Test
     @DisplayName("댓글 삭제 성공")
     void givenExistedComment_thenCommentDelete() throws Exception {
-        //given
+        // given
         Comment comment = createCommentByAuthor(memberName);
         String tokenHeader = getJwtTokenHeader(getJwtToken());
-        //when
+        // when
         ResultActions response = mockMvc.perform(delete("/api/v1/comments/{id}", comment.getId())
                 .header(AUTHENTICATION_HEADER, tokenHeader)
                 .contentType(MediaType.APPLICATION_JSON));
-        //then
-        response.andDo(print()).
-                andExpect(status().isOk());
-        assert(commentRepository.findById(comment.getId()).isEmpty());
+        // then
+        response.andDo(print()).andExpect(status().isOk());
+        assert (commentRepository.findById(comment.getId()).isEmpty());
     }
 
 }

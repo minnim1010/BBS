@@ -27,18 +27,18 @@ public class JwtService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public JwtService(JwtProvider jwtProvider,
-                      AuthenticationManagerBuilder authenticationManagerBuilder,
-                      RedisTemplate<String, Object> redisTemplate) {
+            AuthenticationManagerBuilder authenticationManagerBuilder,
+            RedisTemplate<String, Object> redisTemplate) {
         this.jwtProvider = jwtProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.redisTemplate = redisTemplate;
     }
 
-    public LoginResponse login(LoginRequest req){
+    public LoginResponse login(LoginRequest req) {
         logger.debug(req.toString());
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(req.getName(), req.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(req.getName(),
+                req.getPassword());
 
         logger.debug("usernamepasswordfilter = {}", SecurityContextHolder.getContext().getAuthentication());
 
@@ -53,7 +53,7 @@ public class JwtService {
         return new LoginResponse(token);
     }
 
-    public void logout(String token){
+    public void logout(String token) {
         long expiration = jwtProvider.getExpiration(token);
         redisTemplate.opsForValue().set(token, "access_token", expiration, TimeUnit.SECONDS);
     }

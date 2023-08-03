@@ -1,21 +1,21 @@
-import { Route, Routes } from "react-router-dom"
-import PostList from "./components/post/PostList"
-import PostDetail from "./components/post/PostDetail"
-import NotFound from "./components/NotFound";
-import Home from "./components/Home";
-import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
+import Header from "./components/app/Header";
+import Footer from "./components/app/Footer";
+import Router from "./router";
+import AuthProvider from "./context/AuthProvider";
+import HttpHeaderTokenProvider from "./context/HttpHeaderTokenProvider";
+import Nav from "./components/app/Nav";
+
 
 function App() {
   return (
     <div>
       <Header />
-      <Routes>
-        <Route path="/" element={<PostList />} />
-        <Route path="posts/" element={<PostList />} />
-        <Route path="posts/*" element={<PostDetail />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AuthProvider>
+        <HttpHeaderTokenProvider>
+          <Nav />
+          <Router />
+        </HttpHeaderTokenProvider>
+      </AuthProvider>
       <Footer />
     </div>
   );
