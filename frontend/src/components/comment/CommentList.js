@@ -1,14 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from "axios";
 
+import CommentWrite from './CommentWrite';
+import { AuthContext } from '../../context/AuthProvider';
+import CommentListElement from './CommentListElement';
+
 function CommentList({ postId }) {
+    const { auth } = useContext(AuthContext);
+
     const [isLoading, setIsLoading] = useState(true);
     const [comments, setComments] = useState([]);
+
     const params = {
         "postId": postId,
         "page": 1,
         "keyword": ""
     }
+
     const getCommentList = async (postId) => {
         const url = `http://localhost:8081/api/v1/comments`;
         await axios.get(url, { params })
@@ -21,48 +29,34 @@ function CommentList({ postId }) {
             })
     }
 
+    const refreshCommentList = () => {
+        getCommentList(postId);
+    }
+
     useEffect(() => {
         getCommentList(postId);
     }, []);
 
     return (
         <div>
+            <CommentWrite
+                postId={postId}
+                parentCommentId={0}
+                refreshCommentList={refreshCommentList} />
+            댓글 목록
             {
                 comments.map((c, index) => {
                     return (
-                        <div>
-                            <CommentListElement
-                                key={index}
-                                id={c.id}
-                                content={c.content}
-                                createdTime={c.createdTime}
-                                modifiedTime={c.modifiedTime}
-                                author={c.authorResponse}
-                            />
-                        </div>
-                    );
+                        <CommentListElement key={index}
+                            comment={c}
+                            postId={postId}
+                            refreshCommentList={refreshCommentList} />
+                    )
                 })
             }
         </div>
     );
 }
 
-function CommentListElement({ id, content, createdTime, modifiedTime, author }) {
-    return (
-        <div>
-            <td>{id}</td>
-            <td>{content}</td>
-            <td>{author.name}</td>
-            <td>{createdTime}</td>
-            {
-                modifiedTime ?
-                    <td>{modifiedTime}</td>
-                    : null
-            }
-        </div>
-    )
-}
-
-CommentList.propTypes = {};
 
 export default CommentList;

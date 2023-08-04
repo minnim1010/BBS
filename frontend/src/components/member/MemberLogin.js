@@ -32,7 +32,7 @@ function MemberLogin() {
                 setHeaders({ "Authorization": `Bearer ${res.data.token}` });
 
                 alert("로그인되었습니다.");
-                navigate("/");
+                navigate(-1);
             })
             .catch((err) => {
                 console.log("error occured");

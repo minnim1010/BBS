@@ -80,6 +80,7 @@ public class PostService {
     @Transactional
     public MediaPostResponse createPost(MediaPostRequest req) {
         log.debug("PostService.createPost");
+        log.debug(req.toString());
 
         String authorName = _getCurrentLoginedUser();
         Member author = _getMember(authorName);

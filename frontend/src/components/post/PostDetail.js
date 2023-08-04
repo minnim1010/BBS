@@ -1,58 +1,80 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Loading from '../app/Loading';
 import CommentList from "../comment/CommentList";
+import { AuthContext } from '../../context/AuthProvider';
+import { HttpHeaderTokenContext } from '../../context/HttpHeaderTokenProvider';
 
 function PostDetail() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [post, setPost] = useState([]);
+    const { postId } = useParams();
 
-    const getPost = async (postId) => {
+    const { auth } = useContext(AuthContext);
+    const { headers } = useContext(HttpHeaderTokenContext);
+
+    const [post, setPost] = useState([]);
+    const [afterLoad, setAfterLoad] = useState(false);
+
+    const navigate = useNavigate();
+
+    const getPost = async () => {
         const url = `http://localhost:8081/api/v1/posts/${postId}`;
         await axios.get(url)
             .then((res) => {
+                console.log(res.data);
                 setPost(res.data);
-                setIsLoading(false);
+                setAfterLoad(true);
+                console.log(post);
             })
             .catch((err) => {
                 console.log("error occured");
             })
     }
 
-    const { postId } = useParams(); // 파라미터 가져오기
+    const deletePost = async () => {
+        const url = `http://localhost:8081/api/v1/posts/${postId}`;
+        await axios.delete(url, { headers })
+            .then((res) => {
+                alert("게시글이 삭제되었습니다.");
+                navigate(-1);
+            })
+            .catch((err) => {
+                console.log("error occured");
+            })
+    }
+
     useEffect(() => {
-        getPost(postId);
+        getPost();
     }, []);
 
     return (
         <div>
-            {isLoading ? (
-                <Loading />
-            ) :
-                <div>
-                    <div>제목: {post.title}</div>
-                    <div>작성 시각: {post.createdTime}</div>
-                    {
-                        post.modifiedTime ?
-                            <div>수정 시각: {post.modifiedTime}</div> :
-                            null
-                    }
-                    <div>작성자: {post.authorResponse.name}</div>
-                    <div><p>{post.content}</p></div>
-
-                    <div>
-                        댓글 목록
-                        <CommentList
-                            postId={postId} />
-                    </div>
-                </div>
-            }
+            <div>
+                {
+                    afterLoad ?
+                        <div>
+                            < div > 제목: {post.title}</div >
+                            <div>작성 시각: {post.createdTime}</div>
+                            {post.modifiedTime && <div>수정 시각: {post.modifiedTime}</div>}
+                            <div>작성자: {post.authorResponse.name}</div>
+                            <div><p>{post.content}</p></div>
+                            {
+                                auth === post.authorResponse.name &&
+                                <div>
+                                    <Link to={`/posts/write?id=${postId}`}><button>수정</button></Link>
+                                    <button onClick={deletePost}>삭제</button>
+                                </div>
+                            }
+                        </div > :
+                        <Loading />
+                }
+            </div>
+            <CommentList postId={postId} />
         </div>
-
     );
-
 }
+
+
 
 export default PostDetail;

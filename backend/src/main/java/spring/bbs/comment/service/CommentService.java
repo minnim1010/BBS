@@ -31,7 +31,6 @@ import static spring.bbs.comment.dto.util.RequestToComment.convertRequestToComme
 
 @Service
 public class CommentService {
-
     private final Logger logger = LoggerFactory.getLogger(
             this.getClass());
 
@@ -52,22 +51,26 @@ public class CommentService {
     public List<CommentResponse> getCommentsByPost(CommentListRequest req){
         logger.debug("CommentService:getCommentsByPost");
 
-        int offset = (req.getPage() - 1) * pageSize;
+        int page = req.getPage();
+        if(page <= 0)
+            page = 1;
+        int offset = (page - 1) * pageSize;
+        Post post = _getPost(req.getPostId());
         Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
 
-        Specification<Comment> spec = getSpecification(req.getPostId(), req.getKeyword());
+        Specification<Comment> spec = getSpecification(post, req.getKeyword());
         List<Comment> comments = commentRepository.findAll(spec, pageable);
         return comments.stream()
                         .map(CommentToResponse::convertCommentToResponse)
                         .toList();
     }
 
-    private Specification<Comment> getSpecification(long postId, String searchKeyword){
+    private Specification<Comment> getSpecification(Post post, String searchKeyword){
         Specification<Comment> specification = Specification.where(null);
 
         specification.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("postId"), postId));
-        logger.debug("Specification postId: {}", postId);
+                criteriaBuilder.equal(root.get("post"), post));
+        logger.debug("Specification post: id {}", post.getId());
 
         if(StringUtils.hasText(searchKeyword)){
             specification = specification.and((root, query, criteriaBuilder) ->

@@ -1,14 +1,10 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-
 function Home() {
+
     return (
         <div>
-            <h1>Home!</h1>
+            Home입니다.
         </div>
     );
 }
-
-Home.propTypes = {};
 
 export default Home;

@@ -11,6 +11,5 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAll(Specification<Comment> specification, Pageable pageable);
-
     List<Comment> findAllByAuthor(Member author);
 }

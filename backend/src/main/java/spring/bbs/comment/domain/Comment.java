@@ -17,8 +17,8 @@ public class Comment {
     private LocalDateTime modifiedTime;
     @ManyToOne
     private Member author;
-    @ManyToOne
-    private Post postId;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Post post;
     @OneToOne
     private Comment parentComment;
 
@@ -29,13 +29,13 @@ public class Comment {
                    LocalDateTime createdTime,
                    LocalDateTime modifiedTime,
                    Member author,
-                   Post postId,
+                   Post post,
                    Comment parentComment) {
         this.content = content;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
         this.author = author;
-        this.postId = postId;
+        this.post = post;
         this.parentComment = parentComment;
     }
 
@@ -59,10 +59,6 @@ public class Comment {
         return createdTime;
     }
 
-    public void setCreatedTime(LocalDateTime createdTime) {
-        this.createdTime = createdTime;
-    }
-
     public LocalDateTime getModifiedTime() {
         return modifiedTime;
     }
@@ -79,12 +75,12 @@ public class Comment {
         this.author = author;
     }
 
-    public Post getPostId() {
-        return postId;
+    public Post getPost() {
+        return post;
     }
 
-    public void setPostId(Post postId) {
-        this.postId = postId;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     public Comment getParentComment() {
