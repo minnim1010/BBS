@@ -13,7 +13,6 @@ function Nav() {
     const logout = async () => {
         const url = "http://localhost:8081/api/v1/logout";
 
-        console.log(headers);
         await axios.get(url, { headers })
             .then((res) => {
                 localStorage.removeItem("username");

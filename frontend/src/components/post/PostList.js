@@ -51,29 +51,25 @@ function PostList() {
                             />
                         );
                     })}
-
-                    {
-                        (auth) ?
-                            <Link to="/posts/write"><button>글쓰기</button></Link>
-                            : null
-                    }
-
+                    {(auth) && <Link to="/posts/write"><button>글쓰기</button></Link>}
                 </div>
                 )}
         </div>
     );
 }
 
-function PostListElement({ id, title, createdTime, author }) {
+function PostListElement({ index, id, title, createdTime, author }) {
     return (
-        <Link to={{ pathname: `/posts/${id}` }}>
-            <div>
-                <td>{id}</td>
-                <td>{title}</td>
-                <td>{author.name}</td>
-                <td>{createdTime}</td>
-            </div>
-        </Link>
+        <div key={index}>
+            <Link to={{ pathname: `/posts/${id}` }}>
+                <div >
+                    <span>{id}</span>
+                    <span>{title}</span>
+                    <span>{author.name}</span>
+                    <span>{createdTime}</span>
+                </div>
+            </Link>
+        </div>
     );
 }
 
