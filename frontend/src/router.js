@@ -8,6 +8,7 @@ import Home from "./components/app/Home";
 import PostWrite from "./components/post/PostWrite";
 import MemberJoin from "./components/member/MemberJoin";
 import MemberLogin from './components/member/MemberLogin';
+import PostUpdate from './components/post/PostUpdate';
 
 function Router() {
     return (
@@ -19,6 +20,7 @@ function Router() {
 
             <Route path="/posts" element={<PostList />} />
             <Route path="/posts/write" element={<PostWrite />} />
+            <Route path="/posts/update" element={<PostUpdate />} />
             <Route path="/posts/:postId" element={<PostDetail />} />
             <Route path="*" element={<NotFound />} />
         </Routes>

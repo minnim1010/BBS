@@ -22,10 +22,8 @@ function PostDetail() {
         const url = `http://localhost:8081/api/v1/posts/${postId}`;
         await axios.get(url)
             .then((res) => {
-                console.log(res.data);
                 setPost(res.data);
                 setAfterLoad(true);
-                console.log(post);
             })
             .catch((err) => {
                 console.log("error occured");
@@ -48,6 +46,13 @@ function PostDetail() {
         getPost();
     }, []);
 
+    const updatePost = {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        category: post.category
+    }
+
     return (
         <div>
             <div>
@@ -62,7 +67,7 @@ function PostDetail() {
                             {
                                 auth === post.authorResponse.name &&
                                 <div>
-                                    <Link to={`/posts/write?id=${postId}`}><button>수정</button></Link>
+                                    <Link to={`/posts/update`} state={{ prevPost: updatePost }}><button>수정</button></Link>
                                     <button onClick={deletePost}>삭제</button>
                                 </div>
                             }
