@@ -12,7 +12,7 @@ public class Member {
     private String password;
     private String email;
     private boolean activated;
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
     private Authority authority;
 
     public Member() {
@@ -70,8 +70,8 @@ public class Member {
         return authority;
     }
 
-    public void setAuthority(Authority role) {
-        this.authority = role;
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class Member {
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", activated=" + activated +
-                ", role=" + authority.getRole() +
+                ", role=" + authority +
                 '}';
     }
 }

@@ -69,13 +69,13 @@ public class IntegrationTest extends AuthenticationTests {
         logger.debug(req.toString());
 
         if(memberRepository.findByName(req.getName()).isEmpty())
-                memberRepository.save(convertRequestToMember(req, passwordEncoder.encode(req.getName())));
+            memberRepository.save(convertRequestToMember(req, RoleType.user, passwordEncoder.encode(req.getName())));
 
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
         //when
         ResultActions response = mockMvc.perform(delete("/api/v1/members")
-                        .header(AUTHENTICATION_HEADER, tokenHeader));
+                .header(AUTHENTICATION_HEADER, tokenHeader));
         //then
         response.andDo(print()).
                 andExpect(status().isOk());

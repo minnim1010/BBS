@@ -38,7 +38,7 @@ public class MemberService {
         validateName(req.getName());
 
         String encodedPassword = passwordEncoder.encode(req.getPassword());
-        Member member = convertRequestToMember(req, encodedPassword);
+        Member member = convertRequestToMember(req, "ROLE_USER", encodedPassword);
         Member savedMember = memberRepository.save(member);
 
         logger.debug("Saved member:\n {}", savedMember);

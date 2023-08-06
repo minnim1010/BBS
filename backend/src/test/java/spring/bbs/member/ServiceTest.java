@@ -20,6 +20,7 @@ import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.member.service.MemberService;
+import spring.bbs.util.RoleType;
 import spring.bbs.util.SecurityUtil;
 
 import java.io.File;
@@ -80,7 +81,7 @@ public class ServiceTest {
         //given
         JoinRequest req = getJoinRequest();
         String encodedPassword = "Encrypted";
-        Member newMember = convertRequestToMember(req, encodedPassword);
+        Member newMember = convertRequestToMember(req, RoleType.user, encodedPassword);
         Long newMemberId = 1L;
         newMember.setId(newMemberId);
 
@@ -125,7 +126,7 @@ public class ServiceTest {
         //given
         JoinRequest req = getJoinRequest();
         String encodedPassword = "Encrypted";
-        Member newMember = convertRequestToMember(req, encodedPassword);
+        Member newMember = convertRequestToMember(req, RoleType.user, encodedPassword);
         Long newMemberId = 1L;
         newMember.setId(newMemberId);
 

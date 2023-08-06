@@ -1,17 +1,16 @@
 package spring.bbs.member.service;
 
-import java.util.List;
 import jakarta.transaction.Transactional;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
+
+import java.util.List;
 
 @Component("UserDetailsService")
 public class MemberDetailsService implements UserDetailsService {
@@ -35,7 +34,7 @@ public class MemberDetailsService implements UserDetailsService {
             throw new RuntimeException(username + " is not activated.");
 
         List<GrantedAuthority> grantedAuthorities =
-                List.of(new SimpleGrantedAuthority(member.getAuthority().getRole()));
+                List.of(new SimpleGrantedAuthority(member.getAuthority().toString()));
 
         return new org.springframework.security.core.userdetails.User(
                 member.getName(), member.getPassword(), grantedAuthorities);

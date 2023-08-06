@@ -14,6 +14,7 @@ import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
+import spring.bbs.util.RoleType;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ public abstract class AuthenticationTests {
                     newMember.setPassword(passwordEncoder.encode(name));
                     newMember.setEmail(name + "@test.com");
                     newMember.setActivated(true);
-                    newMember.setAuthority(new Authority(memberRole));
+                    newMember.setAuthority(Enum.valueOf(Authority.class, RoleType.user));
                     return memberRepository.save(newMember);
                 });
 

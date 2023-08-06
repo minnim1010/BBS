@@ -13,7 +13,7 @@ import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
         "spring.bbs.jwt.controller",
         "spring.bbs.comment.controller",
         "spring.bbs.member.controller",
-        "spring.bbs.post.controller"})
+        "spring.bbs.written.post.controller"})
 public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(DataNotFoundException.class)

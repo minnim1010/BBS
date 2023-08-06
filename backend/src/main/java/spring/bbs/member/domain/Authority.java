@@ -1,25 +1,12 @@
 package spring.bbs.member.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
-@Entity
-public class Authority {
-    @Id
-    private String role;
-
-    public Authority() {
+public enum Authority {
+    ROLE_USER {
+        @Override
+        public String toString() {return "ROLE_USER";}
     }
-
-    public Authority(String role) {
-        this.role = role;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    , ROLE_ADMIN{
+        @Override
+        public String toString() {return "ROLE_ADMIN";}
     }
 }

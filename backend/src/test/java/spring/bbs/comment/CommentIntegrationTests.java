@@ -11,16 +11,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.AuthenticationTests;
-import spring.bbs.comment.domain.Comment;
-import spring.bbs.comment.dto.request.CommentCreateRequest;
-import spring.bbs.comment.dto.request.CommentListRequest;
-import spring.bbs.comment.dto.request.CommentUpdateRequest;
-import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.member.domain.Member;
-import spring.bbs.post.domain.Category;
-import spring.bbs.post.domain.Post;
-import spring.bbs.post.dto.request.PostRequest;
-import spring.bbs.post.repository.PostRepository;
+import spring.bbs.util.CommonUtil;
+import spring.bbs.written.comment.domain.Comment;
+import spring.bbs.written.comment.dto.request.CommentCreateRequest;
+import spring.bbs.written.comment.dto.request.CommentListRequest;
+import spring.bbs.written.comment.dto.request.CommentUpdateRequest;
+import spring.bbs.written.comment.repository.CommentRepository;
+import spring.bbs.written.post.domain.Post;
+import spring.bbs.written.post.dto.request.PostRequest;
+import spring.bbs.written.post.repository.PostRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static spring.bbs.comment.dto.util.RequestToComment.convertRequestToComment;
-import static spring.bbs.post.dto.util.RequestToPost.convertCreateRequestToPost;
+import static spring.bbs.written.comment.dto.util.RequestToComment.convertRequestToComment;
+import static spring.bbs.written.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
 public class CommentIntegrationTests extends AuthenticationTests {
 
@@ -55,6 +55,8 @@ public class CommentIntegrationTests extends AuthenticationTests {
     private CommentRepository commentRepository;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private CommonUtil util;
 
     public CommentIntegrationTests() {
         setMemberName(username);
@@ -72,7 +74,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
             PostRequest req = objectMapper
                     .readValue(new File(CreatePostDataPath), PostRequest.class);
             Member author = getMember(memberName);
-            Post post = convertCreateRequestToPost(req, author, new Category(req.getCategory()));
+            Post post = convertCreateRequestToPost(req, author, util.getCategory(req.getCategory()));
             this.testPost = postRepository.save(post);
         } catch (IOException e) {
             e.printStackTrace();

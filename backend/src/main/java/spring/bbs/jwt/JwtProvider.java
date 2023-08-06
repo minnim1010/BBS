@@ -75,7 +75,7 @@ public class JwtProvider implements InitializingBean {
                 .getBody();
 
         String role = claims.get(AUTHORITIES_KEY).toString();
-        Authority authority = new Authority(role);
+        Authority authority = Enum.valueOf(Authority.class, role);
         List<GrantedAuthority> grantedAuthority = List.of(new SimpleGrantedAuthority(role));
 
         Member member = new Member(claims.getSubject(), "", "", true, authority);

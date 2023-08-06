@@ -11,10 +11,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.AuthenticationTests;
 import spring.bbs.member.domain.Member;
-import spring.bbs.post.domain.Category;
-import spring.bbs.post.domain.Post;
-import spring.bbs.post.dto.request.PostRequest;
-import spring.bbs.post.repository.PostRepository;
+import spring.bbs.util.CommonUtil;
+import spring.bbs.written.post.domain.Post;
+import spring.bbs.written.post.dto.request.PostRequest;
+import spring.bbs.written.post.dto.util.RequestToPost;
+import spring.bbs.written.post.repository.PostRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static spring.bbs.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
 public class PostIntegrationTests extends AuthenticationTests {
 
@@ -43,6 +43,8 @@ public class PostIntegrationTests extends AuthenticationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private CommonUtil util;
 
     public PostIntegrationTests(){
         setMemberName(username);
@@ -60,7 +62,7 @@ public class PostIntegrationTests extends AuthenticationTests {
     private Post createPostByAuthor(String memberName) throws Exception{
         PostRequest req = getCreatePostDataRequest();
         Member author = getMember(memberName);
-        Post post = convertCreateRequestToPost(req, author, new Category(req.getCategory()));
+        Post post = RequestToPost.convertCreateRequestToPost(req, author, util.getCategory(req.getCategory()));
         return postRepository.save(post);
     }
 
@@ -68,7 +70,7 @@ public class PostIntegrationTests extends AuthenticationTests {
         List<PostRequest> postRequestList = getPostListDataRequest();
         Member author = getMember(username);
         List<Post> postList = postRequestList.stream()
-                .map(p -> convertCreateRequestToPost(p, author, new Category(p.getCategory())))
+                .map(p -> RequestToPost.convertCreateRequestToPost(p, author, util.getCategory(p.getCategory())))
                 .collect(Collectors.toList());
 
         return postRepository.saveAll(postList);
