@@ -1,5 +1,8 @@
 package spring.bbs.jwt.dto.request;
 
+import lombok.Getter;
+
+@Getter
 public class LoginRequest {
     private String name;
     private String password;
@@ -11,22 +14,6 @@ public class LoginRequest {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public String toString() {
         return "LoginRequest{" +
@@ -34,5 +21,4 @@ public class LoginRequest {
                 ", password='" + password + '\'' +
                 '}';
     }
-
 }

@@ -27,7 +27,6 @@ public abstract class AuthenticationTests {
     protected final String AUTHENTICATION_HEADER = "Authorization";
 
     protected String memberName = "test";
-    protected String memberRole = "ROLE_USER";
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
@@ -61,15 +60,15 @@ public abstract class AuthenticationTests {
     protected String getJwtToken(){
         Authentication token =
                 new UsernamePasswordAuthenticationToken(
-                        memberName, "", List.of(new SimpleGrantedAuthority(memberRole)));
-        return jwtProvider.createToken(token);
+                        memberName, "", List.of(new SimpleGrantedAuthority(RoleType.user)));
+        return jwtProvider.generateAccessToken(token);
     }
 
     protected String getJwtToken(String name){
         Authentication token =
                 new UsernamePasswordAuthenticationToken(
-                        name, "", List.of(new SimpleGrantedAuthority(memberRole)));
-        return jwtProvider.createToken(token);
+                        name, "", List.of(new SimpleGrantedAuthority(RoleType.user)));
+        return jwtProvider.generateAccessToken(token);
     }
 
     protected String getJwtTokenHeader(String token){
@@ -78,9 +77,5 @@ public abstract class AuthenticationTests {
 
     protected void setMemberName(String memberName) {
         this.memberName = memberName;
-    }
-
-    protected void setMemberRole(String memberRole) {
-        this.memberRole = memberRole;
     }
 }

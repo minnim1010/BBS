@@ -13,7 +13,7 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.util.SecurityUtil;
+import spring.bbs.util.AuthenticationUtil;
 
 import static spring.bbs.member.dto.util.MemberToResponse.convertMemberToResponse;
 import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
@@ -74,7 +74,7 @@ public class MemberService {
     }
 
     private String _getCurrentLoginedUser(){
-        return SecurityUtil.getCurrentUsername().orElseThrow(
+        return AuthenticationUtil.getCurrentUsername().orElseThrow(
                 () -> new BadCredentialsException("Can't get current logined user."));
     }
 }

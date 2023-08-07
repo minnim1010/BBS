@@ -33,14 +33,13 @@ public class JwtFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String jwt = resolveToken(httpServletRequest);
         String requestUri = httpServletRequest.getRequestURI();
-
         authenticateToken(jwt, requestUri);
 
         chain.doFilter(request, response);
     }
 
     private boolean authenticateToken(String jwt, String requestUri) {
-        if (StringUtils.hasText(jwt) && jwtProvider.isValidToken(jwt) && !jwtProvider.isLogoutToken(jwt)) {
+        if (StringUtils.hasText(jwt) && jwtProvider.isValidToken(jwt) && !jwtProvider.isLogoutAccessToken(jwt)) {
             Authentication authentication = jwtProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             logger.debug("Get principal {}", authentication.getPrincipal());

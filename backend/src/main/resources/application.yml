@@ -40,7 +40,8 @@ logging:
 jwt:
   header: Authorization
   secret: ${jwt.secret}
-  token-validity-in-miliseconds: 1800000
+  access-token-duration: 1800000
+  refresh-token-duration: 86400000
 
 springdoc:
   version: v1.0.0

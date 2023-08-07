@@ -37,7 +37,7 @@ public class CommonUtil {
     }
 
     public String getCurrentLoginedUser(){
-        return SecurityUtil.getCurrentUsername().orElseThrow(
+        return AuthenticationUtil.getCurrentUsername().orElseThrow(
                 () -> new BadCredentialsException("Can't get current logined user."));
     }
 

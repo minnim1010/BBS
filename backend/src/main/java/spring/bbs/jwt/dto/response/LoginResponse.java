@@ -1,20 +1,16 @@
 package spring.bbs.jwt.dto.response;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@Getter
 public class LoginResponse {
-    private String token;
+    private String refreshToken;
+    private String accessToken;
 
-    public LoginResponse() {
-    }
-
-    public LoginResponse(String token) {
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    public LoginResponse(String refreshToken, String accessToken) {
+        this.refreshToken = refreshToken;
+        this.accessToken = accessToken;
     }
 }

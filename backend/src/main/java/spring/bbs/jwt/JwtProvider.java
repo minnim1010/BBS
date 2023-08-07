@@ -4,18 +4,16 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import spring.bbs.member.domain.Authority;
-import spring.bbs.member.domain.Member;
+import spring.bbs.jwt.repository.TokenRepository;
 
 import java.security.Key;
 import java.util.Date;
@@ -23,42 +21,40 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+@Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtProvider implements InitializingBean {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
 
-    private final String secret;
-    private final long tokenValidMilSeconds;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final JwtProperties jwtProperties;
+    private final TokenRepository TokenRepository;
     private Key key;
-
-    public JwtProvider(@Value("${jwt.secret}") String secret,
-                       @Value("${jwt.token-validity-in-miliseconds}") long tokenValidMilSeconds,
-                       RedisTemplate<String, Object> redisTemplate) {
-        this.secret = secret;
-        this.tokenValidMilSeconds = tokenValidMilSeconds;
-        this.redisTemplate = redisTemplate;
-    }
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
+        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getAccessTokenDuration().toMillis());
+        return createToken(authentication, expiredTime);
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getRefreshTokenDuration().toMillis());
+        return createToken(authentication, expiredTime);
+    }
+
+    private String createToken(Authentication authentication, Date expiredTime){
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
-        long createdTime = (new Date()).getTime();
-        Date expiredTime = new Date(createdTime + this.tokenValidMilSeconds);
-
-        logger.debug("Authentication.getName: {}", authentication.getName());
+        log.debug(authorities);
 
         return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -67,21 +63,13 @@ public class JwtProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token){
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
+        Claims claims = getClaims(token);
         String role = claims.get(AUTHORITIES_KEY).toString();
-        Authority authority = Enum.valueOf(Authority.class, role);
-        List<GrantedAuthority> grantedAuthority = List.of(new SimpleGrantedAuthority(role));
-
-        Member member = new Member(claims.getSubject(), "", "", true, authority);
+        log.debug(role);
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
         return new UsernamePasswordAuthenticationToken(
-                member, token, grantedAuthority);
+                new User(claims.getSubject(), "", authorities), token, authorities);
     }
 
     private Claims getClaims(String token){
@@ -106,18 +94,18 @@ public class JwtProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            logger.info("Expired JWT token.");
+            log.info("Expired JWT token.");
         } catch (UnsupportedJwtException e) {
-            logger.info("Unsupported JWT token.");
+            log.info("Unsupported JWT token.");
         } catch (MalformedJwtException | SignatureException e) {
-            logger.info("Malformed JWT signature.");
+            log.info("Malformed JWT signature.");
         } catch (IllegalArgumentException e) {
-            logger.info("JWT token type is not matched.");
+            log.info("JWT token type is not matched.");
         }
         return false;
     }
 
-    public boolean isLogoutToken(String token){
-        return redisTemplate.opsForValue().get(token) != null;
+    public boolean isLogoutAccessToken(String token){
+        return TokenRepository.existsAccessToken(token);
     }
 }

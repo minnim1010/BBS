@@ -24,7 +24,7 @@ public class MemberDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return memberRepository.findWithAuthorityByName(username)
+        return memberRepository.findByName(username)
                 .map(member -> createUser(username, member))
                 .orElseThrow(() -> new UsernameNotFoundException(username + " can't find user."));
     }

@@ -20,8 +20,8 @@ import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.member.service.MemberService;
+import spring.bbs.util.AuthenticationUtil;
 import spring.bbs.util.RoleType;
-import spring.bbs.util.SecurityUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,11 +51,11 @@ public class ServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
-    private static MockedStatic<SecurityUtil> securityUtil;
+    private static MockedStatic<AuthenticationUtil> securityUtil;
 
     @BeforeAll
     static void setup(){
-        securityUtil = mockStatic(SecurityUtil.class);
+        securityUtil = mockStatic(AuthenticationUtil.class);
     }
 
     @AfterAll
@@ -130,7 +130,7 @@ public class ServiceTest {
         Long newMemberId = 1L;
         newMember.setId(newMemberId);
 
-        given(SecurityUtil.getCurrentUsername())
+        given(AuthenticationUtil.getCurrentUsername())
                 .willReturn(Optional.of(joinRequest.getName()));
         given(memberRepository.findByName(anyString())).willReturn(Optional.of(newMember));
         doNothing().when(memberRepository).delete(any(Member.class));
@@ -139,6 +139,6 @@ public class ServiceTest {
         //then
         verify(memberRepository).findByName(newMember.getName());
         verify(memberRepository).delete(newMember);
-        securityUtil.verify(SecurityUtil::getCurrentUsername);
+        securityUtil.verify(AuthenticationUtil::getCurrentUsername);
     }
 }
