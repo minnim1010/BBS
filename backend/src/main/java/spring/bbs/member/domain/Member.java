@@ -1,77 +1,86 @@
 package spring.bbs.member.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-public class Member {
+@Getter
+@Setter
+public class Member implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true)
     private String name;
+    @Column(unique = true)
+    private String oauthName;
     private String password;
     private String email;
-    private boolean activated;
+    private boolean isEnabled;
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
     public Member() {
     }
 
-    public Member(String name, String password, String email, boolean activated, Authority role) {
+    public Member(String name, String password, String email, boolean isEnabled, Authority role) {
         this.name = name;
         this.password = password;
         this.email = email;
-        this.activated = activated;
+        this.isEnabled = isEnabled;
         this.authority = role;
     }
 
-    public Long getId() {
-        return id;
+    public Member(String oauthName, String email, boolean isEnabled, Authority role) {
+        this.oauthName = oauthName;
+        this.email = email;
+        this.isEnabled = isEnabled;
+        this.authority = role;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Member updateOAuthName(String oauthName){
+        this.oauthName = oauthName;
+        return this;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(this.authority.toString()));
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Override
+    public String getUsername() {return email;}
 
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getEmail() {
-        return email;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
-    public Authority getAuthority() {
-        return authority;
-    }
-
-    public void setAuthority(Authority authority) {
-        this.authority = authority;
+    @Override
+    public boolean isEnabled() {
+        return this.isEnabled;
     }
 
     @Override
@@ -79,10 +88,11 @@ public class Member {
         return "Member{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", oauthName='" + oauthName + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", activated=" + activated +
-                ", role=" + authority +
+                ", isEnabled=" + isEnabled +
+                ", authority=" + authority.toString() +
                 '}';
     }
 }

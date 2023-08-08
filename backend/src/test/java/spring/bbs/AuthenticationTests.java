@@ -27,6 +27,7 @@ public abstract class AuthenticationTests {
     protected final String AUTHENTICATION_HEADER = "Authorization";
 
     protected String memberName = "test";
+    protected Member testMember;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
@@ -41,20 +42,18 @@ public abstract class AuthenticationTests {
     }
 
     protected Member createMember(String name){
-        Member member = memberRepository.findByName(name)
+        testMember = memberRepository.findByName(name)
                 .orElseGet(() -> {
                     Member newMember = new Member();
                     newMember.setName(name);
                     newMember.setPassword(passwordEncoder.encode(name));
                     newMember.setEmail(name + "@test.com");
-                    newMember.setActivated(true);
+                    newMember.setEnabled(true);
                     newMember.setAuthority(Enum.valueOf(Authority.class, RoleType.user));
                     return memberRepository.save(newMember);
                 });
 
-        logger.debug("saved member: {}", member.getName());
-
-        return member;
+        return testMember;
     }
 
     protected String getJwtToken(){

@@ -6,8 +6,8 @@ import { HttpHeaderTokenContext } from '../../context/HttpHeaderTokenProvider';
 
 function MemberLogin() {
 
-    const { auth, setAuth } = useContext(AuthContext);
-    const { headers, setHeaders } = useContext(HttpHeaderTokenContext);
+    const { setAuth } = useContext(AuthContext);
+    const { setHeaders } = useContext(HttpHeaderTokenContext);
 
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -21,15 +21,17 @@ function MemberLogin() {
     }
 
     const navigate = useNavigate();
+
     const login = async () => {
         const params = { name, password };
         const url = "http://localhost:8081/api/v1/login";
         await axios.post(url, params)
             .then((res) => {
                 localStorage.setItem("username", name);
-                localStorage.setItem("access_token", res.data.token);
+                localStorage.setItem("access_token", res.data.accessToken);
+                localStorage.setItem("refresh_token", res.data.refreshToken);
                 setAuth(name);
-                setHeaders({ "Authorization": `Bearer ${res.data.token}` });
+                setHeaders({ "Authorization": `Bearer ${res.data.accessToken}` });
 
                 alert("로그인되었습니다.");
                 navigate(-1);
@@ -51,6 +53,7 @@ function MemberLogin() {
                 <input type="password" value={password} onChange={changePassword} />
             </div>
             <button onClick={login}>로그인</button>
+
         </div >
     );
 }

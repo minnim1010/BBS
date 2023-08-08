@@ -1,7 +1,6 @@
 package spring.bbs.member.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,12 +9,10 @@ import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 public class MemberController {
-
-    private final Logger logger = LoggerFactory.getLogger(
-            this.getClass());
 
     private final MemberService memberService;
 
@@ -25,8 +22,7 @@ public class MemberController {
 
     @PostMapping("/join")
     public ResponseEntity<JoinResponse> join(@RequestBody JoinRequest req){
-        logger.debug("MemberController.join");
-        logger.debug("req = {}", req);
+        log.debug("req = {}", req);
 
         return ResponseEntity.ok(memberService.createMember(req));
     }
@@ -34,8 +30,6 @@ public class MemberController {
     @DeleteMapping("/members")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> withdrawal(){
-        logger.debug("MemberController.withdrawal");
-
         memberService.deleteMember();
         return new ResponseEntity<>(HttpStatus.OK);
     }

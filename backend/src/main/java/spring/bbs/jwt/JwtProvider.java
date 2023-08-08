@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.member.domain.Member;
 
 import java.security.Key;
 import java.util.Date;
@@ -42,9 +43,19 @@ public class JwtProvider implements InitializingBean {
         return createToken(authentication, expiredTime);
     }
 
+    public String generateAccessToken(Member member) {
+        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getAccessTokenDuration().toMillis());
+        return createToken(member, expiredTime);
+    }
+
     public String generateRefreshToken(Authentication authentication) {
         Date expiredTime = new Date(new Date().getTime() + jwtProperties.getRefreshTokenDuration().toMillis());
         return createToken(authentication, expiredTime);
+    }
+
+    public String generateRefreshToken(Member member) {
+        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getRefreshTokenDuration().toMillis());
+        return createToken(member, expiredTime);
     }
 
     private String createToken(Authentication authentication, Date expiredTime){
@@ -57,6 +68,16 @@ public class JwtProvider implements InitializingBean {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(expiredTime)
+                .compact();
+    }
+
+    private String createToken(Member member, Date expiredTime){
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setSubject(member.getName())
+                .claim(AUTHORITIES_KEY, member.getAuthority())
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(expiredTime)
                 .compact();

@@ -11,14 +11,18 @@ import spring.bbs.member.repository.MemberRepository;
 public class MemberUtil {
     private final MemberRepository memberRepository;
 
-    public Member getMember(String authorName){
+    public Member findMemberByName(String authorName){
         return memberRepository.findByName(authorName).orElseThrow(
                 () -> new DataNotFoundException("Member doesn't exist."));
     }
 
-    public Member getMember(Long memberId){
+    public Member findMemberById(Long memberId){
         return memberRepository.findById(memberId).orElseThrow(
                 () -> new DataNotFoundException("Member doesn't exist."));
     }
 
+    public Member findMemberByEmail(String email){
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new DataNotFoundException("Member doesn't exist."));
+    }
 }

@@ -82,7 +82,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
     }
 
     @AfterEach
-    private void deleteComment() {
+    void deleteComment() {
         memberRepository.findByName(memberName).ifPresent(author -> {
             List<Comment> comments = commentRepository.findAllByAuthor(author);
             commentRepository.deleteAll(comments);

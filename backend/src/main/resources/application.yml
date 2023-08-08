@@ -27,6 +27,17 @@ spring:
       host: localhost
       port: 6379
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${oauth.google.id}
+            client-secret: ${oauth.google.secret}
+            scope:
+              - email
+              - profile
+
 logging:
   file:
     path: ${log.path}

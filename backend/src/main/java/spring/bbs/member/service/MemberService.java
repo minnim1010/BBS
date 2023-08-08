@@ -1,8 +1,9 @@
 package spring.bbs.member.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,19 +19,13 @@ import spring.bbs.util.AuthenticationUtil;
 import static spring.bbs.member.dto.util.MemberToResponse.convertMemberToResponse;
 import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class MemberService {
 
-    private final Logger logger = LoggerFactory.getLogger(
-            this.getClass());
-
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final MemberRepository memberRepository;
-
-    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.memberRepository = memberRepository;
-    }
 
     @Transactional
     public JoinResponse createMember(JoinRequest req){
@@ -41,7 +36,7 @@ public class MemberService {
         Member member = convertRequestToMember(req, "ROLE_USER", encodedPassword);
         Member savedMember = memberRepository.save(member);
 
-        logger.debug("Saved member:\n {}", savedMember);
+        log.debug("Saved member:\n {}", savedMember);
 
         return convertMemberToResponse(savedMember);
     }
@@ -50,7 +45,7 @@ public class MemberService {
     public void deleteMember(){
         Member deleteMember = getCurrentLoginedMember();
         memberRepository.delete(deleteMember);
-        logger.debug("delete member: {}", deleteMember.getName());
+        log.debug("delete member: {}", deleteMember.getName());
     }
 
     private void validatePassword(String password, String checkPassword){
@@ -64,17 +59,26 @@ public class MemberService {
     }
 
     private Member getCurrentLoginedMember(){
-        return _getMember(_getCurrentLoginedUser());
-    }
-
-    private Member _getMember(String name) {
-        logger.debug("{}", name);
-        return memberRepository.findByName(name)
-                .orElseThrow(() -> new DataNotFoundException("Member doesn't exist."));
+        return findByName(_getCurrentLoginedUser());
     }
 
     private String _getCurrentLoginedUser(){
         return AuthenticationUtil.getCurrentUsername().orElseThrow(
                 () -> new BadCredentialsException("Can't get current logined user."));
+    }
+
+    public Member findByName(String authorName){
+        return memberRepository.findByName(authorName).orElseThrow(
+                () -> new DataNotFoundException("Member doesn't exist."));
+    }
+
+    public Member findById(Long memberId){
+        return memberRepository.findById(memberId).orElseThrow(
+                () -> new DataNotFoundException("Member doesn't exist."));
+    }
+
+    public Member findByEmail(String email){
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new DataNotFoundException("Member doesn't exist."));
     }
 }

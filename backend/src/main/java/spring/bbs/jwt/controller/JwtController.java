@@ -34,7 +34,6 @@ public class JwtController {
 
     @PostMapping("/token")
     public ResponseEntity<AccessTokenResponse> sendNewAccessToken(@RequestBody CreateAccessTokenRequest req) {
-        log.debug(req.getRefreshToken());
         AccessTokenResponse response = jwtService.createNewAccessToken(req);
 
         return ResponseEntity

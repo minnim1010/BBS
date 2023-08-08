@@ -3,10 +3,10 @@ package spring.bbs.member;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,13 +14,13 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import spring.bbs.config.security.SecurityConfig;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
 import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 import spring.bbs.member.controller.MemberController;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
-import spring.bbs.security.SecurityConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,14 +38,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MemberController.class,
-        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)},
-        excludeAutoConfiguration = SecurityAutoConfiguration.class)
+        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class})},
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class})
+@AutoConfigureMockMvc
 public class ControllerTest {
 
     private final String JoinRequestPath
             = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";
-
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private MockMvc mockMvc;

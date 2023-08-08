@@ -36,6 +36,11 @@ public class CommonUtil {
                 () -> new DataNotFoundException("Member doesn't exist."));
     }
 
+    public Member getMemberByEmail(String email){
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new DataNotFoundException("Member doesn't exist."));
+    }
+
     public String getCurrentLoginedUser(){
         return AuthenticationUtil.getCurrentUsername().orElseThrow(
                 () -> new BadCredentialsException("Can't get current logined user."));

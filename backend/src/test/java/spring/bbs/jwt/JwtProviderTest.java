@@ -1,6 +1,5 @@
 package spring.bbs.jwt;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +20,6 @@ public class JwtProviderTest {
     private String testUserName = "testUser";
 
     @Test
-    @DisplayName("")
     public void testGenerateAccessToken() {
         UserDetails userDetails = generateTestUser();
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);

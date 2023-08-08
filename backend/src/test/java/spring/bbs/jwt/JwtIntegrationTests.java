@@ -18,7 +18,8 @@ import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.AccessTokenResponse;
 import spring.bbs.jwt.dto.response.LoginResponse;
-import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.jwt.repository.RefreshToken;
+import spring.bbs.jwt.repository.RefreshTokenRepository;
 import spring.bbs.member.RoleType;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private TokenRepository refreshTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
 
     private final String username = "JwtTestUser";
 
@@ -84,7 +85,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
         //given
         String refreshToken = generateRefreshToken();
         long expiration = jwtProvider.getExpiration(refreshToken);
-        refreshTokenRepository.saveRefreshToken(refreshToken, expiration);
+        refreshTokenRepository.save(new RefreshToken(testMember.getId(), refreshToken));
 
         CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
         logger.debug(req.toString());
@@ -105,10 +106,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     @DisplayName("새 토큰 발급 실패: 만료된 토큰")
     public void givenRefreshToken_thenUnauthorizedError1() throws Exception {
         //given
-        String refreshToken = generateRefreshToken();
-
-        CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-        logger.debug(req.toString());
+        CreateAccessTokenRequest req = new CreateAccessTokenRequest(generateRefreshToken());
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/token")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -6,21 +6,19 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.AccessTokenResponse;
 import spring.bbs.jwt.dto.response.LoginResponse;
+import spring.bbs.jwt.repository.RefreshToken;
+import spring.bbs.jwt.repository.RefreshTokenRepository;
 import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
-import spring.bbs.util.MemberUtil;
-import spring.bbs.util.RoleType;
-
-import java.util.List;
+import spring.bbs.member.service.MemberService;
 
 @Slf4j
 @Service
@@ -29,18 +27,21 @@ public class JwtService {
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final TokenRepository TokenRepository;
-    private final MemberUtil memberUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberService memberService;
+    private final TokenRepository tokenRepository;
 
     public LoginResponse login(LoginRequest req) {
+
         Authentication authentication = authenticateCredentials(req);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("logined: {}", req.getName());
 
         String accessToken = jwtProvider.generateAccessToken(authentication);
-        String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
-        long expiration = jwtProvider.getExpiration(refreshToken);
-        TokenRepository.saveRefreshToken(refreshToken, expiration);
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
+        Member member = memberService.findByName(req.getName());
+        refreshTokenRepository.save(new RefreshToken(member.getId(), refreshToken));
 
         return new LoginResponse(accessToken, refreshToken);
     }
@@ -56,26 +57,26 @@ public class JwtService {
 
     public AccessTokenResponse createNewAccessToken(CreateAccessTokenRequest req){
         String refreshToken = req.getRefreshToken();
-        if(!jwtProvider.isValidToken(refreshToken) || !TokenRepository.existsRefreshToken(refreshToken))
+        if(!jwtProvider.isValidToken(refreshToken))
             throw new BadCredentialsException("No valid refresh token.");
 
-        String memberName = jwtProvider.getName(refreshToken);
-        Member member = memberUtil.getMember(memberName);
+        Long memberId = this.findByRefreshToken(req.getRefreshToken()).getMemberId();
 
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(RoleType.user));
-
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        new User(member.getName(), "", authorities), null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String token = jwtProvider.generateAccessToken(authentication);
+        Member member = memberService.findById(memberId);
+        String token = jwtProvider.generateAccessToken(member);
 
         return new AccessTokenResponse(token);
     }
 
     public void logout(String token) {
+        if(!jwtProvider.isValidToken(token))
+            throw new BadCredentialsException("Access token is not valid");
         long expiration = jwtProvider.getExpiration(token);
-        TokenRepository.saveAccessToken(token, expiration);
+        tokenRepository.saveAccessToken(token, expiration);
+    }
+
+    public RefreshToken findByRefreshToken(String refreshToken){
+        return refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new DataNotFoundException("Refresh token doesn't exist."));
     }
 }
