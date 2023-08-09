@@ -1,9 +1,6 @@
 package spring.bbs.written.post.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +17,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Post extends Written {
+    @Id @GeneratedValue
+    private Long id;
     private String title;
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -32,7 +31,7 @@ public class Post extends Written {
         this.title = title;
         this.content = content;
         this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
+        this.lastModifiedTime = modifiedTime;
         this.author = author;
         this.category = category;
     }

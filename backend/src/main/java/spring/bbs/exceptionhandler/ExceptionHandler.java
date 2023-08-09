@@ -51,10 +51,10 @@ public class ExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
-        ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
+//    public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
+//        ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
+//
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }

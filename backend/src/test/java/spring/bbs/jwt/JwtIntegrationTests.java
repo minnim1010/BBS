@@ -1,6 +1,8 @@
 package spring.bbs.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Slf4j
 public class JwtIntegrationTests extends AuthenticationTests {
 
     @Autowired
@@ -44,12 +47,18 @@ public class JwtIntegrationTests extends AuthenticationTests {
         setMemberName(username);
     }
 
+    @AfterEach
+    void release(){
+        log.debug("refreshTokenRepository delete");
+        refreshTokenRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("로그인 성공")
     public void givenValidAccount_thenReturnRefreshAndAccessToken() throws Exception {
         //given
         LoginRequest req = new LoginRequest(memberName, memberName);
-        logger.debug(req.toString());
+        log.debug(req.toString());
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +78,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     public void givenWrongAccount_thenUnauthorizedError() throws Exception {
         //given
         LoginRequest req = new LoginRequest("wrongAccount", "wrongAccount");
-        logger.debug(req.toString());
+        log.debug(req.toString());
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +97,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
         refreshTokenRepository.save(new RefreshToken(testMember.getId(), refreshToken));
 
         CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-        logger.debug(req.toString());
+        log.debug(req.toString());
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/token")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +132,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
         String refreshToken = "invalid-token";
 
         CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-        logger.debug(req.toString());
+        log.debug(req.toString());
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/token")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +148,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
         //given
         String token = getJwtToken();
         String tokenHeader = getJwtTokenHeader(token);
-        logger.debug(token);
+        log.debug(token);
         //when
         ResultActions response = mockMvc.perform(get("/api/v1/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -157,7 +166,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
         //given
         String token = "invalid token";
         String tokenHeader = getJwtTokenHeader(token);
-        logger.debug(token);
+        log.debug(token);
         //when
         ResultActions response = mockMvc.perform(get("/api/v1/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -179,5 +188,4 @@ public class JwtIntegrationTests extends AuthenticationTests {
         return new User(memberName, memberName,
                 List.of(new SimpleGrantedAuthority(RoleType.user)));
     }
-
 }

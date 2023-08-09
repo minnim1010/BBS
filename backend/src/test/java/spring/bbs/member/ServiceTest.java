@@ -1,6 +1,7 @@
 package spring.bbs.member;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -10,9 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
 import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 import spring.bbs.member.domain.Member;
@@ -35,12 +33,11 @@ import static org.mockito.Mockito.*;
 import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 public class ServiceTest {
 
     private final String JoinRequestPath
             = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";
-
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private JoinRequest joinRequest;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -49,8 +46,6 @@ public class ServiceTest {
     private MemberService memberService;
     @Mock
     private MemberRepository memberRepository;
-    @Mock
-    private PasswordEncoder passwordEncoder;
     private static MockedStatic<AuthenticationUtil> securityUtil;
 
     @BeforeAll
@@ -87,8 +82,6 @@ public class ServiceTest {
 
         given(memberRepository.existsByName(newMember.getName()))
                 .willReturn(false);
-        given(passwordEncoder.encode(anyString()))
-                .willReturn("Encrypted");
         given(memberRepository.save(any()))
                 .willReturn(newMember);
         //when

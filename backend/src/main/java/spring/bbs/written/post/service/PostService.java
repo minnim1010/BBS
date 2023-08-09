@@ -93,7 +93,7 @@ public class PostService {
         post.setTitle(req.getTitle());
         post.setContent(req.getContent());
         post.setCategory(findEntity.getCategory(req.getCategory()));
-        post.setModifiedTime(LocalDateTime.now());
+        post.setLastModifiedTime(LocalDateTime.now());
         Post savedPost = postRepository.save(post);
 
         return PostToResponse.convertPostToResponse(savedPost);

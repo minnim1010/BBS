@@ -1,8 +1,7 @@
 package spring.bbs;
 
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,11 +19,10 @@ import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Slf4j
 public abstract class AuthenticationTests {
-
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     protected final String AUTHENTICATION_HEADER = "Authorization";
+    protected final String TOKEN_PREFIX = "Bearer ";
 
     protected String memberName = "test";
     protected Member testMember;
@@ -71,7 +69,7 @@ public abstract class AuthenticationTests {
     }
 
     protected String getJwtTokenHeader(String token){
-        return "Bearer " + token;
+        return TOKEN_PREFIX + token;
     }
 
     protected void setMemberName(String memberName) {

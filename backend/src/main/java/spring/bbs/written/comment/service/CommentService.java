@@ -96,7 +96,7 @@ public class CommentService {
         util.validAuthor(comment.getAuthor().getName());
 
         comment.setContent(req.getContent());
-        comment.setModifiedTime(LocalDateTime.now());
+        comment.setLastModifiedTime(LocalDateTime.now());
 
         Comment savedComment = commentRepository.save(comment);
 

@@ -14,7 +14,7 @@ public class CommentToResponse {
                 comment.getId(),
                 comment.getContent(),
                 comment.getCreatedTime(),
-                comment.getModifiedTime(),
+                comment.getLastModifiedTime(),
                 comment.getAuthor().getId(),
                 comment.getAuthor().getName(),
                 parentCommentId

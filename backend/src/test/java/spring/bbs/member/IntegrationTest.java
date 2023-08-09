@@ -1,6 +1,7 @@
 package spring.bbs.member;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
+@Slf4j
 public class IntegrationTest extends AuthenticationTests {
 
     private final String JoinRequestPath
@@ -45,7 +47,7 @@ public class IntegrationTest extends AuthenticationTests {
         //given
         JoinRequest req = objectMapper
                 .readValue(new File(JoinRequestPath), JoinRequest.class);
-        logger.debug(req.toString());
+        log.debug(req.toString());
 
         memberRepository.findByName(req.getName())
                 .ifPresent(m -> memberRepository.delete(m));
@@ -66,7 +68,7 @@ public class IntegrationTest extends AuthenticationTests {
         //given
         JoinRequest req = objectMapper
                 .readValue(new File(JoinRequestPath), JoinRequest.class);
-        logger.debug(req.toString());
+        log.debug(req.toString());
 
         if(memberRepository.findByName(req.getName()).isEmpty())
             memberRepository.save(convertRequestToMember(req, RoleType.user, passwordEncoder.encode(req.getName())));
@@ -88,7 +90,7 @@ public class IntegrationTest extends AuthenticationTests {
         //given
         JoinRequest req = objectMapper
                 .readValue(new File(JoinRequestPath), JoinRequest.class);
-        logger.debug(req.toString());
+        log.debug(req.toString());
 
         memberRepository.findByName(req.getName()).ifPresent((m) ->
                 memberRepository.delete(m));

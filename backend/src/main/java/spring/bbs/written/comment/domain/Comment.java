@@ -1,6 +1,7 @@
 package spring.bbs.written.comment.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import spring.bbs.member.domain.Member;
 import spring.bbs.written.domain.Written;
 import spring.bbs.written.post.domain.Post;
@@ -8,6 +9,7 @@ import spring.bbs.written.post.domain.Post;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class Comment extends Written {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,37 +32,21 @@ public class Comment extends Written {
                    Comment parentComment) {
         this.content = content;
         this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
+        this.lastModifiedTime = modifiedTime;
         this.author = author;
         this.post = post;
         this.parentComment = parentComment;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
 
-    public Post getPost() {
-        return post;
-    }
-
     public void setPost(Post post) {
         this.post = post;
     }
 
-    public Comment getParentComment() {
-        return parentComment;
+    public void setParentComment(Comment parentComment) {
+        this.parentComment = parentComment;
     }
 }

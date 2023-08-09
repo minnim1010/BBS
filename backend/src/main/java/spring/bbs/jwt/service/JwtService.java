@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
@@ -32,8 +31,8 @@ public class JwtService {
     private final TokenRepository tokenRepository;
 
     public LoginResponse login(LoginRequest req) {
-
         Authentication authentication = authenticateCredentials(req);
+        System.out.println(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("logined: {}", req.getName());
 
@@ -50,8 +49,6 @@ public class JwtService {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(req.getName(), req.getPassword());
 
-        log.debug("usernamepasswordfilter = {}", SecurityContextHolder.getContext().getAuthentication());
-
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }
 
@@ -60,7 +57,7 @@ public class JwtService {
         if(!jwtProvider.isValidToken(refreshToken))
             throw new BadCredentialsException("No valid refresh token.");
 
-        Long memberId = this.findByRefreshToken(req.getRefreshToken()).getMemberId();
+        Long memberId = this.findByRefreshTokenWhenCreateAccessToken(req.getRefreshToken()).getMemberId();
 
         Member member = memberService.findById(memberId);
         String token = jwtProvider.generateAccessToken(member);
@@ -75,8 +72,8 @@ public class JwtService {
         tokenRepository.saveAccessToken(token, expiration);
     }
 
-    public RefreshToken findByRefreshToken(String refreshToken){
+    public RefreshToken findByRefreshTokenWhenCreateAccessToken(String refreshToken){
         return refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new DataNotFoundException("Refresh token doesn't exist."));
+                .orElseThrow(() -> new BadCredentialsException("Refresh token doesn't exist."));
     }
 }
