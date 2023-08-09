@@ -1,13 +1,14 @@
 package spring.bbs.written.post.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class PostRequest {
     @Size(max = 100)
-    @NotEmpty
+    @NotBlank
     private String title;
-    @NotEmpty
+    @NotBlank
     private String content;
     @NotEmpty
     private String category;

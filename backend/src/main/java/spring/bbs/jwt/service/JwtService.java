@@ -6,7 +6,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
@@ -33,7 +32,7 @@ public class JwtService {
     public LoginResponse login(LoginRequest req) {
         Authentication authentication = authenticateCredentials(req);
         System.out.println(authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("logined: {}", req.getName());
 
         String accessToken = jwtProvider.generateAccessToken(authentication);

@@ -40,7 +40,7 @@ public class ServiceTest {
             = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";
 
     private JoinRequest joinRequest;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private MemberService memberService;

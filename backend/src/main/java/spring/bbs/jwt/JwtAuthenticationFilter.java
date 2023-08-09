@@ -33,11 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 !jwtProvider.isLogoutAccessToken(jwt)) {
             Authentication authentication = jwtProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Get principal {}", authentication.getPrincipal());
             log.debug("{} stored in context: {}", authentication.getName(), requestUri);
-        }
-
-        log.debug("No valid token: {}", requestUri);
+        }else
+            log.debug("No valid token: {}", requestUri);
 
         filterChain.doFilter(request, response);
     }

@@ -14,7 +14,7 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.util.CommonUtil;
 import spring.bbs.written.post.domain.Post;
 import spring.bbs.written.post.dto.request.PostRequest;
-import spring.bbs.written.post.dto.util.RequestToPost;
+import spring.bbs.written.post.dto.util.RequestToPostConvertor;
 import spring.bbs.written.post.repository.PostRepository;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class PostIntegrationTests extends AuthenticationTests {
     private Post createPostByAuthor(String memberName) throws Exception{
         PostRequest req = getCreatePostDataRequest();
         Member author = getMember(memberName);
-        Post post = RequestToPost.convertCreateRequestToPost(req, author, util.getCategory(req.getCategory()));
+        Post post = RequestToPostConvertor.of(req, author, util.getCategory(req.getCategory()));
         return postRepository.save(post);
     }
 
@@ -70,7 +70,7 @@ public class PostIntegrationTests extends AuthenticationTests {
         List<PostRequest> postRequestList = getPostListDataRequest();
         Member author = getMember(username);
         List<Post> postList = postRequestList.stream()
-                .map(p -> RequestToPost.convertCreateRequestToPost(p, author, util.getCategory(p.getCategory())))
+                .map(p -> RequestToPostConvertor.of(p, author, util.getCategory(p.getCategory())))
                 .collect(Collectors.toList());
 
         return postRepository.saveAll(postList);

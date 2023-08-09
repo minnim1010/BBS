@@ -1,13 +1,12 @@
 package spring.bbs.written.post.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import spring.bbs.media.dto.response.MediaResponse;
-import spring.bbs.media.service.MediaService;
 import spring.bbs.written.post.dto.request.MediaPostRequest;
 import spring.bbs.written.post.dto.request.PostListRequest;
 import spring.bbs.written.post.dto.request.PostRequest;
@@ -17,7 +16,6 @@ import spring.bbs.written.post.dto.response.PostResponse;
 import spring.bbs.written.post.service.PostService;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -25,30 +23,33 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final MediaService mediaService;
+//    private final MediaService mediaService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> readPost(@PathVariable("id") long postId){
-        PostResponse response = postService.getPost(postId);
+    public ResponseEntity<MediaPostResponse> readPost(@PathVariable("id") long postId){
+        MediaPostResponse response = postService.getPost(postId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<Page<PostListResponse>> lookupPostPage(
-            @ModelAttribute PostListRequest req){
+            @ModelAttribute @Valid PostListRequest req){
         Page<PostListResponse> response = postService.getPostList(req);
 
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping()
+    @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<MediaPostResponse> writePost(@RequestBody MediaPostRequest req) throws IOException{
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<MediaPostResponse> writePost(@RequestBody @Valid MediaPostRequest req)
+            throws IOException{
         MediaPostResponse response = postService.createPost(req);
-        if(req.getMediaFiles() != null && !req.getMediaFiles().isEmpty()){
-            List<MediaResponse> mediaResponses = mediaService.saveMedia(req.getMediaFiles(), response.getId());
-            response.setFiles(mediaResponses);
-        }
+//        if(req.getMediaFiles() != null && !req.getMediaFiles().isEmpty()){
+//            List<MediaResponse> mediaResponses =
+//                    mediaService.saveMedia(req.getMediaFiles(), response.getId());
+//            response.setFiles(mediaResponses);
+//        }
 
         return ResponseEntity.ok(response);
     }
@@ -62,7 +63,7 @@ public class PostController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<PostResponse> modifyPost(@RequestBody PostRequest req,
+    public ResponseEntity<PostResponse> modifyPost(@RequestBody @Valid PostRequest req,
                                                    @PathVariable("id") long postId){
         PostResponse response = postService.updatePost(req, postId);
         return ResponseEntity.ok(response);

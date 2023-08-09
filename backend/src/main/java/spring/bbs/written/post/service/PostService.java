@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.util.CommonUtil;
 import spring.bbs.written.post.domain.Post;
@@ -20,8 +19,8 @@ import spring.bbs.written.post.dto.request.PostRequest;
 import spring.bbs.written.post.dto.response.MediaPostResponse;
 import spring.bbs.written.post.dto.response.PostListResponse;
 import spring.bbs.written.post.dto.response.PostResponse;
-import spring.bbs.written.post.dto.util.PostToResponse;
-import spring.bbs.written.post.dto.util.RequestToPost;
+import spring.bbs.written.post.dto.util.PostToResponseConvertor;
+import spring.bbs.written.post.dto.util.RequestToPostConvertor;
 import spring.bbs.written.post.repository.PostRepository;
 
 import java.time.LocalDateTime;
@@ -34,9 +33,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommonUtil findEntity;
 
-    public PostResponse getPost(long postId) {
+    public MediaPostResponse getPost(long postId) {
         log.debug("PostService.getPost");
-        return PostToResponse.convertPostToResponse(findEntity.getPost(postId));
+        return PostToResponseConvertor.toMediaPostResponse(findEntity.getPost(postId));
     }
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
@@ -49,7 +48,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(page-1, pageSize, Sort.by("createdTime").descending());
         Specification<Post> spec = getSpecification(req.getCategory(), req.getSearchScope(), req.getSearchKeyword());
         Page<Post> postList = postRepository.findAll(spec, pageable);
-        return postList.map(PostToResponse::convertPostToPostListResponse);
+        return postList.map(PostToResponseConvertor::toPostListResponse);
     }
 
     private Specification<Post> getSpecification(String category, String searchScope, String searchKeyword){
@@ -74,15 +73,14 @@ public class PostService {
     @Transactional
     public MediaPostResponse createPost(MediaPostRequest req) {
         log.debug("PostService.createPost");
-        log.debug(req.toString());
 
         String authorName = findEntity.getCurrentLoginedUser();
         Member author = findEntity.getMember(authorName);
 
-        Post post = RequestToPost.convertCreateRequestToPost(req, author, findEntity.getCategory(req.getCategory()));
+        Post post = RequestToPostConvertor.of(req, author, findEntity.getCategory(req.getCategory()));
         Post savedPost = postRepository.save(post);
 
-        return PostToResponse.convertPostToMediaResponse(savedPost);
+        return PostToResponseConvertor.toMediaPostResponse(savedPost);
     }
 
     @Transactional
@@ -96,7 +94,7 @@ public class PostService {
         post.setLastModifiedTime(LocalDateTime.now());
         Post savedPost = postRepository.save(post);
 
-        return PostToResponse.convertPostToResponse(savedPost);
+        return PostToResponseConvertor.toPostResponse(savedPost);
     }
 
     @Transactional
@@ -105,11 +103,6 @@ public class PostService {
         validAuthor(post.getAuthor().getName());
 
         postRepository.delete(post);
-    }
-
-    private Post _getPost(long postId){
-        return postRepository.findById(postId).orElseThrow(
-                () -> new DataNotFoundException("Post doesn't exist."));
     }
 
     private void validAuthor(String authorName){

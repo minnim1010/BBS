@@ -1,9 +1,12 @@
 package spring.bbs.written.post.dto.request;
 
+import jakarta.validation.constraints.Size;
+
 public class PostListRequest {
     private int page = 1;
     private String category = "string";
     private String searchScope;
+    @Size(max=20)
     private String searchKeyword;
 
     public PostListRequest() {

@@ -4,12 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
 import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 
-@ControllerAdvice(basePackages = {
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice(basePackages = {
         "spring.bbs.jwt.controller",
         "spring.bbs.comment.controller",
         "spring.bbs.member.controller",
@@ -49,6 +54,18 @@ public class ExceptionHandler {
         ExceptionResponse errorResponse = new ExceptionResponse("An error occurred", ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors()
+                .forEach((error) -> {
+                    String fieldName = ((FieldError) error).getField();
+                    String errorMessage = error.getDefaultMessage();
+                    errors.put(fieldName, errorMessage);
+                });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 //    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)

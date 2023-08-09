@@ -19,7 +19,8 @@ import spring.bbs.written.comment.dto.request.CommentListRequest;
 import spring.bbs.written.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.written.comment.repository.CommentRepository;
 import spring.bbs.written.post.domain.Post;
-import spring.bbs.written.post.dto.request.PostRequest;
+import spring.bbs.written.post.dto.request.MediaPostRequest;
+import spring.bbs.written.post.dto.util.RequestToPostConvertor;
 import spring.bbs.written.post.repository.PostRepository;
 
 import java.io.File;
@@ -33,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring.bbs.written.comment.dto.util.RequestToComment.convertRequestToComment;
-import static spring.bbs.written.post.dto.util.RequestToPost.convertCreateRequestToPost;
 
 public class CommentIntegrationTests extends AuthenticationTests {
 
@@ -71,10 +71,10 @@ public class CommentIntegrationTests extends AuthenticationTests {
     void createPost() {
         final String CreatePostDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
         try {
-            PostRequest req = objectMapper
-                    .readValue(new File(CreatePostDataPath), PostRequest.class);
+            MediaPostRequest req = objectMapper
+                    .readValue(new File(CreatePostDataPath), MediaPostRequest.class);
             Member author = getMember(memberName);
-            Post post = convertCreateRequestToPost(req, author, util.getCategory(req.getCategory()));
+            Post post = RequestToPostConvertor.of(req, author, util.getCategory(req.getCategory()));
             this.testPost = postRepository.save(post);
         } catch (IOException e) {
             e.printStackTrace();
