@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SQLRunner implements ApplicationRunner {
+public class SqlInitialRunner implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;
 
