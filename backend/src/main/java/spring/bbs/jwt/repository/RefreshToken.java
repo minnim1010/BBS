@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class RefreshToken {
 
     @Id @GeneratedValue
-    @Column(name = "id", updatable = false)
+    @Column(updatable = false)
     private Long id;
 
     @Column(nullable = false)

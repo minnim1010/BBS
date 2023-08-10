@@ -1,0 +1,14 @@
+### 1. 회원 가입
+POST http://localhost:8081/api/v1/join
+Content-Type: application/json
+
+{
+  "name": "httpTestUser",
+  "password": "password",
+  "checkPassword": "password",
+  "email": "{{$random.email}}"
+}
+
+### 2. 회원 탈퇴
+DELETE http://localhost:8081/api/v1/members
+Authorization: {{access_token}}

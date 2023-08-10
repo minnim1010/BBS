@@ -1,6 +1,7 @@
 package spring.bbs.jwt.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class JwtController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest req) {
         LoginResponse response = jwtService.login(req);
 
         return ResponseEntity
@@ -33,7 +34,7 @@ public class JwtController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<AccessTokenResponse> sendNewAccessToken(@RequestBody CreateAccessTokenRequest req) {
+    public ResponseEntity<AccessTokenResponse> sendNewAccessToken(@RequestBody @Valid CreateAccessTokenRequest req) {
         AccessTokenResponse response = jwtService.createNewAccessToken(req);
 
         return ResponseEntity

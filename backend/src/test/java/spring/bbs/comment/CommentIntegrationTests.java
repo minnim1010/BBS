@@ -154,9 +154,10 @@ public class CommentIntegrationTests extends AuthenticationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("page", String.valueOf(req.getPage()))
                 .param("postId", String.valueOf(req.getPostId()))
-                .param("searchKeyword", String.valueOf(req.getKeyword())));
+                .param("searchKeyword", ""));
         // then
         response.andDo(print()).andExpect(status().isOk())
+
                 .andExpect(jsonPath("$[0].content", is(commentList.get(2).getContent())))
                 .andExpect(jsonPath("$[1].content", is(commentList.get(1).getContent())))
                 .andExpect(jsonPath("$[2].content", is(commentList.get(0).getContent())));

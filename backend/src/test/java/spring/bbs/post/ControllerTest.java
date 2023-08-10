@@ -16,10 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.config.security.SecurityConfig;
 import spring.bbs.written.post.controller.PostController;
-import spring.bbs.written.post.dto.request.MediaPostRequest;
 import spring.bbs.written.post.dto.request.PostListRequest;
 import spring.bbs.written.post.dto.request.PostRequest;
-import spring.bbs.written.post.dto.response.MediaPostResponse;
 import spring.bbs.written.post.dto.response.PostListResponse;
 import spring.bbs.written.post.dto.response.PostResponse;
 import spring.bbs.written.post.service.PostService;
@@ -49,9 +47,9 @@ public class ControllerTest extends PostRequestCreator {
     @Test
     void 게시글_작성_성공() throws Exception{
         //given
-        MediaPostRequest req = getCreatePostDataRequest();
-        MediaPostResponse expect = getCreatePostDataResponse();
-        given(postService.createPost(any(MediaPostRequest.class)))
+        PostRequest req = getCreatePostDataRequest();
+        PostResponse expect = getCreatePostDataResponse();
+        given(postService.createPost(any(PostRequest.class)))
                 .willReturn(expect);
         //when then
         ResultActions response = mockMvc.perform(post("/api/v1/posts")
@@ -69,7 +67,7 @@ public class ControllerTest extends PostRequestCreator {
     @Test
     void 제목없는게시글_작성_실패_BadRequest에러() throws Exception{
         //given
-        MediaPostRequest req = getCreatePostDataRequest();
+        PostRequest req = getCreatePostDataRequest();
         req.setTitle("");
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/posts")
@@ -82,7 +80,7 @@ public class ControllerTest extends PostRequestCreator {
 
     @Test
     void 내용없는게시글_작성_실패_BadRequest() throws Exception{
-        MediaPostRequest req = getCreatePostDataRequest();
+        PostRequest req = getCreatePostDataRequest();
         req.setContent("");
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/posts")
@@ -95,7 +93,7 @@ public class ControllerTest extends PostRequestCreator {
 
     @Test
     void 카테고리없는게시글_작성_실패_BadRequest() throws Exception{
-        MediaPostRequest req = getCreatePostDataRequest();
+        PostRequest req = getCreatePostDataRequest();
         req.setCategory("");
         //when
         ResultActions response = mockMvc.perform(post("/api/v1/posts")
@@ -142,7 +140,7 @@ public class ControllerTest extends PostRequestCreator {
     @Test
     void 게시글_읽기_성공() throws Exception{
         //given
-        MediaPostResponse expect = getCreatePostDataResponse();
+        PostResponse expect = getCreatePostDataResponse();
         Long id = 1L;
         given(postService.getPost(any(Long.class))).willReturn(expect);
         //when

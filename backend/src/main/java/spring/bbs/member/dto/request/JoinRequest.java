@@ -1,69 +1,34 @@
 package spring.bbs.member.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 public class JoinRequest {
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @Size(min = 3, max = 20)
     private String name;
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @Size(min = 8, max=16)
     private String password;
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @Size(min = 8, max=16)
     private String checkPassword;
+    @Email
     private String email;
-
-    public JoinRequest() {
-    }
 
     public JoinRequest(String name, String password, String checkPassword, String email) {
         this.name = name;
         this.password = password;
         this.checkPassword = checkPassword;
         this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getCheckPassword() {
-        return checkPassword;
-    }
-
-    public void setCheckPassword(String checkPassword) {
-        this.checkPassword = checkPassword;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public String toString() {
-        return "JoinRequest{" +
-                "name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", checkPassword='" + checkPassword + '\'' +
-                ", email='" + email + '\'' +
-                '}';
     }
 }

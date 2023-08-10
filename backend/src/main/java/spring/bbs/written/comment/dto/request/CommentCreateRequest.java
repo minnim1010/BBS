@@ -1,50 +1,25 @@
 package spring.bbs.written.comment.dto.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentCreateRequest {
-    @NotNull
-    @NotEmpty
+
     @NotBlank
     private String content;
     @NotNull
+    @Min(1)
     private Long postId;
-    private Long parentCommentId = 0L;
-
-    public CommentCreateRequest() {
-    }
-
-    public CommentCreateRequest(String content, long postId, long parentCommentId) {
-        this.content = content;
-        this.postId = postId;
-        this.parentCommentId = parentCommentId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Long getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
-
-    public Long getParentCommentId() {
-        return parentCommentId;
-    }
-
-    public void setParentCommentId(Long parentCommentId) {
-        this.parentCommentId = parentCommentId;
-    }
+    private Long parentCommentId;
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
 package spring.bbs.written.comment.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,21 +24,21 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponse>> lookupComments(@ModelAttribute CommentListRequest req) {
+    public ResponseEntity<List<CommentResponse>> lookupComments(CommentListRequest req) {
         List<CommentResponse> responseList = commentService.getCommentsByPost(req);
         return ResponseEntity.ok(responseList);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<CommentResponse> writeComment(@RequestBody CommentCreateRequest req) {
+    public ResponseEntity<CommentResponse> writeComment(@RequestBody @Valid CommentCreateRequest req) {
         CommentResponse response = commentService.createComment(req);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<CommentResponse> modifyComment(@RequestBody CommentUpdateRequest req,
+    public ResponseEntity<CommentResponse> modifyComment(@RequestBody @Valid CommentUpdateRequest req,
             @PathVariable(value = "id") long commentId) {
         CommentResponse response = commentService.updateComment(req, commentId);
         return ResponseEntity.ok(response);

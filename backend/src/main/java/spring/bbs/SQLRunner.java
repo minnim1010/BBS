@@ -1,6 +1,7 @@
 package spring.bbs;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 @ConditionalOnProperty(name = "spring.jpa.hibernate.ddl-auto", havingValue = "create")
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SQLRunner implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;
@@ -26,6 +28,7 @@ public class SQLRunner implements ApplicationRunner {
         try {
             String sqlScript = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream()));
             jdbcTemplate.execute(sqlScript);
+            log.debug("Insert Category ('string', 'Java', 'Spring')");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package spring.bbs.member.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<JoinResponse> join(@RequestBody JoinRequest req){
+    public ResponseEntity<JoinResponse> join(@RequestBody @Valid JoinRequest req){
         log.debug("req = {}", req);
 
         return ResponseEntity.ok(memberService.createMember(req));

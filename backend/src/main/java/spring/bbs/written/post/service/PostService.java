@@ -13,10 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.bbs.member.domain.Member;
 import spring.bbs.util.CommonUtil;
 import spring.bbs.written.post.domain.Post;
-import spring.bbs.written.post.dto.request.MediaPostRequest;
 import spring.bbs.written.post.dto.request.PostListRequest;
 import spring.bbs.written.post.dto.request.PostRequest;
-import spring.bbs.written.post.dto.response.MediaPostResponse;
 import spring.bbs.written.post.dto.response.PostListResponse;
 import spring.bbs.written.post.dto.response.PostResponse;
 import spring.bbs.written.post.dto.util.PostToResponseConvertor;
@@ -33,14 +31,11 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommonUtil findEntity;
 
-    public MediaPostResponse getPost(long postId) {
-        log.debug("PostService.getPost");
-        return PostToResponseConvertor.toMediaPostResponse(findEntity.getPost(postId));
+    public PostResponse getPost(long postId) {
+        return PostToResponseConvertor.toPostResponse(findEntity.getPost(postId));
     }
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
-        log.debug("PostService.getPostList");
-
         final int pageSize = 10;
         int page = req.getPage();
         if(page <= 0)
@@ -71,16 +66,14 @@ public class PostService {
     }
 
     @Transactional
-    public MediaPostResponse createPost(MediaPostRequest req) {
-        log.debug("PostService.createPost");
-
+    public PostResponse createPost(PostRequest req) {
         String authorName = findEntity.getCurrentLoginedUser();
         Member author = findEntity.getMember(authorName);
 
         Post post = RequestToPostConvertor.of(req, author, findEntity.getCategory(req.getCategory()));
         Post savedPost = postRepository.save(post);
 
-        return PostToResponseConvertor.toMediaPostResponse(savedPost);
+        return PostToResponseConvertor.toPostResponse(savedPost);
     }
 
     @Transactional

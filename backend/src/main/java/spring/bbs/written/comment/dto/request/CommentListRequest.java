@@ -1,46 +1,26 @@
 package spring.bbs.written.comment.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
 public class CommentListRequest {
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private Long postId;
-    private int page = 1;
+    @Min(1)
+    private int page;
     private String searchKeyword;
-
-    public CommentListRequest() {
-    }
 
     public CommentListRequest(int page, String keyword, long postId) {
         this.page = page;
         this.searchKeyword = keyword;
         this.postId = postId;
     }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public String getKeyword() {
-        return searchKeyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.searchKeyword = keyword;
-    }
-
-    public long getPostId() {
-        return postId;
-    }
-
-    public void setPostId(long postId) {
-        this.postId = postId;
-    }
-
 }

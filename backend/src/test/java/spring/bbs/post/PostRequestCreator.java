@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import spring.bbs.written.post.dto.request.MediaPostRequest;
 import spring.bbs.written.post.dto.request.PostListRequest;
 import spring.bbs.written.post.dto.request.PostRequest;
-import spring.bbs.written.post.dto.response.MediaPostResponse;
 import spring.bbs.written.post.dto.response.PostListResponse;
 import spring.bbs.written.post.dto.response.PostResponse;
 
@@ -19,28 +17,28 @@ import java.util.List;
 public abstract class PostRequestCreator {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
-    protected MediaPostRequest createPostRequestData;
-    protected MediaPostResponse createPostResponseData;
+    protected PostRequest createPostRequestData;
+    protected PostResponse createPostResponseData;
     protected PostRequest updatePostRequestData;
     protected PostResponse updatePostResponseData;
     protected PostListRequest postListRequestData;
     protected Page<PostListResponse> postListResponseData;
 
 
-    protected MediaPostRequest getCreatePostDataRequest() throws IOException {
+    protected PostRequest getCreatePostDataRequest() throws IOException {
         final String CreatePostDataPath
                 = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
         if (createPostRequestData == null)
             createPostRequestData = objectMapper
-                    .readValue(new File(CreatePostDataPath), MediaPostRequest.class);
+                    .readValue(new File(CreatePostDataPath), PostRequest.class);
         return createPostRequestData;
     }
 
-    protected MediaPostResponse getCreatePostDataResponse() throws IOException {
+    protected PostResponse getCreatePostDataResponse() throws IOException {
         if (createPostResponseData == null) {
             if (createPostRequestData == null)
                 getCreatePostDataRequest();
-            createPostResponseData = MediaPostResponse.builder()
+            createPostResponseData = PostResponse.builder()
                     .title(createPostRequestData.getTitle())
                     .content(createPostRequestData.getContent())
                     .category(createPostRequestData.getCategory())
@@ -71,7 +69,7 @@ public abstract class PostRequestCreator {
         return updatePostResponseData;
     }
 
-    protected PostListRequest getPostListDataRequest() throws IOException {
+    protected PostListRequest getPostListDataRequest(){
         if(postListRequestData == null){
             postListRequestData =
                     new PostListRequest(1, "string", null, null);

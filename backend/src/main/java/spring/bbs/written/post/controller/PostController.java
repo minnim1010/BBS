@@ -7,15 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import spring.bbs.written.post.dto.request.MediaPostRequest;
 import spring.bbs.written.post.dto.request.PostListRequest;
 import spring.bbs.written.post.dto.request.PostRequest;
-import spring.bbs.written.post.dto.response.MediaPostResponse;
 import spring.bbs.written.post.dto.response.PostListResponse;
 import spring.bbs.written.post.dto.response.PostResponse;
 import spring.bbs.written.post.service.PostService;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -26,14 +22,13 @@ public class PostController {
 //    private final MediaService mediaService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<MediaPostResponse> readPost(@PathVariable("id") long postId){
-        MediaPostResponse response = postService.getPost(postId);
+    public ResponseEntity<PostResponse> readPost(@PathVariable("id") long postId){
+        PostResponse response = postService.getPost(postId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<Page<PostListResponse>> lookupPostPage(
-            @ModelAttribute @Valid PostListRequest req){
+    public ResponseEntity<Page<PostListResponse>> lookupPostPage(@Valid PostListRequest req){
         Page<PostListResponse> response = postService.getPostList(req);
 
         return ResponseEntity.ok(response);
@@ -42,9 +37,8 @@ public class PostController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<MediaPostResponse> writePost(@RequestBody @Valid MediaPostRequest req)
-            throws IOException{
-        MediaPostResponse response = postService.createPost(req);
+    public ResponseEntity<PostResponse> writePost(@RequestBody @Valid PostRequest req) {
+        PostResponse response = postService.createPost(req);
 //        if(req.getMediaFiles() != null && !req.getMediaFiles().isEmpty()){
 //            List<MediaResponse> mediaResponses =
 //                    mediaService.saveMedia(req.getMediaFiles(), response.getId());

@@ -1,8 +1,7 @@
 package spring.bbs.written.comment.service;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,10 +27,9 @@ import java.util.List;
 import static spring.bbs.written.comment.dto.util.CommentToResponse.convertCommentToResponse;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CommentService {
-    private final Logger logger = LoggerFactory.getLogger(
-            this.getClass());
 
     private final int pageSize = 10;
 
@@ -39,8 +37,6 @@ public class CommentService {
     private final CommonUtil util;
 
     public List<CommentResponse> getCommentsByPost(CommentListRequest req){
-        logger.debug("CommentService:getCommentsByPost");
-
         int page = req.getPage();
         if(page <= 0)
             page = 1;
@@ -48,7 +44,7 @@ public class CommentService {
         Post post = util.getPost(req.getPostId());
         Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
 
-        Specification<Comment> spec = getSpecification(post, req.getKeyword());
+        Specification<Comment> spec = getSpecification(post, req.getSearchKeyword());
         List<Comment> comments = commentRepository.findAll(spec, pageable);
         return comments.stream()
                         .map(CommentToResponse::convertCommentToResponse)
@@ -60,12 +56,12 @@ public class CommentService {
 
         specification.and((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("post"), post));
-        logger.debug("Specification post: id {}", post.getId());
+        log.debug("Specification post: id {}", post.getId());
 
         if(StringUtils.hasText(searchKeyword)){
             specification = specification.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(root.get("content"), "%" + searchKeyword + "%"));
-            logger.debug("Specification searchKeyword: {}", searchKeyword);
+            log.debug("Specification searchKeyword: {}", searchKeyword);
         }
 
         return specification;
@@ -73,13 +69,11 @@ public class CommentService {
 
     @Transactional
     public CommentResponse createComment(CommentCreateRequest req){
-        logger.debug("CommentService:createComment");
-        logger.debug(req.toString());
-
         Member author = util.getMember(util.getCurrentLoginedUser());
         Post post = util.getPost(req.getPostId());
+        Long parentCommentId = req.getParentCommentId();
         Comment parentComment = null;
-        if(req.getParentCommentId() != 0)
+        if(parentCommentId != null && parentCommentId != 0)
             parentComment = util.getComment(req.getParentCommentId());
 
         Comment comment = RequestToComment.convertRequestToComment(req.getContent(), author, post, parentComment);
@@ -90,8 +84,6 @@ public class CommentService {
 
     @Transactional
     public CommentResponse updateComment(CommentUpdateRequest req, long commentId){
-        logger.debug("CommentService:updateComment");
-
         Comment comment = util.getComment(commentId);
         util.validAuthor(comment.getAuthor().getName());
 
@@ -105,8 +97,6 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(long commentId){
-        logger.debug("CommentService:deleteComment");
-
         Comment comment = util.getComment(commentId);
         util.validAuthor(comment.getAuthor().getName());
 

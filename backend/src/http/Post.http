@@ -1,0 +1,10 @@
+### 1. 게시글 작성
+POST http://localhost:8081/api/v1/posts
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "title": "httpTestCreateTitle",
+  "content": "httpTestCreateContent",
+  "category": "string"
+}
