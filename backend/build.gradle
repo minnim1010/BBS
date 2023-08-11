@@ -20,10 +20,6 @@ ext {
 	set('snippetsDir', file("build/generated-snippets"))
 }
 
-jar {
-	enabled = false
-}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -66,4 +62,33 @@ tasks.named('test') {
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
 	dependsOn test
+}
+
+tasks.named("jar") {
+	enabled = false
+}
+
+ext.profile =
+		(!project.hasProperty("profile") || !profile) ? "local" :
+				project.property("profile").toString()
+println "profile: $profile"
+test{
+	systemProperty "spring.profiles.active", profile
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs "src/main/java"
+		}
+		resources {
+			srcDirs "src/main/resources", "src/main/resources-${profile}"
+		}
+	}
+}
+
+tasks {
+	processResources {
+		duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+	}
 }

@@ -20,7 +20,7 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Slf4j
-public abstract class AuthenticationTests {
+public abstract class AuthenticationTests implements ProfileConfiguration {
     protected final String AUTHENTICATION_HEADER = "Authorization";
     protected final String TOKEN_PREFIX = "Bearer ";
 

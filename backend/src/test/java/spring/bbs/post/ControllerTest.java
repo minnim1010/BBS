@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class})},
         excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class})
 @AutoConfigureMockMvc
-public class ControllerTest extends PostRequestCreator {
+public class ControllerTest extends PostRequestCreator  {
     @Autowired
     private MockMvc mockMvc;
     @MockBean

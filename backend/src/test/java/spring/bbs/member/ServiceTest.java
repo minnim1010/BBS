@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import spring.bbs.ProfileConfiguration;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
 import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
 import spring.bbs.member.domain.Member;
@@ -34,7 +35,7 @@ import static spring.bbs.member.dto.util.RequestToMember.convertRequestToMember;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
-public class ServiceTest {
+public class ServiceTest implements ProfileConfiguration {
 
     private final String JoinRequestPath
             = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";

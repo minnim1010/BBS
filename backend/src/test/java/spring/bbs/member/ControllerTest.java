@@ -14,6 +14,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import spring.bbs.ProfileConfiguration;
 import spring.bbs.config.security.SecurityConfig;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
 import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
@@ -41,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class})},
         excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class})
 @AutoConfigureMockMvc
-public class ControllerTest {
+public class ControllerTest implements ProfileConfiguration {
 
     private final String JoinRequestPath
             = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/member/JoinRequest.json";

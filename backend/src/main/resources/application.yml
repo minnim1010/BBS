@@ -2,55 +2,32 @@ server:
   port: 8081
 
 spring:
-  config:
-    import: classpath:privacy.yml
   datasource:
     driver-class-name: org.h2.Driver
     username: sa
     password:
     url: jdbc:h2:mem:bbs
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-        format_sql: true
-        show_sql: true
     hibernate:
       ddl-auto: create
-
   data:
     redis:
-      host: redis
+      host: localhost
       port: 6379
-
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${oauth.google.id}
-            client-secret: ${oauth.google.secret}
             scope:
               - email
               - profile
 
-logging:
-  file:
-    path: ${user.dir}/log
-
-  level:
-    root: info
-    org.springframework.security: info
-    spring:
-      bbs: debug
-
 jwt:
   header: Authorization
-  secret: ${jwt.secret}
   access-token-duration: 1800000
   refresh-token-duration: 86400000
 
