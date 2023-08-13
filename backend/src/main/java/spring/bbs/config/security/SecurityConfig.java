@@ -27,7 +27,7 @@ import spring.bbs.config.oauth.OAuth2UserService;
 import spring.bbs.jwt.JwtAuthenticationFilter;
 import spring.bbs.jwt.JwtProperties;
 import spring.bbs.jwt.JwtProvider;
-import spring.bbs.jwt.repository.RefreshTokenRepository;
+import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.service.MemberService;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
@@ -41,7 +41,7 @@ public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
     private final JwtProperties jwtProperties;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private final MemberService memberService;
 
     @Bean
@@ -123,7 +123,7 @@ public class SecurityConfig {
     public OAuth2SuccessHandler oAuth2SuccessHandler(){
         return new OAuth2SuccessHandler(jwtProvider,
                 jwtProperties,
-                refreshTokenRepository,
+                tokenRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
                 memberService);
     }

@@ -17,13 +17,23 @@ public class TokenRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public boolean existsAccessToken(String token){
+    public boolean existsByAccessToken(String token){
         String result = (String) redisTemplate.opsForValue().get(token);
         if(result == null) return false;
         return result.equals(ACCESS_TOKEN_VALUE);
     }
 
+    public boolean existsByRefreshToken(String token){
+        String result = (String) redisTemplate.opsForValue().get(token);
+        if(result == null) return false;
+        return result.equals(REFRESH_TOKEN_VALUE);
+    }
+
     public void saveAccessToken(String key, long timeout){
         redisTemplate.opsForValue().set(key, ACCESS_TOKEN_VALUE, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public void saveRefreshToken(String key, long timeout){
+        redisTemplate.opsForValue().set(key, REFRESH_TOKEN_VALUE, timeout, TimeUnit.MILLISECONDS);
     }
 }
