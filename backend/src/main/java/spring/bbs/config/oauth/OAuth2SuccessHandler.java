@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import spring.bbs.jwt.JwtProperties;
 import spring.bbs.jwt.JwtProvider;
-import spring.bbs.jwt.repository.RefreshToken;
-import spring.bbs.jwt.repository.RefreshTokenRepository;
+import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.service.MemberService;
 import spring.bbs.util.CookieUtil;
@@ -27,7 +26,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtProvider tokenProvider;
     private final JwtProperties jwtProperties;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
     private final MemberService memberService;
 
@@ -37,7 +36,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Member member = memberService.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
         String refreshToken = tokenProvider.generateRefreshToken(member);
-        saveRefreshToken(member.getId(), refreshToken);
+        tokenRepository.saveRefreshToken(refreshToken, tokenProvider.getExpiration(refreshToken));
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateAccessToken(member);
@@ -46,14 +45,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         clearAuthenticationAttributes(request, response);
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
-    }
-
-    private void saveRefreshToken(Long memberId, String newRefreshToken) {
-        RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId)
-                .map(entity -> entity.update(newRefreshToken))
-                .orElse(new RefreshToken(memberId, newRefreshToken));
-
-        refreshTokenRepository.save(refreshToken);
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {

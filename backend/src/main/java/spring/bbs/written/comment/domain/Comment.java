@@ -14,7 +14,7 @@ public class Comment extends Written {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 200)
     private String content;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Post post;

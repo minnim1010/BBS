@@ -1,4 +1,4 @@
-package spring.bbs.post;
+package spring.bbs.post.test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

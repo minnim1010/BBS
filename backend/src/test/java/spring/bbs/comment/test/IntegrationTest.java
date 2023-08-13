@@ -1,6 +1,5 @@
-package spring.bbs.comment;
+package spring.bbs.comment.test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.AuthenticationTests;
+import spring.bbs.comment.CommentRequestResponseCreator;
 import spring.bbs.member.domain.Member;
 import spring.bbs.util.CommonUtil;
 import spring.bbs.written.comment.domain.Comment;
@@ -35,16 +35,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring.bbs.written.comment.dto.util.RequestToComment.convertRequestToComment;
 
-public class CommentIntegrationTests extends AuthenticationTests {
+public class IntegrationTest extends AuthenticationTests {
 
     private final String username = "CommentTestUser1";
     private final String otherUserName = "CommentTestUser2";
-
-    private CommentCreateRequest commentCreateRequest;
-    private List<CommentCreateRequest> commentCreateRequestList;
-    private CommentUpdateRequest commentUpdateRequest;
-    private CommentListRequest commentListRequest;
-
+    private final CommentRequestResponseCreator requestResponseCreator = new CommentRequestResponseCreator();
     private Post testPost;
 
     @Autowired
@@ -58,7 +53,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
     @Autowired
     private CommonUtil util;
 
-    public CommentIntegrationTests() {
+    public IntegrationTest() {
         setMemberName(username);
     }
 
@@ -90,7 +85,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
     }
 
     private Comment createCommentByAuthor(String authorName) throws IOException {
-        CommentCreateRequest req = getCreateCommentRequest();
+        CommentCreateRequest req = requestResponseCreator.getCreateCommentRequest();
         Member author = getMember(authorName);
         Comment comment = convertRequestToComment(req.getContent(), author, testPost, null);
         return commentRepository.save(comment);
@@ -98,7 +93,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
 
     private List<Comment> createCommentCreateRequestList() throws IOException {
         Member author = getMember(memberName);
-        List<Comment> commentList = getCreateCommentRequestList().stream()
+        List<Comment> commentList = requestResponseCreator.getCreateCommentRequestList().stream()
                 .map((req) -> convertRequestToComment(req.getContent(), author, testPost, null))
                 .collect(Collectors.toList());
         return commentRepository.saveAll(commentList);
@@ -109,45 +104,12 @@ public class CommentIntegrationTests extends AuthenticationTests {
                 .orElseGet(() -> createMember(name));
     }
 
-    private CommentCreateRequest getCreateCommentRequest() throws IOException {
-        final String CreateCommentDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequest.json";
-        if (commentCreateRequest == null)
-            commentCreateRequest = objectMapper
-                    .readValue(new File(CreateCommentDataPath), CommentCreateRequest.class);
-        return commentCreateRequest;
-    }
-
-    private CommentUpdateRequest getUpdateCommentRequest() throws IOException {
-        final String UpdateCommentDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/UpdateCommentRequest.json";
-        if (commentUpdateRequest == null)
-            commentUpdateRequest = objectMapper
-                    .readValue(new File(UpdateCommentDataPath), CommentUpdateRequest.class);
-        return commentUpdateRequest;
-    }
-
-    private CommentListRequest getCommentListRequest() throws IOException {
-        final String CommentListRequestDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CommentListRequest.json";
-        if (commentListRequest == null)
-            commentListRequest = objectMapper
-                    .readValue(new File(CommentListRequestDataPath), CommentListRequest.class);
-        return commentListRequest;
-    }
-
-    private List<CommentCreateRequest> getCreateCommentRequestList() throws IOException {
-        final String CreateCommentListDataPath = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/comment/CreateCommentRequestList.json";
-        if (commentCreateRequestList == null)
-            commentCreateRequestList = objectMapper
-                    .readValue(new File(CreateCommentListDataPath), new TypeReference<>() {
-                    });
-        return commentCreateRequestList;
-    }
-
     @Test
     @DisplayName("댓글 목록 조회 성공")
     void givenCommentList_thenGetCommentList() throws Exception {
         // given
         List<Comment> commentList = createCommentCreateRequestList();
-        CommentListRequest req = getCommentListRequest();
+        CommentListRequest req = requestResponseCreator.getCommentListRequest();
         req.setPostId(testPost.getId());
         // when
         ResultActions response = mockMvc.perform(get("/api/v1/comments")
@@ -167,7 +129,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
     @DisplayName("댓글 생성 성공")
     void givenNewComment_thenGetNewComment() throws Exception {
         // given
-        CommentCreateRequest req = getCreateCommentRequest();
+        CommentCreateRequest req = requestResponseCreator.getCreateCommentRequest();
         req.setPostId(testPost.getId());
         String tokenHeader = getJwtTokenHeader(getJwtToken());
         // when
@@ -185,7 +147,7 @@ public class CommentIntegrationTests extends AuthenticationTests {
     void givenExistedComment_thenGetUpdatedComment() throws Exception {
         // given
         Comment comment = createCommentByAuthor(memberName);
-        CommentUpdateRequest req = getUpdateCommentRequest();
+        CommentUpdateRequest req = requestResponseCreator.getUpdateCommentRequest();
         String tokenHeader = getJwtTokenHeader(getJwtToken());
         // when
         ResultActions response = mockMvc.perform(patch("/api/v1/comments/{id}", comment.getId())
@@ -211,5 +173,4 @@ public class CommentIntegrationTests extends AuthenticationTests {
         response.andDo(print()).andExpect(status().isOk());
         assert (commentRepository.findById(comment.getId()).isEmpty());
     }
-
 }

@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.AuthenticationTests;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.repository.MemberRepository;
+import spring.bbs.util.RoleType;
 
 import java.io.File;
 

@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import spring.bbs.ProfileConfiguration;
-import spring.bbs.member.RoleType;
+import spring.bbs.util.RoleType;
 
 import java.util.List;
 

@@ -14,18 +14,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class PostRequestCreator {
+public class PostRequestResponseCreator {
 
-    protected ObjectMapper objectMapper = new ObjectMapper();
-    protected PostRequest createPostRequestData;
-    protected PostResponse createPostResponseData;
-    protected PostRequest updatePostRequestData;
-    protected PostResponse updatePostResponseData;
-    protected PostListRequest postListRequestData;
-    protected Page<PostListResponse> postListResponseData;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private PostRequest createPostRequestData;
+    private PostResponse createPostResponseData;
+    private PostRequest updatePostRequestData;
+    private PostResponse updatePostResponseData;
+    private PostListRequest postListRequestData;
+    private Page<PostListResponse> postListResponseData;
 
-
-    protected PostRequest getCreatePostDataRequest() throws IOException {
+    public PostRequest getCreatePostDataRequest() throws IOException {
         final String CreatePostDataPath
                 = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/CreatePostData.json";
         if (createPostRequestData == null)
@@ -34,7 +33,7 @@ public abstract class PostRequestCreator {
         return createPostRequestData;
     }
 
-    protected PostResponse getCreatePostDataResponse() throws IOException {
+    public PostResponse getCreatePostDataResponse() throws IOException {
         if (createPostResponseData == null) {
             if (createPostRequestData == null)
                 getCreatePostDataRequest();
@@ -47,7 +46,7 @@ public abstract class PostRequestCreator {
         return createPostResponseData;
     }
 
-    protected PostRequest getUpdatePostDataRequest() throws IOException {
+    public PostRequest getUpdatePostDataRequest() throws IOException {
         final String UpdatePostDataPath
                 = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/UpdatePostData.json";
         if (updatePostRequestData == null)
@@ -56,7 +55,7 @@ public abstract class PostRequestCreator {
         return updatePostRequestData;
     }
 
-    protected PostResponse getUpdatePostDataResponse() throws IOException {
+    public PostResponse getUpdatePostDataResponse() throws IOException {
         if (updatePostResponseData == null) {
             if (updatePostRequestData == null)
                 getUpdatePostDataRequest();
@@ -69,7 +68,7 @@ public abstract class PostRequestCreator {
         return updatePostResponseData;
     }
 
-    protected PostListRequest getPostListDataRequest(){
+    public PostListRequest getPostListDataRequest(){
         if(postListRequestData == null){
             postListRequestData =
                     new PostListRequest(1, "string", null, null);
@@ -77,7 +76,7 @@ public abstract class PostRequestCreator {
         return postListRequestData;
     }
 
-    protected Page<PostListResponse> getPostListDataResponse() throws IOException {
+    public Page<PostListResponse> getPostListDataResponse() throws IOException {
         final String PostListDataPath
                 = "/Users/mjmj/Desktop/bbs/backend/src/test/resources/post/PostListResponseData.json";
         if (postListResponseData == null){

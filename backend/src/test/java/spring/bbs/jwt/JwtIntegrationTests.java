@@ -2,8 +2,7 @@ package spring.bbs.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,9 +19,8 @@ import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.AccessTokenResponse;
 import spring.bbs.jwt.dto.response.LoginResponse;
-import spring.bbs.jwt.repository.RefreshToken;
-import spring.bbs.jwt.repository.RefreshTokenRepository;
-import spring.bbs.member.RoleType;
+import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.util.RoleType;
 
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private TokenRepository tokenRepository;
 
     private final String username = "JwtTestUser";
 
@@ -47,133 +45,122 @@ public class JwtIntegrationTests extends AuthenticationTests {
         setMemberName(username);
     }
 
-    @AfterEach
-    void release(){
-        log.debug("refreshTokenRepository delete");
-        refreshTokenRepository.deleteAll();
+    @Nested
+    class 로그인{
+
+        private ResultActions request(LoginRequest req) throws Exception {
+            return mockMvc.perform(post("/api/v1/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)));
+        }
+
+        @Test
+        public void 올바른계정정보면_성공() throws Exception {
+            //given
+            LoginRequest req = new LoginRequest(memberName, memberName);
+            //when
+            ResultActions response = request(req);
+            //then
+            MvcResult result = response.andExpect(status().isOk()).andReturn();
+            LoginResponse body = objectMapper.readValue(
+                    result.getResponse().getContentAsString(), LoginResponse.class);
+            assert(jwtProvider.isValidToken(body.getAccessToken()));
+            assert(jwtProvider.isValidToken(body.getRefreshToken()));
+        }
+
+        @Test
+        public void 틀린계정정보면_Unauthorized() throws Exception {
+            //given
+            LoginRequest req = new LoginRequest("wrongAccount", "wrongAccount");
+            //when
+            ResultActions response = request(req);
+            //then
+            response.andExpect(status().isUnauthorized());
+        }
     }
 
-    @Test
-    @DisplayName("로그인 성공")
-    public void givenValidAccount_thenReturnRefreshAndAccessToken() throws Exception {
-        //given
-        LoginRequest req = new LoginRequest(memberName, memberName);
-        log.debug(req.toString());
-        //when
-        ResultActions response = mockMvc.perform(post("/api/v1/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        MvcResult result = response.andDo(print())
-                        .andExpect(status().isOk())
-                .andReturn();
+    @Nested
+    class 새로운액세스토큰_발급요청{
 
-        LoginResponse body = objectMapper.readValue(result.getResponse().getContentAsString(), LoginResponse.class);
-        assert(jwtProvider.isValidToken(body.getAccessToken()));
-        assert(jwtProvider.isValidToken(body.getRefreshToken()));
+        private ResultActions request(CreateAccessTokenRequest req) throws Exception {
+            return mockMvc.perform(post("/api/v1/token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)));
+        }
+
+        @Test
+        public void 유효한RefreshToken이면_성공_새로운액세스토큰발급() throws Exception {
+            //given
+            String refreshToken = generateRefreshToken();
+            tokenRepository.saveRefreshToken(refreshToken, jwtProvider.getExpiration(refreshToken));
+            CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
+            //when
+            ResultActions response = request(req);
+            //then
+            MvcResult result = response.andDo(print())
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            AccessTokenResponse body = objectMapper.readValue(result.getResponse().getContentAsString(), AccessTokenResponse.class);
+            assert(jwtProvider.isValidToken(body.getToken()));
+        }
+
+        @Test
+        public void 만료된RefreshToken이면_Unauthorized() throws Exception {
+            //given
+            CreateAccessTokenRequest req = new CreateAccessTokenRequest(generateRefreshToken());
+            //when
+            ResultActions response = request(req);
+            //then
+            response.andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        public void 잘못된형식의RefreshToken이면_Unauthorized() throws Exception {
+            //given
+            String refreshToken = "invalid-token";
+            tokenRepository.saveRefreshToken(refreshToken, 10000000);
+            CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
+
+            //when
+            ResultActions response = request(req);
+            //then
+            response.andExpect(status().isUnauthorized());
+        }
     }
 
-    @Test
-    @DisplayName("로그인 실패: 틀린 계정 정보")
-    public void givenWrongAccount_thenUnauthorizedError() throws Exception {
-        //given
-        LoginRequest req = new LoginRequest("wrongAccount", "wrongAccount");
-        log.debug(req.toString());
-        //when
-        ResultActions response = mockMvc.perform(post("/api/v1/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
+    @Nested
+    class 로그아웃{
 
-    @Test
-    @DisplayName("새 토큰 발급 성공")
-    public void givenRefreshToken_thenReturnNewAccessToken() throws Exception {
-        //given
-        String refreshToken = generateRefreshToken();
-        long expiration = jwtProvider.getExpiration(refreshToken);
-        refreshTokenRepository.save(new RefreshToken(testMember.getId(), refreshToken));
+        private ResultActions request(String tokenHeader) throws Exception{
+            return mockMvc.perform(get("/api/v1/logout")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header(AUTHENTICATION_HEADER, tokenHeader));
+        }
 
-        CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-        log.debug(req.toString());
-        //when
-        ResultActions response = mockMvc.perform(post("/api/v1/token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        MvcResult result = response.andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        @Test
+        public void 유효한AccessToken이면_성공_AccessToken을저장() throws Exception {
+            //given
+            String token = getJwtToken();
+            String tokenHeader = getJwtTokenHeader(token);
+            //when
+            ResultActions response = request(tokenHeader);
+            //then
+            response.andExpect(status().isOk());
 
-        AccessTokenResponse body = objectMapper.readValue(result.getResponse().getContentAsString(), AccessTokenResponse.class);
-        assert(jwtProvider.isValidToken(body.getToken()));
-    }
+            assert(jwtProvider.isLogoutAccessToken(token));
+        }
 
-    @Test
-    @DisplayName("새 토큰 발급 실패: 만료된 토큰")
-    public void givenRefreshToken_thenUnauthorizedError1() throws Exception {
-        //given
-        CreateAccessTokenRequest req = new CreateAccessTokenRequest(generateRefreshToken());
-        //when
-        ResultActions response = mockMvc.perform(post("/api/v1/token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("새 토큰 발급 실패: 잘못된 형식을 가진 토큰")
-    public void givenRefreshToken_thenUnauthorizedError2() throws Exception {
-        //given
-        String refreshToken = "invalid-token";
-
-        CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-        log.debug(req.toString());
-        //when
-        ResultActions response = mockMvc.perform(post("/api/v1/token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-        //then
-        response.andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("로그아웃 성공")
-    public void givenValidToken_thenTokenInvalid() throws Exception {
-        //given
-        String token = getJwtToken();
-        String tokenHeader = getJwtTokenHeader(token);
-        log.debug(token);
-        //when
-        ResultActions response = mockMvc.perform(get("/api/v1/logout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(AUTHENTICATION_HEADER, tokenHeader));
-        //then
-        response.andDo(print())
-                .andExpect(status().isOk());
-
-        assert(jwtProvider.isLogoutAccessToken(token));
-    }
-
-    @Test
-    @DisplayName("로그아웃 실패: 유효하지 않은 토큰")
-    public void givenInvalidToken_thenUnauthorizedError() throws Exception {
-        //given
-        String token = "invalid token";
-        String tokenHeader = getJwtTokenHeader(token);
-        log.debug(token);
-        //when
-        ResultActions response = mockMvc.perform(get("/api/v1/logout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(AUTHENTICATION_HEADER, tokenHeader));
-        //then
-        response.andDo(print())
-                .andExpect(status().isUnauthorized());
+        @Test
+        public void 잘못된형식의AccessToken이면_Unauthorized() throws Exception {
+            //given
+            String token = "invalid token";
+            String tokenHeader = getJwtTokenHeader(token);
+            //when
+            ResultActions response = request(tokenHeader);
+            //then
+            response.andExpect(status().isUnauthorized());
+        }
     }
 
     private String generateRefreshToken() {

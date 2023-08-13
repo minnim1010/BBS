@@ -29,7 +29,7 @@ public class JwtProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
 
     private final JwtProperties jwtProperties;
-    private final TokenRepository TokenRepository;
+    private final TokenRepository tokenRepository;
     private Key key;
 
     @Override
@@ -62,7 +62,6 @@ public class JwtProvider implements InitializingBean {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-        log.debug(authorities);
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -115,18 +114,18 @@ public class JwtProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
+            log.info("토큰이 만료되었습니다.");
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token.");
+            log.info("지원하지 않는 토큰 형식입니다. ");
         } catch (MalformedJwtException | SignatureException e) {
-            log.info("Malformed JWT signature.");
+            log.info("토큰이 위조되었습니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT token type is not matched.");
+            log.info("토큰 타입이 올바르지 않습니다.");
         }
         return false;
     }
 
     public boolean isLogoutAccessToken(String token){
-        return TokenRepository.existsAccessToken(token);
+        return tokenRepository.existsByAccessToken(token);
     }
 }

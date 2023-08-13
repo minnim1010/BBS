@@ -12,8 +12,6 @@ import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.AccessTokenResponse;
 import spring.bbs.jwt.dto.response.LoginResponse;
-import spring.bbs.jwt.repository.RefreshToken;
-import spring.bbs.jwt.repository.RefreshTokenRepository;
 import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.service.MemberService;
@@ -25,25 +23,9 @@ public class JwtService {
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberService memberService;
     private final TokenRepository tokenRepository;
 
-    public LoginResponse login(LoginRequest req) {
-        Authentication authentication = authenticateCredentials(req);
-        System.out.println(authentication);
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.debug("logined: {}", req.getName());
-
-        String accessToken = jwtProvider.generateAccessToken(authentication);
-
-        String refreshToken = jwtProvider.generateRefreshToken(authentication);
-        Member member = memberService.findByName(req.getName());
-        refreshTokenRepository.save(new RefreshToken(member.getId(), refreshToken));
-
-        return new LoginResponse(accessToken, refreshToken);
-    }
-    
     private Authentication authenticateCredentials(LoginRequest req){
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(req.getName(), req.getPassword());
@@ -51,14 +33,23 @@ public class JwtService {
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }
 
+    public LoginResponse login(LoginRequest req) {
+        Authentication authentication = authenticateCredentials(req);
+        log.debug("logined: {}", req.getName());
+
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
+        tokenRepository.saveRefreshToken(refreshToken, jwtProvider.getExpiration(refreshToken));
+
+        String accessToken = jwtProvider.generateAccessToken(authentication);
+
+        return new LoginResponse(accessToken, refreshToken);
+    }
+
     public AccessTokenResponse createNewAccessToken(CreateAccessTokenRequest req){
         String refreshToken = req.getRefreshToken();
-        if(!jwtProvider.isValidToken(refreshToken))
-            throw new BadCredentialsException("No valid refresh token.");
+        validateRefreshToken(refreshToken);
 
-        Long memberId = this.findByRefreshTokenWhenCreateAccessToken(req.getRefreshToken()).getMemberId();
-
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findByName(jwtProvider.getName(refreshToken));
         String token = jwtProvider.generateAccessToken(member);
 
         return new AccessTokenResponse(token);
@@ -66,13 +57,17 @@ public class JwtService {
 
     public void logout(String token) {
         if(!jwtProvider.isValidToken(token))
-            throw new BadCredentialsException("Access token is not valid");
+            throw new BadCredentialsException("Access 토큰이 유효하지 않습니다.");
         long expiration = jwtProvider.getExpiration(token);
         tokenRepository.saveAccessToken(token, expiration);
     }
 
-    public RefreshToken findByRefreshTokenWhenCreateAccessToken(String refreshToken){
-        return refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new BadCredentialsException("Refresh token doesn't exist."));
+    private void validateRefreshToken(String refreshToken){
+        if(!jwtProvider.isValidToken(refreshToken))
+            throw new BadCredentialsException("Refresh 토큰이 유효하지 않습니다.");
+
+        if(!tokenRepository.existsByRefreshToken(refreshToken)){
+            throw new BadCredentialsException("Refresh 토큰이 존재하지 않습니다.");
+        }
     }
 }
