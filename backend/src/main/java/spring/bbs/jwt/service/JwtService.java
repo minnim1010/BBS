@@ -14,7 +14,7 @@ import spring.bbs.jwt.dto.response.AccessTokenResponse;
 import spring.bbs.jwt.dto.response.LoginResponse;
 import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.service.MemberService;
+import spring.bbs.member.repository.MemberRepositoryHandler;
 
 @Slf4j
 @Service
@@ -23,7 +23,7 @@ public class JwtService {
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final MemberService memberService;
+    private final MemberRepositoryHandler memberUtil;
     private final TokenRepository tokenRepository;
 
     private Authentication authenticateCredentials(LoginRequest req){
@@ -49,7 +49,7 @@ public class JwtService {
         String refreshToken = req.getRefreshToken();
         validateRefreshToken(refreshToken);
 
-        Member member = memberService.findByName(jwtProvider.getName(refreshToken));
+        Member member = memberUtil.findByName(jwtProvider.getName(refreshToken));
         String token = jwtProvider.generateAccessToken(member);
 
         return new AccessTokenResponse(token);

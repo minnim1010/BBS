@@ -1,19 +1,22 @@
 package spring.bbs.member.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import spring.bbs.base.domain.BaseEntity;
 
 import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
-public class Member implements UserDetails {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Member extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +30,15 @@ public class Member implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-    public Member() {
+    @Builder
+    private Member(Long id, String name, String oauthName, String password, String email, boolean isEnabled, Authority authority) {
+        this.id = id;
+        this.name = name;
+        this.oauthName = oauthName;
+        this.password = password;
+        this.email = email;
+        this.isEnabled = isEnabled;
+        this.authority = authority;
     }
 
     public Member(String name, String password, String email, boolean isEnabled, Authority role) {
@@ -56,7 +67,7 @@ public class Member implements UserDetails {
     }
 
     @Override
-    public String getUsername() {return email;}
+    public String getUsername() {return name;}
 
     @Override
     public String getPassword() {

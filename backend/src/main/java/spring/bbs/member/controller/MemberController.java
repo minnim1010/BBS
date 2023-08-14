@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
@@ -12,7 +14,7 @@ import spring.bbs.member.service.MemberService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/members")
 public class MemberController {
 
     private final MemberService memberService;
@@ -21,17 +23,17 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/join")
+    @PostMapping
     public ResponseEntity<JoinResponse> join(@RequestBody @Valid JoinRequest req){
         log.debug("req = {}", req);
 
         return ResponseEntity.ok(memberService.createMember(req));
     }
 
-    @DeleteMapping("/members")
+    @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Void> withdrawal(){
-        memberService.deleteMember();
+    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal User user){
+        memberService.deleteMember(user.getUsername());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

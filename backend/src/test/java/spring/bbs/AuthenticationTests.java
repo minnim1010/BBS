@@ -25,7 +25,6 @@ public abstract class AuthenticationTests implements ProfileConfiguration {
     protected final String TOKEN_PREFIX = "Bearer ";
 
     protected String memberName = "test";
-    protected Member testMember;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
@@ -40,18 +39,17 @@ public abstract class AuthenticationTests implements ProfileConfiguration {
     }
 
     protected Member createMember(String name){
-        testMember = memberRepository.findByName(name)
+        return memberRepository.findByName(name)
                 .orElseGet(() -> {
-                    Member newMember = new Member();
-                    newMember.setName(name);
-                    newMember.setPassword(passwordEncoder.encode(name));
-                    newMember.setEmail(name + "@test.com");
-                    newMember.setEnabled(true);
-                    newMember.setAuthority(Enum.valueOf(Authority.class, RoleType.user));
+                    Member newMember = Member.builder()
+                            .name(name)
+                            .password(passwordEncoder.encode(name))
+                            .email(name + "@test.com")
+                            .isEnabled(true)
+                            .authority(Enum.valueOf(Authority.class, RoleType.user))
+                            .build();
                     return memberRepository.save(newMember);
                 });
-
-        return testMember;
     }
 
     protected String getJwtToken(){

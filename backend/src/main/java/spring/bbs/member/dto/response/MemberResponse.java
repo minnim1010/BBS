@@ -1,5 +1,10 @@
 package spring.bbs.member.dto.response;
 
+import lombok.Builder;
+import lombok.Getter;
+import spring.bbs.member.domain.Member;
+
+@Getter
 public class MemberResponse {
     private Long id;
     private String name;
@@ -7,24 +12,20 @@ public class MemberResponse {
     public MemberResponse() {
     }
 
-    public MemberResponse(Long id, String name) {
+    @Builder
+    private MemberResponse(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public String getName() {
-        return name;
+    public static MemberResponse of(Member author) {
+        return MemberResponse.builder()
+                .id(author.getId())
+                .name(author.getName())
+                .build();
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public static MemberResponse create(long id, String name){
+        return new MemberResponse(id, name);
     }
 }

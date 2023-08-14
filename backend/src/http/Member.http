@@ -1,5 +1,5 @@
 ### 1. 회원 가입
-POST http://localhost:8081/api/v1/join
+POST http://localhost:8081/api/v1/members
 Content-Type: application/json
 
 {

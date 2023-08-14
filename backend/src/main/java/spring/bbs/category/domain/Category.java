@@ -3,7 +3,7 @@ package spring.bbs.category.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.bbs.written.post.domain.Post;
+import spring.bbs.post.domain.Post;
 
 import java.util.ArrayList;
 import java.util.List;

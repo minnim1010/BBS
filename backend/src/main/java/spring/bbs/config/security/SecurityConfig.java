@@ -28,7 +28,7 @@ import spring.bbs.jwt.JwtAuthenticationFilter;
 import spring.bbs.jwt.JwtProperties;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.repository.TokenRepository;
-import spring.bbs.member.service.MemberService;
+import spring.bbs.member.repository.MemberRepositoryHandler;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -42,7 +42,7 @@ public class SecurityConfig {
     private final OAuth2UserService oAuth2UserService;
     private final JwtProperties jwtProperties;
     private final TokenRepository tokenRepository;
-    private final MemberService memberService;
+    private final MemberRepositoryHandler memberUtil;
 
     @Bean
     public WebSecurityCustomizer configure() {
@@ -70,7 +70,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests((request) ->
                 request
                         .requestMatchers("/home", "/error").permitAll()
-                        .requestMatchers("/api/v1/login", "/api/v1/join", "/api/v1/token").permitAll()
+                        .requestMatchers("/api/v1/login", "/api/v1/token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().authenticated());
 
@@ -125,7 +126,7 @@ public class SecurityConfig {
                 jwtProperties,
                 tokenRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
-                memberService);
+                memberUtil);
     }
 
     @Bean

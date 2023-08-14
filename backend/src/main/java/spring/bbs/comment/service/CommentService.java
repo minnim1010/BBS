@@ -1,0 +1,96 @@
+package spring.bbs.comment.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import spring.bbs.comment.domain.Comment;
+import spring.bbs.comment.dto.request.CommentCreateRequest;
+import spring.bbs.comment.dto.request.CommentListRequest;
+import spring.bbs.comment.dto.request.CommentUpdateRequest;
+import spring.bbs.comment.dto.response.CommentResponse;
+import spring.bbs.comment.repository.CommentRepository;
+import spring.bbs.member.domain.Member;
+import spring.bbs.post.domain.Post;
+import spring.bbs.util.CommonUtil;
+
+import java.util.List;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class CommentService {
+    private final CommentRepository commentRepository;
+    private final CommonUtil util;
+
+    public List<CommentResponse> getCommentsByPost(CommentListRequest req){
+        final int pageSize = 10;
+        int page = req.getPage();
+        if(page <= 0)
+            page = 1;
+        int offset = (page - 1) * pageSize;
+        Post post = util.getPost(req.getPostId());
+        Pageable pageable = PageRequest.of(offset, pageSize, Sort.by("createdTime").descending());
+
+        Specification<Comment> spec = getSpecification(post, req.getSearchKeyword());
+        List<Comment> comments = commentRepository.findAll(spec, pageable);
+        return comments.stream()
+                        .map(CommentResponse::of)
+                        .toList();
+    }
+
+    private Specification<Comment> getSpecification(Post post, String searchKeyword){
+        Specification<Comment> specification = Specification.where(null);
+
+        specification.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("post"), post));
+        log.debug("Specification post: id {}", post.getId());
+
+        if(StringUtils.hasText(searchKeyword)){
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(root.get("content"), "%" + searchKeyword + "%"));
+            log.debug("Specification searchKeyword: {}", searchKeyword);
+        }
+
+        return specification;
+    }
+
+    @Transactional
+    public CommentResponse createComment(CommentCreateRequest req){
+        Member author = util.getMember(util.getCurrentLoginedUser());
+        Post post = util.getPost(req.getPostId());
+        Long parentCommentId = req.getParentCommentId();
+        Comment parentComment = null;
+        if(parentCommentId != null && parentCommentId != 0)
+            parentComment = util.getComment(req.getParentCommentId());
+
+        Comment comment = Comment.of(req.getContent(), author, post, parentComment);
+        Comment savedComment = commentRepository.save(comment);
+
+        return CommentResponse.of(savedComment);
+    }
+
+    @Transactional
+    public CommentResponse updateComment(CommentUpdateRequest req, long commentId){
+        Comment comment = util.getComment(commentId);
+        util.validAuthor(comment.getAuthor().getName());
+
+        comment.update(req.getContent());
+        Comment savedComment = commentRepository.save(comment);
+
+        return CommentResponse.of(savedComment);
+    }
+
+    @Transactional
+    public void deleteComment(long commentId){
+        Comment comment = util.getComment(commentId);
+        util.validAuthor(comment.getAuthor().getName());
+
+        commentRepository.delete(comment);
+    }
+}

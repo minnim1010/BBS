@@ -16,9 +16,9 @@ import java.util.Map;
 
 @RestControllerAdvice(basePackages = {
         "spring.bbs.jwt.controller",
-        "spring.bbs.written.comment.controller",
+        "spring.bbs.comment.controller",
         "spring.bbs.member.controller",
-        "spring.bbs.written.post.controller"})
+        "spring.bbs.post.controller"})
 public class ExceptionHandler {
 
     private ExceptionResponse createExceptionResponse(String errorMsg){
@@ -57,7 +57,7 @@ public class ExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleNotSamePasswordException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)

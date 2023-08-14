@@ -2,6 +2,7 @@ package spring.bbs.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     }
 
     @Nested
-    class 로그인{
+    class Login{
 
         private ResultActions request(LoginRequest req) throws Exception {
             return mockMvc.perform(post("/api/v1/login")
@@ -55,7 +56,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 올바른계정정보면_성공() throws Exception {
+        @DisplayName("유효한 아이디와 비밀번호를 입력하면 로그인할 수 있다.")
+        public void login() throws Exception {
             //given
             LoginRequest req = new LoginRequest(memberName, memberName);
             //when
@@ -69,7 +71,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 틀린계정정보면_Unauthorized() throws Exception {
+        @DisplayName("틀린 아이디와 비밀번호를 입력하면 로그인할 수 없다.")
+        public void loginWithWrontAccount() throws Exception {
             //given
             LoginRequest req = new LoginRequest("wrongAccount", "wrongAccount");
             //when
@@ -80,7 +83,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     }
 
     @Nested
-    class 새로운액세스토큰_발급요청{
+    class CreateNewAccessToken{
 
         private ResultActions request(CreateAccessTokenRequest req) throws Exception {
             return mockMvc.perform(post("/api/v1/token")
@@ -89,7 +92,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 유효한RefreshToken이면_성공_새로운액세스토큰발급() throws Exception {
+        @DisplayName("Refresh token이 유효하면 새로운 액세스 토큰을 발급한다.")
+        public void createNewAccessToken() throws Exception {
             //given
             String refreshToken = generateRefreshToken();
             tokenRepository.saveRefreshToken(refreshToken, jwtProvider.getExpiration(refreshToken));
@@ -106,7 +110,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 만료된RefreshToken이면_Unauthorized() throws Exception {
+        @DisplayName("Refresh token이 만료되었으면 액세스 토큰을 발급하지 않는다.")
+        public void createNewAccessTokenWithExpiredRefreshToken() throws Exception {
             //given
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(generateRefreshToken());
             //when
@@ -116,7 +121,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 잘못된형식의RefreshToken이면_Unauthorized() throws Exception {
+        @DisplayName("Refresh token의 형식이 올바르지 않으면 액세스 토큰을 발급하지 않는다.")
+        public void createNewAccessTokenWithMalformedRefreshToken() throws Exception {
             //given
             String refreshToken = "invalid-token";
             tokenRepository.saveRefreshToken(refreshToken, 10000000);
@@ -130,7 +136,7 @@ public class JwtIntegrationTests extends AuthenticationTests {
     }
 
     @Nested
-    class 로그아웃{
+    class Logout{
 
         private ResultActions request(String tokenHeader) throws Exception{
             return mockMvc.perform(get("/api/v1/logout")
@@ -139,7 +145,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 유효한AccessToken이면_성공_AccessToken을저장() throws Exception {
+        @DisplayName("유효한 액세스 토큰이면 로그아웃한다.")
+        public void logout() throws Exception {
             //given
             String token = getJwtToken();
             String tokenHeader = getJwtTokenHeader(token);
@@ -152,7 +159,8 @@ public class JwtIntegrationTests extends AuthenticationTests {
         }
 
         @Test
-        public void 잘못된형식의AccessToken이면_Unauthorized() throws Exception {
+        @DisplayName("잘못된 형식의 액세스 토큰이면 로그아웃하지 않는다.")
+        public void logoutWithMalformedAccessToken() throws Exception {
             //given
             String token = "invalid token";
             String tokenHeader = getJwtTokenHeader(token);

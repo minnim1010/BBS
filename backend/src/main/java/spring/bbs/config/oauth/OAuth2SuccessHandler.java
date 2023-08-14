@@ -12,7 +12,7 @@ import spring.bbs.jwt.JwtProperties;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.service.MemberService;
+import spring.bbs.member.repository.MemberRepositoryHandler;
 import spring.bbs.util.CookieUtil;
 
 import java.io.IOException;
@@ -28,12 +28,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtProperties jwtProperties;
     private final TokenRepository tokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
-    private final MemberService memberService;
+    private final MemberRepositoryHandler memberUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        Member member = memberService.findByEmail((String) oAuth2User.getAttributes().get("email"));
+        Member member = memberUtil.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
         String refreshToken = tokenProvider.generateRefreshToken(member);
         tokenRepository.saveRefreshToken(refreshToken, tokenProvider.getExpiration(refreshToken));

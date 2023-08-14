@@ -1,6 +1,7 @@
 package spring.bbs.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -12,16 +13,24 @@ public class AuthenticationUtil {
     private AuthenticationUtil() {
     }
 
-    public static Optional<String> getCurrentUsername() {
+    public static Optional<String> getCurrentMemberName() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            log.debug("No Authentication in Security Context.");
+            log.debug("로그인되지 않았습니다.");
             return Optional.empty();
         }
 
         String username = authentication.getName();
-        log.info("Security Context: Find user:{}.", authentication.getName());
+        log.info("현재 로그인된 유저: {}", authentication.getName());
 
         return Optional.ofNullable(username);
+    }
+
+    public static String getCurrentMemberNameOrAccessDenied(){
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null)
+            throw new AccessDeniedException("회원만 이용할 수 있습니다.");
+
+        return authentication.getName();
     }
 }

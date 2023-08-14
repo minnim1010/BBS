@@ -5,13 +5,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepository;
+import spring.bbs.comment.domain.Comment;
+import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.written.comment.domain.Comment;
-import spring.bbs.written.comment.repository.CommentRepository;
-import spring.bbs.written.post.domain.Post;
-import spring.bbs.written.post.repository.PostRepository;
+import spring.bbs.post.domain.Post;
+import spring.bbs.post.repository.PostRepository;
 
 @Component
 @RequiredArgsConstructor
@@ -36,13 +36,8 @@ public class CommonUtil {
                 () -> new DataNotFoundException("Member doesn't exist."));
     }
 
-    public Member getMemberByEmail(String email){
-        return memberRepository.findByEmail(email).orElseThrow(
-                () -> new DataNotFoundException("Member doesn't exist."));
-    }
-
     public String getCurrentLoginedUser(){
-        return AuthenticationUtil.getCurrentUsername().orElseThrow(
+        return AuthenticationUtil.getCurrentMemberName().orElseThrow(
                 () -> new BadCredentialsException("Can't get current logined user."));
     }
 
