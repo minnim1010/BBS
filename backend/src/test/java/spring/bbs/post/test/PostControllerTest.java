@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import profileResolver.CustomActiveProfilesResolver;
 import spring.bbs.config.security.SecurityConfig;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.member.dto.response.MemberResponse;
@@ -30,6 +29,7 @@ import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
 import spring.bbs.post.service.PostService;
+import spring.profileResolver.CustomActiveProfilesResolver;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -217,7 +217,7 @@ public class PostControllerTest {
         @DisplayName("게시글을 삭제할 수 있다.")
         void deletePost() throws Exception {
             //given
-            Long id = 1L;
+            long id = 1L;
             doNothing().when(postService).deletePost(id);
             //when //then
             request(id)
@@ -229,7 +229,7 @@ public class PostControllerTest {
         @DisplayName("게시글이 없다면 삭제할 수 없다.")
         void deleteNonExistedPost() throws Exception {
             //given
-            Long id = 1L;
+            long id = 1L;
             doThrow(new DataNotFoundException("게시글이 존재하지 않습니다.")).when(postService).deletePost(id);
 
             //when //then

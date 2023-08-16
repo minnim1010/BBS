@@ -6,10 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
@@ -25,7 +25,10 @@ import spring.bbs.util.AuthenticationUtil;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostService {
+
+    private final static int PAGE_SIZE = 10;
 
     private final PostRepository postRepository;
     private final MemberRepositoryHandler memberRepositoryHandler;
@@ -37,33 +40,26 @@ public class PostService {
     }
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
-        final int pageSize = 10;
-        int page = req.getPage();
-        if(page <= 0)
-            page = 1;
-        Pageable pageable = PageRequest.of(page-1, pageSize, Sort.by("createdTime").descending());
-        Specification<Post> spec = getSpecification(req.getCategory(), req.getSearchScope(), req.getSearchKeyword());
-        Page<Post> postList = postRepository.findAll(spec, pageable);
+        int page = getValidPage(req.getPage());
+        Pageable pageable = PageRequest.of(page-1, PAGE_SIZE, Sort.by("createdTime").descending());
+        Page<Post> postList = findToPageByRequest(req, pageable);
         return postList.map(PostListResponse::of);
     }
 
-    private Specification<Post> getSpecification(String category, String searchScope, String searchKeyword){
-        Specification<Post> specification = Specification.where(null);
-
-        if (category != null && !category.isEmpty()) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("category"), categoryRepositoryHandler.findByName(category)));
-            log.debug("Specification category: {}", category);
+    private Page<Post> findToPageByRequest(PostListRequest req, Pageable pageable) {
+        String keyword = req.getSearchKeyword();
+        if(StringUtils.hasText(keyword)){
+            return postRepository.findAllToPageAndSearchKeywordAndScope(
+                req.getSearchScope(), keyword, pageable);
         }
+        else
+            return postRepository.findAllToPage(pageable);
+    }
 
-        if (searchScope != null && !searchScope.isEmpty() && searchKeyword != null && !searchKeyword.isEmpty()) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(root.get(searchScope), "%" + searchKeyword + "%"));
-            log.debug("Specification searchScope: {}", searchScope);
-            log.debug("Specification searchKeyword: {}", searchKeyword);
-        }
-
-        return specification;
+    private int getValidPage(int pageInRequest) {
+        if (pageInRequest <= 0)
+            return 1;
+        return pageInRequest;
     }
 
     @Transactional
@@ -83,9 +79,8 @@ public class PostService {
         validAuthor(post.getAuthor().getName(), loginedMemberName);
 
         post.update(req.getTitle(), req.getContent(), categoryRepositoryHandler.findByName(req.getCategory()));
-        Post savedPost = postRepository.save(post);
 
-        return PostResponse.of(savedPost);
+        return PostResponse.of(post);
     }
 
     @Transactional

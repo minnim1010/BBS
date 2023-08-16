@@ -11,6 +11,7 @@ import spring.bbs.comment.domain.Comment;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.dto.request.PostRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,7 @@ public class Post extends Written {
     @ManyToOne
     private Category category;
     @OneToMany(mappedBy="post", orphanRemoval = true)
-    List<Comment> commentList;
+    List<Comment> commentList = new ArrayList<>();
 
     @Builder
     private Post(String title, String content, Member author, Category category) {

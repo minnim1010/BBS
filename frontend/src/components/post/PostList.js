@@ -47,7 +47,7 @@ function PostList() {
                                 id={post.id}
                                 title={post.title}
                                 createdTime={post.createdTime}
-                                author={post.authorResponse}
+                                author={post.author}
                             />
                         );
                     })}

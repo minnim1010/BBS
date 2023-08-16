@@ -13,10 +13,10 @@ public class AuthenticationUtil {
     private AuthenticationUtil() {
     }
 
-    public static Optional<String> getCurrentMemberName() {
+    private static Optional<String> getCurrentMemberName() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            log.debug("로그인되지 않았습니다.");
+            log.debug("로그인된 회원이 없습니다.");
             return Optional.empty();
         }
 

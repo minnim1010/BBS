@@ -13,12 +13,10 @@ import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
-import static spring.bbs.member.dto.util.MemberToResponse.convertMemberToJoinResponse;
-import static spring.bbs.member.dto.util.RequestToMember.convertJoinRequestToMember;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
@@ -31,11 +29,11 @@ public class MemberService {
         validateName(req.getName());
 
         String encodedPassword = passwordEncoder.encode(req.getPassword());
-        Member member = convertJoinRequestToMember(req, "ROLE_USER", encodedPassword);
+        Member member = Member.of(req, "ROLE_USER", encodedPassword, true);
         Member savedMember = memberRepository.save(member);
         log.debug("Saved member:\n {}", savedMember);
 
-        return convertMemberToJoinResponse(savedMember);
+        return JoinResponse.of(savedMember);
     }
 
     @Transactional

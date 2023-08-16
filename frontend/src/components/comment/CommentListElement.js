@@ -44,7 +44,7 @@ function CommentListElement(prop) {
         <div>
             <div key={index}>
                 <div>{comment.createdTime}</div>
-                <div>{comment.authorResponse.name}</div>
+                <div>{comment.author.name}</div>
                 {comment.modifiedTime && <div>{comment.modifiedTime}</div>}
                 {
                     isModify ? <CommentUpdate

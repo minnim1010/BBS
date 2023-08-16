@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthProvider';
 import { HttpHeaderTokenContext } from '../../context/HttpHeaderTokenProvider';
+import { API } from '../config/config';
 
 function MemberLogin() {
 
@@ -24,8 +25,7 @@ function MemberLogin() {
 
     const login = async () => {
         const params = { name, password };
-        const url = "http://localhost:8081/api/v1/login";
-        await axios.post(url, params)
+        await axios.post(`${API.LOGIN}`, params)
             .then((res) => {
                 localStorage.setItem("username", name);
                 localStorage.setItem("access_token", res.data.accessToken);

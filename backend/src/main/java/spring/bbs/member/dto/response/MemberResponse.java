@@ -2,15 +2,14 @@ package spring.bbs.member.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import spring.bbs.member.domain.Member;
 
 @Getter
+@NoArgsConstructor
 public class MemberResponse {
     private Long id;
     private String name;
-
-    public MemberResponse() {
-    }
 
     @Builder
     private MemberResponse(Long id, String name) {

@@ -64,7 +64,7 @@ public class MemberControllerTest implements ProfileConfiguration {
             //given
             JoinRequest req = createJoinRequest();
             Long newMemberId = 1L;
-            JoinResponse expectedResponse = new JoinResponse(newMemberId, req.getName(), req.getEmail());
+            JoinResponse expectedResponse = JoinResponse.create(newMemberId, req.getName(), req.getEmail());
 
             given(memberService.createMember(any(JoinRequest.class)))
                     .willReturn(expectedResponse);

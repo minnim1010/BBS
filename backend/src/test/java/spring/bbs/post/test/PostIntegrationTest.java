@@ -95,24 +95,27 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("누구나 게시글 목록을 조회할 수 있다.")
         void givenExistedPosts_thenGetPostList() throws Exception {
             //given
-            List<Post> postList = createPostList();
+            Member member = createMember("PostTestMember");
+            Post post1 = createPost(member, "createTitle1", "createContent1");
+            Post post2 = createPost(member, "createTitle2", "createContent2");
+            Post post3 = createPost(member, "createTitle3", "createContent3");
             //when
             ResultActions response = mockMvc.perform(get(url));
 
             response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.[0].title", is(postList.get(2).getTitle())))
-                .andExpect(jsonPath("$.content.[0].author.name", is(postList.get(2).getAuthor().getName())))
-                .andExpect(jsonPath("$.content.[1].title", is(postList.get(1).getTitle())))
-                .andExpect(jsonPath("$.content.[1].author.name", is(postList.get(1).getAuthor().getName())))
-                .andExpect(jsonPath("$.content.[2].title", is(postList.get(0).getTitle())))
-                .andExpect(jsonPath("$.content.[2].author.name", is(postList.get(0).getAuthor().getName())));
+                .andExpect(jsonPath("$.content.[0].title", is(post3.getTitle())))
+                .andExpect(jsonPath("$.content.[0].author.name", is(post3.getAuthor().getName())))
+                .andExpect(jsonPath("$.content.[1].title", is(post2.getTitle())))
+                .andExpect(jsonPath("$.content.[1].author.name", is(post2.getAuthor().getName())))
+                .andExpect(jsonPath("$.content.[2].title", is(post1.getTitle())))
+                .andExpect(jsonPath("$.content.[2].author.name", is(post1.getAuthor().getName())));
             List<Post> posts = postRepository.findAll();
             assertThat(posts).hasSize(3)
                 .extracting("title", "content")
                 .containsExactlyInAnyOrder(
-                    Tuple.tuple(postList.get(0).getTitle(), postList.get(0).getContent()),
-                    Tuple.tuple(postList.get(1).getTitle(), postList.get(1).getContent()),
-                    Tuple.tuple(postList.get(2).getTitle(), postList.get(2).getContent())
+                    Tuple.tuple(post1.getTitle(), post1.getContent()),
+                    Tuple.tuple(post2.getTitle(), post2.getContent()),
+                    Tuple.tuple(post3.getTitle(), post3.getContent())
                 );
         }
     }
@@ -205,7 +208,7 @@ public class PostIntegrationTest extends AuthenticationTests {
             PostRequest req = new PostRequest(
                 "upDateTestTitle", "upDateTestContent", "string");
             //when //then
-            ResultActions response = mockMvc.perform(patch(url, postId)
+            mockMvc.perform(patch(url, postId)
                     .header(AUTHENTICATION_HEADER, tokenHeader)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -268,10 +271,24 @@ public class PostIntegrationTest extends AuthenticationTests {
         }
     }
 
+    private Post createPost(Member author, String title, String content) {
+        Post post = Post.builder()
+            .title(title)
+            .content(content)
+            .category(categoryRepositoryHandler.findByName("string"))
+            .author(author)
+            .build();
+        return postRepository.save(post);
+    }
+
+
     private Post createPost(Member author) {
-        PostRequest req = new PostRequest(
-            "createTestTitle", "createTestContent", "string");
-        Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), author);
+        Post post = Post.builder()
+            .title("createTestTitle")
+            .content("createTestContent")
+            .category(categoryRepositoryHandler.findByName("string"))
+            .author(author)
+            .build();
         return postRepository.save(post);
     }
 

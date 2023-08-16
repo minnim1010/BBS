@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
+import { API } from "../config/config";
+
 function MemberJoin() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -12,8 +14,7 @@ function MemberJoin() {
 
     const join = async () => {
         const params = { name, password, checkPassword, email };
-        const url = "http://localhost:8081/api/v1/join";
-        await axios.post(url, params)
+        await axios.post(`${API.MEMBER}`, params)
             .then((res) => {
                 alert(`${name}님, 회원가입이 완료되었습니다.`);
                 navigate("/login");

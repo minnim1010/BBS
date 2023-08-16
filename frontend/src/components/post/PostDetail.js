@@ -62,10 +62,10 @@ function PostDetail() {
                             < div > 제목: {post.title}</div >
                             <div>작성 시각: {post.createdTime}</div>
                             {post.modifiedTime && <div>수정 시각: {post.modifiedTime}</div>}
-                            <div>작성자: {post.authorResponse.name}</div>
+                            <div>작성자: {post.author.name}</div>
                             <div><p>{post.content}</p></div>
                             {
-                                auth === post.authorResponse.name &&
+                                auth === post.author.name &&
                                 <div>
                                     <Link to={`/posts/update`} state={{ prevPost: updatePost }}><button>수정</button></Link>
                                     <button onClick={deletePost}>삭제</button>

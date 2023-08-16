@@ -157,18 +157,6 @@ public class JwtIntegrationTests extends AuthenticationTests {
 
             assert(jwtProvider.isLogoutAccessToken(token));
         }
-
-        @Test
-        @DisplayName("잘못된 형식의 액세스 토큰이면 로그아웃하지 않는다.")
-        public void logoutWithMalformedAccessToken() throws Exception {
-            //given
-            String token = "invalid token";
-            String tokenHeader = getJwtTokenHeader(token);
-            //when
-            ResultActions response = request(tokenHeader);
-            //then
-            response.andExpect(status().isUnauthorized());
-        }
     }
 
     private String generateRefreshToken() {

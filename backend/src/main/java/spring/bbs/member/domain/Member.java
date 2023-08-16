@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import spring.bbs.base.domain.BaseEntity;
+import spring.bbs.member.dto.request.JoinRequest;
 
 import java.util.Collection;
 import java.util.List;
@@ -54,6 +55,16 @@ public class Member extends BaseEntity implements UserDetails {
         this.email = email;
         this.isEnabled = isEnabled;
         this.authority = role;
+    }
+
+    public static Member of(JoinRequest req, String roleUser, String encodedPassword, boolean isEnabled) {
+        return Member.builder()
+            .name(req.getName())
+            .email(req.getEmail())
+            .password(encodedPassword)
+            .authority(Enum.valueOf(Authority.class, roleUser))
+            .isEnabled(isEnabled)
+            .build();
     }
 
     public Member updateOAuthName(String oauthName){
