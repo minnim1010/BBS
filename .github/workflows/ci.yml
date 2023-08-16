@@ -46,7 +46,7 @@ jobs:
         if: failure()
         run: |
           echo "Compressing all report files..."
-          TIMESTAMP=$(date+%Y%m%d_%H%M%S)
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           mkdir report_files
           REPORT_DIRS=$(find . -type d -path '*/build/reports/tests/test')
           for dir in $REPORT_DIRS; do
