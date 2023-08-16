@@ -45,6 +45,7 @@ public class SecurityConfig {
     private final MemberRepositoryHandler memberUtil;
 
     @Bean
+    @Profile("local")
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
                 .requestMatchers(toH2Console())
