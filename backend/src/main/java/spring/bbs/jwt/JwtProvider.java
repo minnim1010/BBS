@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 
 import java.security.Key;
@@ -85,11 +86,15 @@ public class JwtProvider implements InitializingBean {
     public Authentication getAuthentication(String token){
         Claims claims = getClaims(token);
         String role = claims.get(AUTHORITIES_KEY).toString();
-        log.debug(role);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
+        Member currentMember = Member.builder()
+            .name(claims.getSubject())
+            .authority(Authority.ROLE_USER)
+            .build();
+
         return new UsernamePasswordAuthenticationToken(
-                new User(claims.getSubject(), "", authorities), token, authorities);
+            currentMember, token, authorities);
     }
 
     private Claims getClaims(String token){

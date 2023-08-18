@@ -56,8 +56,6 @@ public class JwtService {
     }
 
     public void logout(String token) {
-        if(!jwtProvider.isValidToken(token))
-            throw new BadCredentialsException("Access 토큰이 유효하지 않습니다.");
         long expiration = jwtProvider.getExpiration(token);
         tokenRepository.saveAccessToken(token, expiration);
     }

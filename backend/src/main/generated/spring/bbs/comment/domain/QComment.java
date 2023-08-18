@@ -29,6 +29,8 @@ public class QComment extends EntityPathBase<Comment> {
 
     public final BooleanPath canDeleted = createBoolean("canDeleted");
 
+    public final ListPath<Comment, QComment> childComments = this.<Comment, QComment>createList("childComments", Comment.class, QComment.class, PathInits.DIRECT2);
+
     public final StringPath content = createString("content");
 
     //inherited

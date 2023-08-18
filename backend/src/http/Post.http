@@ -8,3 +8,17 @@ Authorization: {{access_token}}
   "content": "httpTestCreateContent",
   "category": "string"
 }
+
+> {%
+    client.test("Validate", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
+    });
+
+    client.log(response.body.id);
+    client.global.set("RecentPostId", response.body.id)
+%}
+
+### 2. 최근 작성된 게시글 삭제
+DELETE http://localhost:8081/api/v1/posts/{{RecentPostId}}
+Authorization: {{access_token}}

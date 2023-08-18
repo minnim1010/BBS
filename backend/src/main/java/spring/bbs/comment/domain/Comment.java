@@ -9,6 +9,9 @@ import spring.bbs.base.domain.Written;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.domain.Post;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,10 +20,12 @@ public class Comment extends Written {
     private Long id;
     @Column(length = 200, nullable = false)
     private String content;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Comment parentComment;
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
+    private List<Comment> childComments = new ArrayList<>();
     @Column(nullable = false)
     private boolean isDeleted;
     @Column(nullable = false)

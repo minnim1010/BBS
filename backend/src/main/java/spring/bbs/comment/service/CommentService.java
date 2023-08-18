@@ -16,7 +16,10 @@ import spring.bbs.comment.dto.request.CommentCreateRequest;
 import spring.bbs.comment.dto.request.CommentListRequest;
 import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
+import spring.bbs.comment.dto.service.CommentCreateServiceRequest;
 import spring.bbs.comment.dto.service.CommentDeleteServiceRequest;
+import spring.bbs.comment.dto.service.CommentListServiceRequest;
+import spring.bbs.comment.dto.service.CommentUpdateServiceRequest;
 import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.comment.repository.CommentRepositoryHandler;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
@@ -39,7 +42,7 @@ public class CommentService {
     private final MemberRepositoryHandler memberRepositoryHandler;
     private final EntityManager em;
 
-    public Page<CommentResponse> getCommentsByPost(CommentListRequest req) {
+    public Page<CommentResponse> getCommentsByPost(CommentListServiceRequest req) {
         int page = getValidPage(req.getPage());
         Post post = postRepositoryHandler.findById(req.getPostId());
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
@@ -56,31 +59,31 @@ public class CommentService {
 
     private Page<Comment> findToPageByRequest(String searchKeyword, Post post, Pageable pageable) {
         if (StringUtils.hasText(searchKeyword))
-            return commentRepository.findAllByPost(post, pageable);
-        return commentRepository.findAllByPostAndSearchKeyword(post, searchKeyword, pageable);
+            return commentRepository.findAllByPostAndSearchKeyword(post, searchKeyword, pageable);
+        return commentRepository.findAllByPost(post, pageable);
     }
 
     @Transactional
-    public CommentResponse createComment(CommentCreateRequest req) {
-        Member author = getLoginedMember();
+    public CommentResponse createComment(CommentCreateServiceRequest req) {
+        Member author = getLoginedMember(req.getCurMemberName());
         Post post = postRepositoryHandler.findById(req.getPostId());
         Comment parentComment = getParentComment(req.getParentCommentId());
-        Comment comment = createCommentWithParentComment(req, parentComment, post, author);
+        Comment comment = createCommentWithParentComment(req.getContent(), parentComment, post, author);
 
         Comment savedComment = commentRepository.save(comment);
         return CommentResponse.of(savedComment);
     }
 
-    private Comment createCommentWithParentComment(CommentCreateRequest req, Comment parentComment, Post post, Member author) {
+    private Comment createCommentWithParentComment(String content, Comment parentComment, Post post, Member author) {
         if (parentComment != null) {
             int curOrder = getCurOrder(parentComment);
             Long curGroupNum = getCurGroupNum(parentComment);
             commentRepository.updateOrder(post, curGroupNum, curOrder);
             em.flush();
             em.clear();
-            return Comment.of(req.getContent(), author, post, parentComment, curOrder);
+            return Comment.of(content, author, post, parentComment, curOrder);
         }
-        return Comment.of(req.getContent(), author, post);
+        return Comment.of(content, author, post);
     }
 
     private int getCurOrder(Comment parentComment) {
@@ -102,19 +105,23 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse updateComment(CommentUpdateRequest req, long commentId) {
-        Comment comment = commentRepositoryHandler.findById(commentId);
-        validAuthor(comment.getAuthor().getName(), AuthenticationUtil.getCurrentMemberNameOrAccessDenied());
+    public CommentResponse updateComment(CommentUpdateServiceRequest req) {
+        Comment comment = findById(req.getCommentId());
+        validAuthor(comment.getAuthor().getName(), req.getCurMemberName());
 
         Comment updatedComment = comment.update(req.getContent());
         return CommentResponse.of(updatedComment);
     }
 
+    private Comment findById(Long commentId) {
+        return commentRepositoryHandler.findById(commentId);
+    }
+
     @Transactional
-    public void deleteComment(CommentDeleteServiceRequest request) {
-        Comment comment = commentRepositoryHandler.findById(request.getCommentId());
+    public void deleteComment(CommentDeleteServiceRequest req) {
+        Comment comment = findById(req.getCommentId());
         checkAlreadyDeletedComment(comment);
-        validAuthor(comment.getAuthor().getName(), request.getCurMemberName());
+        validAuthor(comment.getAuthor().getName(), req.getCurMemberName());
 
         deleteCommentByChildExists(comment);
     }
@@ -126,36 +133,46 @@ public class CommentService {
     }
 
     private void deleteCommentByChildExists(Comment comment) {
-        if (!comment.isCanDeleted()) {
-            comment.delete();
-            return;
-        }
+        if (changeDeletedStatusIfCannotDeleted(comment)) return;
 
         Comment parentComment = comment.getParentComment();
+        if (deleteCommentNotRecomment(comment, parentComment)) return;
+        deleteRecomment(comment, parentComment);
+    }
+
+    private boolean changeDeletedStatusIfCannotDeleted(Comment comment) {
+        if (!comment.isCanDeleted()) {
+            comment.delete();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean deleteCommentNotRecomment(Comment comment, Comment parentComment) {
         if(parentComment == null) {
             commentRepository.delete(comment);
-            return;
+            return true;
         }
-        deleteRecomment(comment, parentComment);
+        return false;
     }
 
     private void deleteRecomment(Comment comment, Comment parentComment) {
         int childNum = commentRepository.countByParentComment(parentComment);
         if (childNum == 1) {
             parentComment.setCanDeleted(true);
+            comment.delete();
             return;
         }
         commentRepository.delete(comment);
     }
 
 
-    private Member getLoginedMember() {
-        String loginedUserName = AuthenticationUtil.getCurrentMemberNameOrAccessDenied();
-        return memberRepositoryHandler.findByName(loginedUserName);
+    private Member getLoginedMember(String memberName) {
+        return memberRepositoryHandler.findByName(memberName);
     }
 
-    private void validAuthor(String authorName, String loginedMemberName) {
-        if (!authorName.equals(loginedMemberName))
+    private void validAuthor(String authorName, String curMemberName) {
+        if (!authorName.equals(curMemberName))
             throw new AccessDeniedException("작성자여야 합니다.");
     }
 }

@@ -23,7 +23,7 @@ spring:
 logging:
   file:
     path: ${user.dir}/log
-
+    name: ${user.dir}/log/bbs_log
   level:
     root: info
     spring:

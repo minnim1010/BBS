@@ -1,0 +1,77 @@
+.basic {
+    padding: 2% 2%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+}
+
+.flex {
+    display: flex;
+}
+
+
+.flex-vertical-center {
+    display: flex;
+    align-items: center;
+}
+
+.flex-between-elem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5%;
+}
+
+.writeBtn, .joinBtn, .logoutBtn, .loginBtn {
+    margin-left: 3%;
+}
+
+.noAuth, .auth {
+    display: flex;
+}
+
+.comment-additional-info, .comment-content {
+    margin-bottom: 2%;
+}
+
+.comment-list {
+    margin-bottom: 4%;
+}
+
+.comment-write {
+    margin-bottom: 10%;
+}
+
+.comment-with-action {
+    margin-bottom: 10%;
+}
+
+.comment-time {
+    color: dimgray;
+}
+
+.post-category {
+    color: dimgray;
+}
+
+.post-title {
+    margin-right: 5%;
+}
+
+.post-author, .comment-author {
+    font-weight: bold;
+    margin-right: 2%;
+}
+
+.post-action-btn {
+    display: flex;
+}
+
+.post-delete-btn, .comment-delete-btn {
+    margin-left: 2%;
+}

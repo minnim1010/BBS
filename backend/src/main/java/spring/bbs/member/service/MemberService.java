@@ -31,7 +31,6 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(req.getPassword());
         Member member = Member.of(req, "ROLE_USER", encodedPassword, true);
         Member savedMember = memberRepository.save(member);
-        log.debug("Saved member:\n {}", savedMember);
 
         return JoinResponse.of(savedMember);
     }
@@ -39,7 +38,6 @@ public class MemberService {
     @Transactional
     public void deleteMember(String memberName){
         memberRepository.delete(memberRepositoryHandler.findByName(memberName));
-        log.debug("delete member: {}", memberName);
     }
 
     private void validatePassword(String password, String checkPassword){

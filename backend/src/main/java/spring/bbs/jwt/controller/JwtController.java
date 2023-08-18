@@ -42,7 +42,7 @@ public class JwtController {
                 .body(response);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         jwtService.logout(request.getHeader("Authorization").substring(7));

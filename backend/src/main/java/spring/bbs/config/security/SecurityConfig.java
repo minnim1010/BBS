@@ -49,51 +49,52 @@ public class SecurityConfig {
     @Profile("local")
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
-                .requestMatchers(toH2Console())
-                .requestMatchers("/api-docs", "/swagger-ui/**");
+            .requestMatchers(toH2Console())
+            .requestMatchers("/api-docs", "/swagger-ui/**");
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
-                .sessionManagement((session) ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .csrf(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .sessionManagement((session) ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.cors((cors) -> cors
-                .configurationSource(corsConfigurationSource()));
+            .configurationSource(corsConfigurationSource()));
 
         http.addFilterBefore(
-                jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((request) ->
-                request
-                        .requestMatchers("/home", "/error").permitAll()
-                        .requestMatchers("/api/v1/login", "/api/v1/token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
-                        .requestMatchers(HttpMethod.GET).permitAll()
-                        .anyRequest().authenticated());
+            request
+                .requestMatchers("/home", "/error").permitAll()
+                .requestMatchers("/api/v1/login", "/api/v1/token").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
+                .requestMatchers(HttpMethod.GET).permitAll()
+                .requestMatchers("/api/v1/logout").authenticated()
+                .anyRequest().authenticated());
 
         http.exceptionHandling((exceptionHandling) ->
-                exceptionHandling
-                        .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                        new AntPathRequestMatcher("/api/**"))
-                        .defaultAccessDeniedHandlerFor(
-                                new CustomAccessDeniedHandler(),
-                                new AntPathRequestMatcher("/api/**")));
+            exceptionHandling
+                .defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    new AntPathRequestMatcher("/api/**"))
+                .defaultAccessDeniedHandlerFor(
+                    new CustomAccessDeniedHandler(),
+                    new AntPathRequestMatcher("/api/**")));
 
         http.oauth2Login()
-                .loginPage("/social-login")
-                .authorizationEndpoint()
-                .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
-                .and()
-                .successHandler(oAuth2SuccessHandler())
-                .userInfoEndpoint()
-                .userService(oAuth2UserService);
+            .loginPage("/social-login")
+            .authorizationEndpoint()
+            .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
+            .and()
+            .successHandler(oAuth2SuccessHandler())
+            .userInfoEndpoint()
+            .userService(oAuth2UserService);
 
         return http.build();
     }
@@ -113,32 +114,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository(){
+    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
         return new OAuth2AuthorizationRequestBasedOnCookieRepository();
     }
 
     @Bean
-    public OAuth2SuccessHandler oAuth2SuccessHandler(){
+    public OAuth2SuccessHandler oAuth2SuccessHandler() {
         return new OAuth2SuccessHandler(jwtProvider,
-                jwtProperties,
-                tokenRepository,
-                oAuth2AuthorizationRequestBasedOnCookieRepository(),
-                memberUtil);
+            jwtProperties,
+            tokenRepository,
+            oAuth2AuthorizationRequestBasedOnCookieRepository(),
+            memberUtil);
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(){
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtProvider);
     }
 
     @Bean
     AuthenticationManager getAuthenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
+        throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }

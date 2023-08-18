@@ -41,25 +41,30 @@ public class PostService {
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
         int page = getValidPage(req.getPage());
-        Pageable pageable = PageRequest.of(page-1, PAGE_SIZE, Sort.by("createdTime").descending());
-        Page<Post> postList = findToPageByRequest(req, pageable);
+        Page<Post> postList = findBySearchScopeAndKeyword(req.getSearchScope(), req.getSearchKeyword(), page);
         return postList.map(PostListResponse::of);
-    }
-
-    private Page<Post> findToPageByRequest(PostListRequest req, Pageable pageable) {
-        String keyword = req.getSearchKeyword();
-        if(StringUtils.hasText(keyword)){
-            return postRepository.findAllToPageAndSearchKeywordAndScope(
-                req.getSearchScope(), keyword, pageable);
-        }
-        else
-            return postRepository.findAllToPage(pageable);
     }
 
     private int getValidPage(int pageInRequest) {
         if (pageInRequest <= 0)
             return 1;
         return pageInRequest;
+    }
+
+    private Page<Post> findBySearchScopeAndKeyword(String scope, String keyword, int page) {
+        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
+        if (StringUtils.hasText(keyword)) {
+            validateSearchScope(scope);
+            return postRepository.findAllToPageAndSearchKeywordAndScope(
+                scope, keyword, pageable);
+        }
+        return postRepository.findAllToPage(pageable);
+    }
+
+    private void validateSearchScope(String scope) {
+        if (!(scope.equals("전체") || scope.equals("제목") || scope.equals("작성자"))) {
+            throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
+        }
     }
 
     @Transactional
@@ -73,7 +78,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse updatePost(PostRequest req, long postId){
+    public PostResponse updatePost(PostRequest req, long postId) {
         Post post = postRepositoryHandler.findById(postId);
         String loginedMemberName = AuthenticationUtil.getCurrentMemberNameOrAccessDenied();
         validAuthor(post.getAuthor().getName(), loginedMemberName);
@@ -84,15 +89,15 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(long postId){
+    public void deletePost(long postId) {
         Post post = postRepositoryHandler.findById(postId);
         validAuthor(post.getAuthor().getName(), AuthenticationUtil.getCurrentMemberNameOrAccessDenied());
 
         postRepository.delete(post);
     }
 
-    private void validAuthor(String authorName, String loginedMemberName){
-        if(!authorName.equals(loginedMemberName))
+    private void validAuthor(String authorName, String currentMember) {
+        if (!authorName.equals(currentMember))
             throw new AccessDeniedException("작성자여야 합니다.");
     }
 }

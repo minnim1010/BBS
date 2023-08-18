@@ -1,30 +1,28 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 
-import PostList from "./components/post/PostList"
-import PostDetail from "./components/post/PostDetail"
-import NotFound from "./components/NotFound";
-import Home from "./components/app/Home";
-import PostWrite from "./components/post/PostWrite";
-import MemberJoin from "./components/member/MemberJoin";
-import MemberLogin from './components/member/MemberLogin';
-import PostUpdate from './components/post/PostUpdate';
+import PostListView from "./views/post/PostListView";
+import PostDetail from "./views/post/PostDetailView";
+import NotFound from "./views/NotFound";
+import PostWrite from "./views/post/PostWriteView";
+import MemberJoin from "./views/member/MemberJoin";
+import MemberLogin from "./views/member/MemberLogin";
+import PostUpdateView from "./views/post/PostUpdateView";
 
 function Router() {
-    return (
-        <Routes>
-            <Route path="/" element={<Home />} />
+  return (
+    <Routes>
+      <Route path="/" element={<PostListView />} />
 
-            <Route path="/join" element={<MemberJoin />} />
-            <Route path="/login" element={<MemberLogin />} />
+      <Route path="/join" element={<MemberJoin />} />
+      <Route path="/login" element={<MemberLogin />} />
 
-            <Route path="/posts" element={<PostList />} />
-            <Route path="/posts/write" element={<PostWrite />} />
-            <Route path="/posts/update" element={<PostUpdate />} />
-            <Route path="/posts/:postId" element={<PostDetail />} />
-            <Route path="*" element={<NotFound />} />
-        </Routes>
-    );
+      <Route path="/write" element={<PostWrite />} />
+      <Route path="/update" element={<PostUpdateView />} />
+      <Route path="/:postId" element={<PostDetail />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
 }
 
 Router.propTypes = {};

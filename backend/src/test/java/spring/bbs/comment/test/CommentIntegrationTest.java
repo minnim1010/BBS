@@ -2,10 +2,7 @@ package spring.bbs.comment.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,8 +52,8 @@ public class CommentIntegrationTest extends AuthenticationTests {
         setMemberName(username);
     }
 
-    @AfterEach
-    void deleteComment() {
+    @BeforeEach
+    void setUp() {
         commentRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
@@ -185,7 +182,7 @@ public class CommentIntegrationTest extends AuthenticationTests {
         }
 
         @Test
-        @DisplayName("회원이 예전 댓글에 대댓글을 달면, 다른 대댓글보다 최근에 작성되었더라도 대댓글 순서가 높다.")
+        @DisplayName("회원이 예전 댓글에 대댓글을 달면, 다른 댓글보다 최근에 작성되었더라도 대댓글 순서가 높다.")
         void createCommentWithOldParentComment() throws Exception {
             // given
             Member member = createMember(username);
@@ -270,6 +267,7 @@ public class CommentIntegrationTest extends AuthenticationTests {
                 )
                 .andExpect(status().isOk());
             assertThat(commentRepository.findAll()).isEmpty();
+            assertThat(postRepository.findAll()).hasSize(1);
         }
 
         @Test
@@ -296,6 +294,7 @@ public class CommentIntegrationTest extends AuthenticationTests {
                     Tuple.tuple("이미 삭제된 댓글입니다.", true, false),
                     Tuple.tuple(childComment.getContent(), false, true)
                 );
+            assertThat(postRepository.findAll()).hasSize(1);
         }
 
         @Test
@@ -304,9 +303,9 @@ public class CommentIntegrationTest extends AuthenticationTests {
             // given
             Member member = createMember(username);
             Post post = createPost(member);
-            Comment parentComment = createComment(post, member, "parentComment");
+            Comment parentComment =  createComment(post, member, "parentComment");
             Comment childComment = createComment(post, member, "childComment", parentComment, 1);
-            commentService.deleteComment(CommentDeleteServiceRequest.of(childComment.getId(), member.getName()));
+            commentService.deleteComment(new CommentDeleteServiceRequest(childComment.getId(), member.getName()));
             String tokenHeader = getJwtTokenHeader(getJwtToken());
             // when // then
             mockMvc.perform(
@@ -317,6 +316,7 @@ public class CommentIntegrationTest extends AuthenticationTests {
                 .andExpect(status().isOk());
             List<Comment> result = commentRepository.findAll();
             assertThat(result).hasSize(0);
+            assertThat(postRepository.findAll()).hasSize(1);
         }
     }
 

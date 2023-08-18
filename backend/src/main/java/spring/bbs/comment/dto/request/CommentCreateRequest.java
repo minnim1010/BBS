@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import spring.bbs.comment.dto.service.CommentCreateServiceRequest;
 
 @Getter
 @Setter
@@ -28,5 +29,14 @@ public class CommentCreateRequest {
                 ", postId=" + postId +
                 ", parentCommentId=" + parentCommentId +
                 '}';
+    }
+
+    public CommentCreateServiceRequest toServiceRequest(String curMemberName){
+        return CommentCreateServiceRequest.builder()
+            .content(this.content)
+            .postId(this.postId)
+            .parentCommentId(this.parentCommentId)
+            .curMemberName(curMemberName)
+            .build();
     }
 }

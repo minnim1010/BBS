@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.bbs.exceptionhandler.exception.DataNotFoundException;
 import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
@@ -19,48 +20,48 @@ import java.util.Map;
         "spring.bbs.comment.controller",
         "spring.bbs.member.controller",
         "spring.bbs.post.controller"})
-public class ExceptionHandler {
+public class ExceptionHandlerAdvice {
 
     private ExceptionResponse createExceptionResponse(String errorMsg){
         return new ExceptionResponse("An error occurred", errorMsg);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(DataNotFoundException.class)
+    @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleDataNotFoundException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleAccessDeniedException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(BadCredentialsException.class)
+    @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ExceptionResponse> handleBadCredentialsException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(ExistedMemberNameException.class)
+    @ExceptionHandler(ExistedMemberNameException.class)
     public ResponseEntity<ExceptionResponse> handleExistedUserNameException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(NotSamePasswordException.class)
+    @ExceptionHandler(NotSamePasswordException.class)
     public ResponseEntity<ExceptionResponse> handleNotSamePasswordException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors()
@@ -72,7 +73,7 @@ public class ExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-//    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
+//    @org.springframework.web.bind.annotation.ExceptionHandlerAdvice(Exception.class)
 //    public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
 //        ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 //

@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
@@ -32,8 +33,8 @@ public class MemberController {
 
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal User user){
-        memberService.deleteMember(user.getUsername());
+    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal Member member){
+        memberService.deleteMember(member.getName());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -1,0 +1,11 @@
+### 1. 댓글 작성
+POST http://localhost:8081/api/v1/comments
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "content": "httpTestCreateContent",
+  "postId": 21,
+  "parentCommentId": null
+}
+

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import spring.bbs.comment.dto.service.CommentListServiceRequest;
 
 @Getter
 @Setter
@@ -22,5 +23,13 @@ public class CommentListRequest {
         this.page = page;
         this.searchKeyword = keyword;
         this.postId = postId;
+    }
+
+    public CommentListServiceRequest toServiceRequest() {
+        return CommentListServiceRequest.builder()
+            .page(page)
+            .searchKeyword(searchKeyword)
+            .postId(postId)
+            .build();
     }
 }
