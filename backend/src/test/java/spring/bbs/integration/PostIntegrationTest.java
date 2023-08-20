@@ -1,24 +1,31 @@
-package spring.bbs.post.test;
+package spring.bbs.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.bbs.AuthenticationTests;
+import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
+import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
 import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.repository.PostRepository;
+import spring.helper.AccessTokenProvider;
+import spring.helper.MemberCreator;
+import spring.helper.PostCreator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,9 +34,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PostIntegrationTest extends AuthenticationTests {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ProfileConfiguration
+public class PostIntegrationTest {
 
-    private final String username = "postTestUser1";
+    private static final String MEMBER_NAME = "PostTestUser";
     private final String otherUsername = "postTestUser2";
 
     @Autowired
@@ -41,16 +51,27 @@ public class PostIntegrationTest extends AuthenticationTests {
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private CategoryRepositoryHandler categoryRepositoryHandler;
-
-    public PostIntegrationTest() {
-        setMemberName(username);
-    }
-
+    @Autowired
+    private JwtProvider jwtProvider;
+    
+    private AccessTokenProvider accessTokenProvider;
+    private MemberCreator memberCreator;
+    private PostCreator postCreator;
+    
     @AfterEach
     void deletePost() {
         postRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
+    }
+
+    @PostConstruct
+    void init(){
+        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        this.memberCreator = new MemberCreator(memberRepository);
+        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
     }
 
     @Nested
@@ -61,7 +82,8 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("누구나 게시글을 조회할 수 있다.")
         void givenExistedPost_thenGetPost() throws Exception {
             //given
-            Post post = createPost(createMember(username));
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             //when //then
             mockMvc.perform(get(url, post.getId()))
                 .andExpect(status().isOk())
@@ -79,7 +101,8 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("게시글이 없다면 조회할 수 없다.")
         void givenNonExistedPost_thenDataNotFoundError() throws Exception {
             //given
-            Post post = createPost(createMember(username));
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             postRepository.delete(post);
             //when // then
             mockMvc.perform(get(url, post.getId()))
@@ -95,10 +118,10 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("누구나 게시글 목록을 조회할 수 있다.")
         void givenExistedPosts_thenGetPostList() throws Exception {
             //given
-            Member member = createMember("PostTestMember");
-            Post post1 = createPost(member, "createTitle1", "createContent1");
-            Post post2 = createPost(member, "createTitle2", "createContent2");
-            Post post3 = createPost(member, "createTitle3", "createContent3");
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post1 = postCreator.createPost(member, "createTitle1", "createContent1");
+            Post post2 = postCreator.createPost(member, "createTitle2", "createContent2");
+            Post post3 = postCreator.createPost(member, "createTitle3", "createContent3");
             //when
             ResultActions response = mockMvc.perform(get(url));
 
@@ -121,7 +144,7 @@ public class PostIntegrationTest extends AuthenticationTests {
     }
 
     @Nested
-    class CreatePost {
+    class createPost {
 
         private static final String url = "/api/v1/posts";
 
@@ -129,13 +152,14 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("회원은 게시글을 작성할 수 있다.")
         void givenNewPost_thenGetNewPost() throws Exception {
             //given
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             PostRequest req = new PostRequest(
                 "createTestTitle", "createTestContent", "string");
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             //when //then
             mockMvc.perform(
                     post(url)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -159,14 +183,15 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("작성자는 게시글을 수정힐 수 있다.")
         void givenExistedPost_thenGetUpdatedPost() throws Exception {
             //given
-            Long postId = createPost(createMember(username)).getId();
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Long postId = postCreator.createPost(member).getId();
             PostRequest req = new PostRequest(
                 "upDateTestTitle", "upDateTestContent", "string");
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             //when //then
             mockMvc.perform(
                     patch(url, postId)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -184,15 +209,16 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("게시글이 없다면 게시글을 수정할 수 없다.")
         void givenNonExistedPost_whenUpdate_thenDataNotFoundError() throws Exception {
             //given
-            Post post = createPost(createMember(username));
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             postRepository.delete(post);
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             PostRequest req = new PostRequest(
                 "upDateTestTitle", "upDateTestContent", "string");
             //when //then
             mockMvc.perform(
                     patch(url, post.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -203,13 +229,14 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("작성자가 아니면 게시글을 수정할 수 없다.")
         void givenExistedPost_AndOtherUser_whenUpdate_thenForbiddenError() throws Exception {
             //given
-            Long postId = createPost(createMember(username)).getId();
-            String tokenHeader = getJwtTokenHeader(getJwtToken(otherUsername));
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Long postId = postCreator.createPost(member).getId();
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(accessTokenProvider.getJwtToken(otherUsername));
             PostRequest req = new PostRequest(
                 "upDateTestTitle", "upDateTestContent", "string");
             //when //then
             mockMvc.perform(patch(url, postId)
-                    .header(AUTHENTICATION_HEADER, tokenHeader)
+                    .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isForbidden());
@@ -224,13 +251,13 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("작성자는 게시글을 삭제할 수 있다.")
         void givenExistedPost_thenPostDelete() throws Exception {
             //given
-            Long postId = createPost(createMember(username)).getId();
-            String token = getJwtToken();
-            String tokenHeader = getJwtTokenHeader(token);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Long postId = postCreator.createPost(member).getId();
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             //when //then
             mockMvc.perform(
                     delete(url, postId)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                 )
                 .andExpect(status().isOk());
             assertThat(postRepository.findAll()).isEmpty();
@@ -240,15 +267,16 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("게시글이 없다면 게시글을 삭제할 수 없다.")
         void givenNonExistedPost_whenDelete_thenDataNotFoundError() throws Exception {
             //given
-            Post post = createPost(createMember(username));
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             postRepository.delete(post);
 
-            String token = getJwtToken();
-            String tokenHeader = getJwtTokenHeader(token);
+            String token = accessTokenProvider.getJwtToken();
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(token);
             //when
             mockMvc.perform(
                     delete(url, post.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNotFound());
@@ -258,54 +286,17 @@ public class PostIntegrationTest extends AuthenticationTests {
         @DisplayName("작성자가 아니면 게시글을 삭제할 수 없다.")
         void givenExistedPost_AndOtherUser_whenDelete_thenForbiddenError() throws Exception {
             //given
-            Long postId = createPost(createMember(username)).getId();
-            String token = getJwtToken(otherUsername);
-            String tokenHeader = getJwtTokenHeader(token);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Long postId = postCreator.createPost(member).getId();
+            String token = accessTokenProvider.getJwtToken(otherUsername);
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(token);
             //when //then
             mockMvc.perform(
                     delete(url, postId)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isForbidden());
         }
     }
-
-    private Post createPost(Member author, String title, String content) {
-        Post post = Post.builder()
-            .title(title)
-            .content(content)
-            .category(categoryRepositoryHandler.findByName("string"))
-            .author(author)
-            .build();
-        return postRepository.save(post);
-    }
-
-
-    private Post createPost(Member author) {
-        Post post = Post.builder()
-            .title("createTestTitle")
-            .content("createTestContent")
-            .category(categoryRepositoryHandler.findByName("string"))
-            .author(author)
-            .build();
-        return postRepository.save(post);
-    }
-
-    private List<Post> createPostList() {
-        List<Post> postList = new ArrayList<>();
-        Member author = getMember(username);
-        for (int i = 0; i < 3; i++) {
-            PostRequest postRequest = new PostRequest("TestTitle" + i, "TestContent" + i, "string");
-            postList.add(Post.of(postRequest, categoryRepositoryHandler.findByName(postRequest.getCategory()), author));
-        }
-
-        return postRepository.saveAll(postList);
-    }
-
-    private Member getMember(String name) {
-        return memberRepository.findByName(name)
-            .orElseGet(() -> createMember(name));
-    }
-
 }

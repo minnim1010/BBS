@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 import CommentWriteView from "./CommentWriteView";
@@ -9,18 +9,21 @@ import CommentListModel from "../../entity/viewmodel/comment/CommentListModel";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import Loading from "../../components/basic/Loading";
 import CommentListElementView from "./CommentListElementView";
+import { Pagination } from "antd";
 
 function CommentView({ postId }) {
   const { auth } = useContext(AuthContext);
   const { headers } = useContext(HttpHeaderTokenContext);
 
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
   const model = useRef(proxy(new CommentListModel())).current;
   const state = useSnapshot(model);
 
   const params = {
     postId: postId,
-    page: 1,
-    keyword: "",
+    page: page,
+    keyword: keyword,
   };
 
   const getCommentList = async (params, headers) => {
@@ -42,9 +45,13 @@ function CommentView({ postId }) {
     void getCommentList(params, headers);
   };
 
+  const onChange = (page) => {
+    setPage(page);
+  };
+
   useEffect(() => {
     void getCommentList(params, headers);
-  }, []);
+  }, [page, keyword]);
 
   return (
     <div>
@@ -76,6 +83,14 @@ function CommentView({ postId }) {
           );
         })
       )}
+      <div className="comment-pagination">
+        <Pagination
+          current={page}
+          onChange={onChange}
+          defaultPageSize={20}
+          total={state.page.totalElements}
+        />
+      </div>
     </div>
   );
 }

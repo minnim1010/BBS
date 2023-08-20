@@ -16,6 +16,7 @@ import spring.bbs.member.repository.MemberRepositoryHandler;
 import spring.bbs.post.domain.Post;
 import spring.bbs.post.dto.request.PostListRequest;
 import spring.bbs.post.dto.request.PostRequest;
+import spring.bbs.post.dto.request.PostServiceRequest;
 import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
 import spring.bbs.post.repository.PostRepository;
@@ -68,9 +69,9 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse createPost(PostRequest req) {
+    public PostResponse createPost(PostServiceRequest req) {
 
-        Member author = memberRepositoryHandler.findByName(AuthenticationUtil.getCurrentMemberNameOrAccessDenied());
+        Member author = memberRepositoryHandler.findByName(req.getCurMemberName());
         Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), author);
         Post savedPost = postRepository.save(post);
 

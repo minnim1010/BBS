@@ -10,6 +10,7 @@ import spring.bbs.category.domain.Category;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.dto.request.PostRequest;
+import spring.bbs.post.dto.request.PostServiceRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class Post extends Written {
         this.category = category;
     }
 
-    public static Post of(PostRequest req, Category category, Member author) {
+    public static Post of(PostServiceRequest req, Category category, Member author) {
         return Post.builder()
                 .title(req.getTitle())
                 .content(req.getContent())

@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import spring.bbs.member.domain.Member;
 import spring.bbs.post.dto.request.PostListRequest;
 import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.dto.response.PostListResponse;
@@ -36,8 +38,9 @@ public class PostController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PostResponse> createPost(@RequestBody @Valid PostRequest req){
-        PostResponse response = postService.createPost(req);
+    public ResponseEntity<PostResponse> createPost(@RequestBody @Valid PostRequest req,
+                                                   @AuthenticationPrincipal Member currentMember){
+        PostResponse response = postService.createPost(req.toServiceRequest(currentMember.getName()));
 
         return ResponseEntity.ok(response);
     }

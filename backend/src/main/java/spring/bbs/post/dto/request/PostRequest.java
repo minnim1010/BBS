@@ -26,4 +26,13 @@ public class PostRequest {
         this.content = content;
         this.category = category;
     }
+
+    public PostServiceRequest toServiceRequest(String curMemberName) {
+        return PostServiceRequest.builder()
+            .title(title)
+            .content(content)
+            .category(category)
+            .curMemberName(curMemberName)
+            .build();
+    }
 }

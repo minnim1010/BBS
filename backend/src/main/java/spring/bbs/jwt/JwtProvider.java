@@ -113,6 +113,9 @@ public class JwtProvider implements InitializingBean {
     public String getName(String token){
         return getClaims(token).getSubject();
     }
+    public String getAuthorities(String token){
+        return getClaims(token).get(AUTHORITIES_KEY).toString();
+    }
 
     public boolean isValidToken(String token){
         try {

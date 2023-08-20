@@ -46,15 +46,12 @@ public class LoggingFilter extends OncePerRequestFilter {
 
     private static void logRequest(RequestWrapper request) throws IOException {
         String queryString = request.getQueryString();
-        log.info("Request : {} uri=[{}] content-type=[{}]",
+        log.info("Request : {} {} content-type=[{}]",
             request.getMethod(),
             queryString == null ? request.getRequestURI() : request.getRequestURI() + queryString,
             request.getContentType()
         );
         String authorization = request.getHeader("Authorization");
-        if(authorization != null) {
-            log.info("Have Authorization Token.");
-        }
 
         logPayload("Request", request.getContentType(), request.getInputStream());
     }

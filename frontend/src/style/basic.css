@@ -68,6 +68,10 @@
     margin-right: 2%;
 }
 
+.post-table {
+    margin-bottom: 3%;
+}
+
 .post-action-btn {
     display: flex;
 }

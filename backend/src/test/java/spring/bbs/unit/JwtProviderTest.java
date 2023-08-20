@@ -1,4 +1,4 @@
-package spring.bbs.jwt;
+package spring.bbs.unit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import spring.bbs.ProfileConfiguration;
+import spring.bbs.jwt.JwtProvider;
 import spring.bbs.util.RoleType;
 
 import java.util.List;
 
 @SpringBootTest
-public class JwtProviderTest implements ProfileConfiguration {
+public class JwtProviderTest {
 
     @Autowired
     private JwtProvider jwtProvider;

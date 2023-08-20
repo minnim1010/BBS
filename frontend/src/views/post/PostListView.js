@@ -5,7 +5,7 @@ import Loading from "../../components/basic/Loading";
 import { proxy, useSnapshot } from "valtio";
 import PostListModel from "../../entity/viewmodel/post/PostListModel";
 import { API } from "../../config/url";
-import { Table } from "antd";
+import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
 
 function PostListView() {
@@ -25,6 +25,10 @@ function PostListView() {
     searchKeyword: searchKeyword ? searchKeyword : "",
   });
 
+  const changePage = (page) => {
+    setParams((prevParams) => ({ ...prevParams, page }));
+  };
+
   const getPostList = async () => {
     const { data: response } = await axios.get(`${API.POST}?`, { params });
     model.posts = response.content;
@@ -35,7 +39,8 @@ function PostListView() {
 
   useEffect(() => {
     void getPostList();
-  }, []);
+    console.log(state.page);
+  }, [params]);
 
   const columns = [
     {
@@ -67,12 +72,20 @@ function PostListView() {
         <Loading />
       ) : (
         <div>
-          <div>
+          <div className="post-table">
             <Table
               dataSource={state.posts}
               columns={columns}
               pagination={false}
               rowKey={(record) => record.id}
+            />
+          </div>
+          <div className="post-pagination">
+            <Pagination
+              current={params.page}
+              onChange={changePage}
+              defaultPageSize={10}
+              total={state.page.totalElements}
             />
           </div>
         </div>

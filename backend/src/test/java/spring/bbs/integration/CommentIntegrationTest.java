@@ -1,12 +1,19 @@
-package spring.bbs.comment.test;
+package spring.bbs.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import spring.bbs.AuthenticationTests;
+import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.dto.request.CommentCreateRequest;
@@ -15,11 +22,15 @@ import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.service.CommentDeleteServiceRequest;
 import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.comment.service.CommentService;
+import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
-import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.repository.PostRepository;
+import spring.helper.AccessTokenProvider;
+import spring.helper.CommentCreator;
+import spring.helper.MemberCreator;
+import spring.helper.PostCreator;
 
 import java.util.List;
 
@@ -29,10 +40,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class CommentIntegrationTest extends AuthenticationTests {
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ProfileConfiguration
+public class CommentIntegrationTest {
 
     private static final String TEST_COMMENT_CONTENT = "testComment";
-    private final String username = "CommentTestUser1";
+    private static final String MEMBER_NAME = "CommentTestUser1";
+
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -40,19 +56,34 @@ public class CommentIntegrationTest extends AuthenticationTests {
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private CommentRepository commentRepository;
     @Autowired
     private PostRepository postRepository;
+
     @Autowired
     private CategoryRepositoryHandler categoryRepositoryHandler;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private JwtProvider jwtProvider;
 
-    public CommentIntegrationTest() {
-        setMemberName(username);
+    private AccessTokenProvider accessTokenProvider;
+    private MemberCreator memberCreator;
+    private PostCreator postCreator;
+    private CommentCreator commentCreator;
+
+
+    @PostConstruct
+    void init(){
+        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        this.memberCreator = new MemberCreator(memberRepository);
+        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+        this.commentCreator = new CommentCreator(commentRepository);
     }
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         commentRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
@@ -68,11 +99,12 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("누구나 게시글의 댓글 목록을 조회할 수 있다.")
         void getCommentList() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment comment1 = createComment(post, member, "comment1");
-            Comment comment2 = createComment(post, member, "comment2");
-            Comment comment3 = createComment(post, member, "comment3");
+            
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment comment1 = commentCreator.createComment(post, member, "comment1");
+            Comment comment2 = commentCreator.createComment(post, member, "comment2");
+            Comment comment3 = commentCreator.createComment(post, member, "comment3");
             commentRepository.saveAll(List.of(comment1, comment2, comment3));
             CommentListRequest req = new CommentListRequest(1, "", post.getId());
             // when // then
@@ -96,12 +128,12 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("게시글 댓글 목록 조회 시 대댓글과 댓글이 올바른 순서대로 조회된다.")
         void getCommentListWithCorrectOrder() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment parentComment = createComment(post, member, "parentComment");
-            Comment childComment1 = createComment(post, member, "childComment1", parentComment, 1);
-            Comment grandChildComment = createComment(post, member, "grandChildComment1", childComment1, 2);
-            Comment childComment2 = createComment(post, member, "childComment2", parentComment, 3);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment parentComment = commentCreator.createComment(post, member, "parentComment");
+            Comment childComment1 = commentCreator.createComment(post, member, "childComment1", parentComment, 1);
+            Comment grandChildComment = commentCreator.createComment(post, member, "grandChildComment1", childComment1, 2);
+            Comment childComment2 = commentCreator.createComment(post, member, "childComment2", parentComment, 3);
             commentRepository.saveAll(List.of(parentComment, childComment2, childComment1, grandChildComment));
             CommentListRequest req = new CommentListRequest(1, "", post.getId());
             // when // then
@@ -127,22 +159,22 @@ public class CommentIntegrationTest extends AuthenticationTests {
     }
 
     @Nested
-    class CreateComment {
+    class createComment {
         private static final String url = "/api/v1/comments";
 
         @Test
         @DisplayName("회원은 게시글에 댓글을 달 수 있다.")
         void createCommentAtPost() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             CommentCreateRequest req =
                 new CommentCreateRequest(TEST_COMMENT_CONTENT, post.getId(), null);
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when //then
             mockMvc.perform(
                     post(url)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -158,16 +190,16 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("회원은 댓글에 대댓글을 달 수 있다.")
         void createCommentWithParentComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment comment = createComment(post, member, "parentComment");
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment comment = commentCreator.createComment(post, member, "parentComment");
             CommentCreateRequest req =
                 new CommentCreateRequest(TEST_COMMENT_CONTENT, post.getId(), comment.getId());
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when //then
             mockMvc.perform(
                     post(url)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -185,20 +217,20 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("회원이 예전 댓글에 대댓글을 달면, 다른 댓글보다 최근에 작성되었더라도 대댓글 순서가 높다.")
         void createCommentWithOldParentComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment parentComment = createComment(post, member, "parentComment");
-            Comment childComment1 = createComment(post, member, "childComment1", parentComment, 1);
-            Comment grandChildComment = createComment(post, member, "grandChildComment1", childComment1, 2);
-            Comment childComment2 = createComment(post, member, "childComment2", parentComment, 3);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment parentComment = commentCreator.createComment(post, member, "parentComment");
+            Comment childComment1 = commentCreator.createComment(post, member, "childComment1", parentComment, 1);
+            Comment grandChildComment = commentCreator.createComment(post, member, "grandChildComment1", childComment1, 2);
+            Comment childComment2 = commentCreator.createComment(post, member, "childComment2", parentComment, 3);
             commentRepository.saveAll(List.of(parentComment, childComment2, childComment1, grandChildComment));
             CommentCreateRequest req =
                 new CommentCreateRequest("newComment", post.getId(), childComment1.getId());
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when //then
             mockMvc.perform(
                     post(url)
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -224,16 +256,16 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("댓글 작성자는 게시글의 댓글을 수정할 수 있다.")
         void modifyComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment comment = createComment(post, member);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment comment = commentCreator.createComment(post, member, "content");
             String updateContent = "UpdateComment";
             CommentUpdateRequest req = new CommentUpdateRequest(updateContent);
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when // then
             mockMvc.perform(
                     patch(url, comment.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
                 )
@@ -254,15 +286,15 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("댓글 작성자는 대댓글이 없는 게시글의 댓글을 삭제할 수 있다.")
         void deleteComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
             Comment comment = Comment.of("content", member, post);
             commentRepository.saveAll(List.of(comment));
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when // then
             mockMvc.perform(
                     delete(url, comment.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk());
@@ -274,16 +306,16 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("댓글에 자식 대댓글이 있다면 실제 삭제되지 않고, 삭제 처리만 수행한다.")
         void deleteParentCommentWithChildComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment parentComment = createComment(post, member, "parentComment");
-            Comment childComment = createComment(post, member, "childComment", parentComment, 1);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment parentComment = commentCreator.createComment(post, member, "parentComment");
+            Comment childComment = commentCreator.createComment(post, member, "childComment", parentComment, 1);
             commentRepository.saveAll(List.of(parentComment, childComment));
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when // then
             mockMvc.perform(
                     delete(url, parentComment.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk());
@@ -301,16 +333,16 @@ public class CommentIntegrationTest extends AuthenticationTests {
         @DisplayName("자식 대댓글이 모두 삭제된 부모 댓글 삭제 시 부모 댓글과 자식 대댓글 모두 실제 삭제된다.")
         void deleteParentCommentWithAllDeletedChildComment() throws Exception {
             // given
-            Member member = createMember(username);
-            Post post = createPost(member);
-            Comment parentComment =  createComment(post, member, "parentComment");
-            Comment childComment = createComment(post, member, "childComment", parentComment, 1);
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            Post post = postCreator.createPost(member);
+            Comment parentComment =  commentCreator.createComment(post, member, "parentComment");
+            Comment childComment = commentCreator.createComment(post, member, "childComment", parentComment, 1);
             commentService.deleteComment(new CommentDeleteServiceRequest(childComment.getId(), member.getName()));
-            String tokenHeader = getJwtTokenHeader(getJwtToken());
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
             // when // then
             mockMvc.perform(
                     delete(url, parentComment.getId())
-                        .header(AUTHENTICATION_HEADER, tokenHeader)
+                        .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk());
@@ -320,25 +352,4 @@ public class CommentIntegrationTest extends AuthenticationTests {
         }
     }
 
-    private Post createPost(Member author) {
-        PostRequest req = new PostRequest(
-            "createTestTitle", "createTestContent", "string");
-        Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), author);
-        return postRepository.save(post);
-    }
-
-    private Comment createComment(Post post, Member author, String content, Comment parentComment, int order) {
-        Comment comment = Comment.of(content, author, post, parentComment, order);
-        return commentRepository.save(comment);
-    }
-
-    private Comment createComment(Post post, Member author, String content) {
-        Comment comment = Comment.of(content, author, post);
-        return commentRepository.saveAndFlush(comment);
-    }
-
-    private Comment createComment(Post post, Member author) {
-        Comment comment = Comment.of("commentContent", author, post);
-        return commentRepository.saveAndFlush(comment);
-    }
 }

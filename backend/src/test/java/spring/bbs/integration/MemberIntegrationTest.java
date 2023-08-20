@@ -1,17 +1,25 @@
-package spring.bbs.member.test;
+package spring.bbs.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.*;
+import jakarta.annotation.PostConstruct;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.bbs.AuthenticationTests;
+import spring.ProfileConfiguration;
+import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.repository.MemberRepository;
+import spring.helper.AccessTokenProvider;
+import spring.helper.MemberCreator;
 
 import java.util.List;
 
@@ -22,11 +30,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
-public class MemberIntegrationTest extends AuthenticationTests {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ProfileConfiguration
+public class MemberIntegrationTest {
 
-    private final String specificUrl = "/api/v1/members/{id}";
-    private final String collectionUrl = "/api/v1/members";
+    private static final String MEMBER_NAME = "MemberTestUser";
+    private static final String specificUrl = "/api/v1/members/{id}";
+    private static final String collectionUrl = "/api/v1/members";
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,20 +45,23 @@ public class MemberIntegrationTest extends AuthenticationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private JwtProvider jwtProvider;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    private final String username = "memberTestUser";
+    private AccessTokenProvider accessTokenProvider;
+    private MemberCreator memberCreator;
 
-    public MemberIntegrationTest(){
-        setMemberName(username);
+
+    @PostConstruct
+    void init(){
+        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        this.memberCreator = new MemberCreator(memberRepository);
     }
 
     @AfterEach
     void tearDown() {
-        memberRepository.deleteAllInBatch();
-    }
-
-    @BeforeEach
-    void setUp() {
         memberRepository.deleteAllInBatch();
     }
 
@@ -73,17 +87,16 @@ public class MemberIntegrationTest extends AuthenticationTests {
             .andExpect(jsonPath("$.email", is(req.getEmail())));
         List<Member> members = memberRepository.findAll();
         assertThat(members).hasSize(1)
-                .extracting("name", "email")
-                .contains(Tuple.tuple("memberTestUser", "memberTest@test.com"));
+                .extracting("name")
+                .contains(MEMBER_NAME);
     }
 
         @Test
         @DisplayName("회원 이름이 이미 존재하면 회원가입할 수 없다.")
         public void joinWithDuplicatedName() throws Exception {
             //given
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             JoinRequest req = createJoinRequest();
-            memberRepository.findByName(req.getName())
-                    .orElse(createMember(req.getName()));
             //when
             ResultActions response = request(req);
             //then
@@ -108,18 +121,17 @@ public class MemberIntegrationTest extends AuthenticationTests {
 
         private ResultActions request(String tokenHeader) throws Exception {
             return mockMvc.perform(delete(collectionUrl)
-                    .header(AUTHENTICATION_HEADER, tokenHeader));
+                    .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader));
         }
 
         @Test
         @DisplayName("로그인한 회원이라면 회원을 탈퇴할 수 있다.")
         public void withdrawal() throws Exception {
             //given
+            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             JoinRequest req = createJoinRequest();
-            memberRepository.findByName(req.getName())
-                    .orElse(createMember(req.getName()));
             //when
-            ResultActions response = request(getJwtTokenHeader(getJwtToken()));
+            ResultActions response = request(accessTokenProvider.getUserRoleTokenWithHeaderPrefix());
             //then
             response.andExpect(status().isOk());
             assertThat(memberRepository.findAll()).isEmpty();
@@ -127,9 +139,9 @@ public class MemberIntegrationTest extends AuthenticationTests {
     }
 
     private static JoinRequest createJoinRequest() {
-        return new JoinRequest("memberTestUser",
-            "memberTestUser",
-            "memberTestUser",
-            "memberTest@test.com");
+        return new JoinRequest(MEMBER_NAME,
+            MEMBER_NAME,
+            MEMBER_NAME,
+            MEMBER_NAME+"@test.com");
     }
 }

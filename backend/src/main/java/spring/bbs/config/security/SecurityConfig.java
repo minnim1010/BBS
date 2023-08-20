@@ -8,6 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -36,6 +38,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
@@ -74,8 +77,8 @@ public class SecurityConfig {
                 .requestMatchers("/home", "/error").permitAll()
                 .requestMatchers("/api/v1/login", "/api/v1/token").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
+                .requestMatchers("/api/v1/user", "/api/v1/admin").authenticated()
                 .requestMatchers(HttpMethod.GET).permitAll()
-                .requestMatchers("/api/v1/logout").authenticated()
                 .anyRequest().authenticated());
 
         http.exceptionHandling((exceptionHandling) ->

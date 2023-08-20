@@ -1,0 +1,37 @@
+package spring.helper;
+
+import spring.bbs.member.domain.Authority;
+import spring.bbs.member.domain.Member;
+import spring.bbs.member.repository.MemberRepository;
+import spring.bbs.util.RoleType;
+
+public class MemberCreator {
+
+    private final MemberRepository memberRepository;
+
+    public MemberCreator(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
+
+    public Member createMember(String name) {
+        Member newMember = Member.builder()
+            .name(name)
+            .password("password")
+            .email(name + "@test.com")
+            .isEnabled(true)
+            .authority(Enum.valueOf(Authority.class, RoleType.user))
+            .build();
+        return memberRepository.save(newMember);
+    }
+
+    public Member createMember(String name, String password) {
+        Member newMember = Member.builder()
+            .name(name)
+            .password(password)
+            .email(name + "@test.com")
+            .isEnabled(true)
+            .authority(Enum.valueOf(Authority.class, RoleType.user))
+            .build();
+        return memberRepository.save(newMember);
+    }
+}

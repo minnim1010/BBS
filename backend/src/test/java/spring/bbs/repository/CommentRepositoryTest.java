@@ -1,5 +1,6 @@
-package spring.bbs.comment.test;
+package spring.bbs.repository;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
@@ -12,19 +13,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.repository.CommentRepository;
-import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
-import spring.bbs.post.dto.request.PostRequest;
 import spring.bbs.post.repository.PostRepository;
-import spring.bbs.util.RoleType;
 import spring.config.TestConfig;
+import spring.helper.CommentCreator;
+import spring.helper.MemberCreator;
+import spring.helper.PostCreator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import(TestConfig.class)
+@ProfileConfiguration
 class CommentRepositoryTest {
+
+    private static final String MEMBER_NAME = "CommentTestUser";
 
     @Autowired
     private CommentRepository commentRepository;
@@ -44,8 +48,18 @@ class CommentRepositoryTest {
     private CategoryRepositoryHandler categoryRepositoryHandler;
     @Autowired
     private EntityManager em;
-
+    
+    private MemberCreator memberCreator;
+    private PostCreator postCreator;
+    private CommentCreator commentCreator;
     private final int PAGE_SIZE = 20;
+
+    @PostConstruct
+    void init(){
+        this.memberCreator = new MemberCreator(memberRepository);
+        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+        this.commentCreator = new CommentCreator(commentRepository);
+    }
 
     @AfterEach
     void tearDown() {
@@ -58,12 +72,12 @@ class CommentRepositoryTest {
     @DisplayName("게시글 번호, 댓글 페이지 번호를 주면 해당 게시글의 댓글 목록을 페이지에 맞게 반환한다.")
     void findAllToPageByPost() {
         //given
-        Member member = createMember("CommentTestUser");
-        Post post = createPost(member);
-        createCommentList(post, member, PAGE_SIZE);
-        createComment(post, member, "RightPageComment1");
-        createComment(post, member, "RightPageComment2");
-        createComment(post, member, "RightPageComment3");
+        Member member = memberCreator.createMember(MEMBER_NAME);
+        Post post = postCreator.createPost(member);
+        commentCreator.createCommentList(post, member, PAGE_SIZE);
+        commentCreator.createComment(post, member, "RightPageComment1");
+        commentCreator.createComment(post, member, "RightPageComment2");
+        commentCreator.createComment(post, member, "RightPageComment3");
         int page = 2;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").ascending());
         //when
@@ -82,11 +96,11 @@ class CommentRepositoryTest {
     @DisplayName("게시글 번호, 댓글 페이지 번호, 검색 키워드를 주면 해당 게시글의 키워드가 포함된 댓글 목록을 페이지에 맞게 반환한다.")
     void findAllToPageByPostAndSearchkeyword() {
         //given
-        Member member = createMember("CommentTestUser");
-        Post post = createPost(member);
-        createComment(post, member, "test1");
-        createComment(post, member, "test2");
-        createComment(post, member, "hellohihello");
+        Member member = memberCreator.createMember(MEMBER_NAME);
+        Post post = postCreator.createPost(member);
+        commentCreator.createComment(post, member, "test1");
+        commentCreator.createComment(post, member, "test2");
+        commentCreator.createComment(post, member, "hellohihello");
         int page = 1;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").ascending());
         //when
@@ -103,12 +117,12 @@ class CommentRepositoryTest {
     @Test
     void findLatestCreatedCommentOrderWithSameParent(){
         //given
-        Member member = createMember("CommentTestUser");
-        Post post = createPost(member);
-        Comment comment1 = createComment(post, member, "test1");
-        createComment(post, member, "test2", comment1, 1);
-        createComment(post, member, "test2", comment1, 2);
-        createComment(post, member, "test2", comment1, 3);
+        Member member = memberCreator.createMember(MEMBER_NAME);
+        Post post = postCreator.createPost(member);
+        Comment comment1 = commentCreator.createComment(post, member, "test1");
+        commentCreator.createComment(post, member, "test2", comment1, 1);
+        commentCreator.createComment(post, member, "test2", comment1, 2);
+        commentCreator.createComment(post, member, "test2", comment1, 3);
         //when
         int order = commentRepository.findLatestOrderWithSameParent(comment1);
         //then
@@ -119,9 +133,9 @@ class CommentRepositoryTest {
     @Test
     void findLatestCreatedCommentOrderWithNoSameParent(){
         //given
-        Member member = createMember("CommentTestUser");
-        Post post = createPost(member);
-        Comment comment1 = createComment(post, member, "test1");
+        Member member = memberCreator.createMember(MEMBER_NAME);
+        Post post = postCreator.createPost(member);
+        Comment comment1 = commentCreator.createComment(post, member, "test1");
         //when
         int order = commentRepository.findLatestOrderWithSameParent(comment1);
         //then
@@ -132,13 +146,13 @@ class CommentRepositoryTest {
     @Test
     void updateOrder(){
         //given
-        Member member = createMember("CommentTestUser");
-        Post post = createPost(member);
-        Comment parentComment = createComment(post, member, "parentComment");
-        Comment childComment1 = createComment(post, member, "childComment1", parentComment, 1);
-        Comment childComment2 = createComment(post, member, "childComment2", parentComment, 2);
-        Comment childComment3 = createComment(post, member, "childComment3", parentComment, 3);
-//        Comment grandChildComment = createComment(post, member, "grandChildComment", childComment1, 2);
+        Member member = memberCreator.createMember(MEMBER_NAME);
+        Post post = postCreator.createPost(member);
+        Comment parentComment = commentCreator.createComment(post, member, "parentComment");
+        Comment childComment1 = commentCreator.createComment(post, member, "childComment1", parentComment, 1);
+        Comment childComment2 = commentCreator.createComment(post, member, "childComment2", parentComment, 2);
+        Comment childComment3 = commentCreator.createComment(post, member, "childComment3", parentComment, 3);
+//        Comment grandChildComment = commentCreator.createComment(post, member, "grandChildComment", childComment1, 2);
         commentRepository.flush();
         //when
         commentRepository.updateOrder(post, parentComment.getId(), 2);
@@ -155,46 +169,5 @@ class CommentRepositoryTest {
                 Tuple.tuple(childComment2.getContent(), 3),
                 Tuple.tuple(childComment3.getContent(), 4)
             );
-    }
-
-    private List<Comment> createCommentList(Post post, Member author, int num) {
-        List<Comment> commentList = new ArrayList<>(num);
-        for (int i = 1; i <= num; i++) {
-            commentList.add(Comment.builder()
-                .content("testContent" + i)
-                .author(author)
-                .post(post)
-                .parentComment(null)
-                .build());
-        }
-        return commentRepository.saveAllAndFlush(commentList);
-    }
-
-    private Comment createComment(Post post, Member author, String content, Comment parentComment, int order) {
-        Comment comment = Comment.of(content, author, post, parentComment, order);
-        return commentRepository.save(comment);
-    }
-
-    private Comment createComment(Post post, Member author, String content) {
-        Comment comment = Comment.of(content, author, post);
-        return commentRepository.save(comment);
-    }
-
-    private Post createPost(Member author) {
-        PostRequest req = new PostRequest(
-            "createTestTitle", "createTestContent", "string");
-        Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), author);
-        return postRepository.save(post);
-    }
-
-    private Member createMember(String name) {
-        Member newMember = Member.builder()
-            .name(name)
-            .password("password")
-            .email(name + "@test.com")
-            .isEnabled(true)
-            .authority(Enum.valueOf(Authority.class, RoleType.user))
-            .build();
-        return memberRepository.save(newMember);
     }
 }
