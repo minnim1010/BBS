@@ -7,18 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.comment.dto.request.CommentCreateRequest;
 import spring.bbs.comment.dto.request.CommentListRequest;
 import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
-import spring.bbs.comment.dto.service.CommentCreateServiceRequest;
 import spring.bbs.comment.dto.service.CommentDeleteServiceRequest;
-import spring.bbs.comment.dto.service.CommentUpdateServiceRequest;
 import spring.bbs.comment.service.CommentService;
 import spring.bbs.member.domain.Member;
-import spring.bbs.util.AuthenticationUtil;
 
 @RestController
 @RequestMapping("/api/v1/comments")

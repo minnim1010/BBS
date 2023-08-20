@@ -1,9 +1,9 @@
 package spring.helper;
 
+import spring.bbs.common.util.RoleType;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.util.RoleType;
 
 public class MemberCreator {
 

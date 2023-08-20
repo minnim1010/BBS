@@ -19,7 +19,7 @@ public class QMember extends EntityPathBase<Member> {
 
     public static final QMember member = new QMember("member1");
 
-    public final spring.bbs.base.domain.QBaseEntity _super = new spring.bbs.base.domain.QBaseEntity(this);
+    public final spring.bbs.common.entity.QBaseTime _super = new spring.bbs.common.entity.QBaseTime(this);
 
     public final EnumPath<Authority> authority = createEnum("authority", Authority.class);
 

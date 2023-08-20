@@ -3,6 +3,7 @@ package spring.bbs.comment.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import spring.bbs.comment.domain.Comment;
+import spring.bbs.member.domain.Member;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentCustomRepository {
 
@@ -13,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 //    void updateOrder(@Param("post") Post post, @Param("groupNum") Long groupNum, @Param("updateStartOrder") int updateStartOrder);
 
     int countByParentComment(Comment parentComment);
+
+    void deleteAllInBatchByAuthor(Member author);
 }

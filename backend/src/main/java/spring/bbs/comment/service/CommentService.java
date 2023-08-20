@@ -12,9 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import spring.bbs.comment.domain.Comment;
-import spring.bbs.comment.dto.request.CommentCreateRequest;
-import spring.bbs.comment.dto.request.CommentListRequest;
-import spring.bbs.comment.dto.request.CommentUpdateRequest;
 import spring.bbs.comment.dto.response.CommentResponse;
 import spring.bbs.comment.dto.service.CommentCreateServiceRequest;
 import spring.bbs.comment.dto.service.CommentDeleteServiceRequest;
@@ -22,12 +19,11 @@ import spring.bbs.comment.dto.service.CommentListServiceRequest;
 import spring.bbs.comment.dto.service.CommentUpdateServiceRequest;
 import spring.bbs.comment.repository.CommentRepository;
 import spring.bbs.comment.repository.CommentRepositoryHandler;
-import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 import spring.bbs.post.domain.Post;
 import spring.bbs.post.repository.PostRepositoryHandler;
-import spring.bbs.util.AuthenticationUtil;
 
 @Service
 @Slf4j
@@ -52,14 +48,16 @@ public class CommentService {
     }
 
     private int getValidPage(int pageInRequest) {
-        if (pageInRequest <= 0)
+        if (pageInRequest <= 0) {
             return 1;
+        }
         return pageInRequest;
     }
 
     private Page<Comment> findToPageByRequest(String searchKeyword, Post post, Pageable pageable) {
-        if (StringUtils.hasText(searchKeyword))
+        if (StringUtils.hasText(searchKeyword)) {
             return commentRepository.findAllByPostAndSearchKeyword(post, searchKeyword, pageable);
+        }
         return commentRepository.findAllByPost(post, pageable);
     }
 
@@ -93,14 +91,16 @@ public class CommentService {
 
     private Long getCurGroupNum(Comment parentComment) {
         Long groupNum = parentComment.getGroupNum();
-        if (groupNum == null)
+        if (groupNum == null) {
             groupNum = parentComment.getId();
+        }
         return groupNum;
     }
 
     private Comment getParentComment(Long parentCommentId) {
-        if (parentCommentId != null && parentCommentId != 0)
+        if (parentCommentId != null && parentCommentId != 0) {
             return commentRepositoryHandler.findById(parentCommentId);
+        }
         return null;
     }
 
@@ -127,16 +127,20 @@ public class CommentService {
     }
 
     private void checkAlreadyDeletedComment(Comment comment) {
-        if(comment.isDeleted()){
+        if (comment.isDeleted()) {
             throw new DataNotFoundException("댓글이 존재하지 않습니다.");
         }
     }
 
     private void deleteCommentByChildExists(Comment comment) {
-        if (changeDeletedStatusIfCannotDeleted(comment)) return;
+        if (changeDeletedStatusIfCannotDeleted(comment)) {
+            return;
+        }
 
         Comment parentComment = comment.getParentComment();
-        if (deleteCommentNotRecomment(comment, parentComment)) return;
+        if (deleteCommentNotRecomment(comment, parentComment)) {
+            return;
+        }
         deleteRecomment(comment, parentComment);
     }
 
@@ -149,7 +153,7 @@ public class CommentService {
     }
 
     private boolean deleteCommentNotRecomment(Comment comment, Comment parentComment) {
-        if(parentComment == null) {
+        if (parentComment == null) {
             commentRepository.delete(comment);
             return true;
         }
@@ -172,7 +176,8 @@ public class CommentService {
     }
 
     private void validAuthor(String authorName, String curMemberName) {
-        if (!authorName.equals(curMemberName))
+        if (!authorName.equals(curMemberName)) {
             throw new AccessDeniedException("작성자여야 합니다.");
+        }
     }
 }

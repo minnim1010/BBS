@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.dto.request.CommentCreateRequest;
@@ -31,6 +30,7 @@ import spring.helper.AccessTokenProvider;
 import spring.helper.CommentCreator;
 import spring.helper.MemberCreator;
 import spring.helper.PostCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 
@@ -76,11 +76,11 @@ public class CommentIntegrationTest {
 
 
     @PostConstruct
-    void init(){
-        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
-        this.memberCreator = new MemberCreator(memberRepository);
-        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
-        this.commentCreator = new CommentCreator(commentRepository);
+    void init() {
+        accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        memberCreator = new MemberCreator(memberRepository);
+        postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+        commentCreator = new CommentCreator(commentRepository);
     }
 
     @AfterEach
@@ -99,7 +99,7 @@ public class CommentIntegrationTest {
         @DisplayName("누구나 게시글의 댓글 목록을 조회할 수 있다.")
         void getCommentList() throws Exception {
             // given
-            
+
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             Post post = postCreator.createPost(member);
             Comment comment1 = commentCreator.createComment(post, member, "comment1");
@@ -323,7 +323,7 @@ public class CommentIntegrationTest {
             assertThat(result).hasSize(2)
                 .extracting("content", "isDeleted", "canDeleted")
                 .containsExactlyInAnyOrder(
-                    Tuple.tuple("이미 삭제된 댓글입니다.", true, false),
+                    Tuple.tuple(Comment.DELETED_CONTENT, true, false),
                     Tuple.tuple(childComment.getContent(), false, true)
                 );
             assertThat(postRepository.findAll()).hasSize(1);
@@ -335,7 +335,7 @@ public class CommentIntegrationTest {
             // given
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             Post post = postCreator.createPost(member);
-            Comment parentComment =  commentCreator.createComment(post, member, "parentComment");
+            Comment parentComment = commentCreator.createComment(post, member, "parentComment");
             Comment childComment = commentCreator.createComment(post, member, "childComment", parentComment, 1);
             commentService.deleteComment(new CommentDeleteServiceRequest(childComment.getId(), member.getName()));
             String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();
@@ -351,5 +351,4 @@ public class CommentIntegrationTest {
             assertThat(postRepository.findAll()).hasSize(1);
         }
     }
-
 }

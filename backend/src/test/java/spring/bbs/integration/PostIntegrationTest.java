@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
@@ -25,6 +24,7 @@ import spring.bbs.post.repository.PostRepository;
 import spring.helper.AccessTokenProvider;
 import spring.helper.MemberCreator;
 import spring.helper.PostCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 
@@ -56,11 +56,11 @@ public class PostIntegrationTest {
     private CategoryRepositoryHandler categoryRepositoryHandler;
     @Autowired
     private JwtProvider jwtProvider;
-    
+
     private AccessTokenProvider accessTokenProvider;
     private MemberCreator memberCreator;
     private PostCreator postCreator;
-    
+
     @AfterEach
     void deletePost() {
         postRepository.deleteAllInBatch();
@@ -68,10 +68,10 @@ public class PostIntegrationTest {
     }
 
     @PostConstruct
-    void init(){
-        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
-        this.memberCreator = new MemberCreator(memberRepository);
-        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+    void init() {
+        accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        memberCreator = new MemberCreator(memberRepository);
+        postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
     }
 
     @Nested

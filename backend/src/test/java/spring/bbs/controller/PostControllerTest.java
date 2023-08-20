@@ -16,7 +16,7 @@
 //import org.springframework.test.context.ActiveProfiles;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.ResultActions;
-//import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+//import spring.bbs.exceptionhandler.DataNotFoundException;
 //import spring.bbs.member.dto.response.MemberResponse;
 //import spring.bbs.post.controller.PostController;
 //import spring.bbs.post.dto.request.PostListRequest;

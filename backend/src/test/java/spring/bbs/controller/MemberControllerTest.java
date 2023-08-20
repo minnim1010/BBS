@@ -11,9 +11,9 @@
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.ResultActions;
-//import spring.ProfileConfiguration;
-//import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
-//import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
+//import spring.profileResolver.ProfileConfiguration;
+//import spring.bbs.exceptionhandler.ExistedMemberNameException;
+//import spring.bbs.exceptionhandler.NotSamePasswordException;
 //import spring.bbs.member.controller.MemberController;
 //import spring.bbs.member.dto.request.JoinRequest;
 //import spring.bbs.member.dto.response.JoinResponse;

@@ -2,7 +2,7 @@ package spring.bbs.post.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.post.domain.Post;
 
 @RequiredArgsConstructor
@@ -12,8 +12,8 @@ public class PostRepositoryHandler {
 
     private final PostRepository postRepository;
 
-    public Post findById(long postId){
+    public Post findById(long postId) {
         return postRepository.findById(postId).orElseThrow(() ->
-                new DataNotFoundException(POST_NOT_FOUND_MSG));
+            new DataNotFoundException(POST_NOT_FOUND_MSG));
     }
 }

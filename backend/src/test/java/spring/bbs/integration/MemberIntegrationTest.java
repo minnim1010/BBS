@@ -13,13 +13,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.ProfileConfiguration;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.repository.MemberRepository;
 import spring.helper.AccessTokenProvider;
 import spring.helper.MemberCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 
@@ -55,9 +55,9 @@ public class MemberIntegrationTest {
 
 
     @PostConstruct
-    void init(){
-        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
-        this.memberCreator = new MemberCreator(memberRepository);
+    void init() {
+        accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        memberCreator = new MemberCreator(memberRepository);
     }
 
     @AfterEach
@@ -66,12 +66,12 @@ public class MemberIntegrationTest {
     }
 
     @Nested
-    class Join{
+    class Join {
 
         private ResultActions request(JoinRequest req) throws Exception {
             return mockMvc.perform(post(collectionUrl)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(req)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)));
         }
 
         @Test
@@ -83,13 +83,13 @@ public class MemberIntegrationTest {
             ResultActions response = request(req);
             //then
             response.andExpect(status().isOk())
-            .andExpect(jsonPath("$.name", is(req.getName())))
-            .andExpect(jsonPath("$.email", is(req.getEmail())));
-        List<Member> members = memberRepository.findAll();
-        assertThat(members).hasSize(1)
+                .andExpect(jsonPath("$.name", is(req.getName())))
+                .andExpect(jsonPath("$.email", is(req.getEmail())));
+            List<Member> members = memberRepository.findAll();
+            assertThat(members).hasSize(1)
                 .extracting("name")
                 .contains(MEMBER_NAME);
-    }
+        }
 
         @Test
         @DisplayName("회원 이름이 이미 존재하면 회원가입할 수 없다.")
@@ -117,11 +117,11 @@ public class MemberIntegrationTest {
     }
 
     @Nested
-    class Withdrawal{
+    class Withdrawal {
 
         private ResultActions request(String tokenHeader) throws Exception {
             return mockMvc.perform(delete(collectionUrl)
-                    .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader));
+                .header(accessTokenProvider.AUTHENTICATION_HEADER, tokenHeader));
         }
 
         @Test
@@ -142,6 +142,6 @@ public class MemberIntegrationTest {
         return new JoinRequest(MEMBER_NAME,
             MEMBER_NAME,
             MEMBER_NAME,
-            MEMBER_NAME+"@test.com");
+            MEMBER_NAME + "@test.com");
     }
 }

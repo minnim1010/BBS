@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
+import spring.bbs.common.util.AuthenticationUtil;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 import spring.bbs.post.domain.Post;
@@ -21,7 +22,6 @@ import spring.bbs.post.dto.response.PostListResponse;
 import spring.bbs.post.dto.response.PostResponse;
 import spring.bbs.post.repository.PostRepository;
 import spring.bbs.post.repository.PostRepositoryHandler;
-import spring.bbs.util.AuthenticationUtil;
 
 @Slf4j
 @Service
@@ -47,8 +47,9 @@ public class PostService {
     }
 
     private int getValidPage(int pageInRequest) {
-        if (pageInRequest <= 0)
+        if (pageInRequest <= 0) {
             return 1;
+        }
         return pageInRequest;
     }
 
@@ -56,10 +57,10 @@ public class PostService {
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
         if (StringUtils.hasText(keyword)) {
             validateSearchScope(scope);
-            return postRepository.findAllToPageAndSearchKeywordAndScope(
+            return postRepository.findAllBySearchKeywordAndScope(
                 scope, keyword, pageable);
         }
-        return postRepository.findAllToPage(pageable);
+        return postRepository.findAll(pageable);
     }
 
     private void validateSearchScope(String scope) {
@@ -98,7 +99,8 @@ public class PostService {
     }
 
     private void validAuthor(String authorName, String currentMember) {
-        if (!authorName.equals(currentMember))
+        if (!authorName.equals(currentMember)) {
             throw new AccessDeniedException("작성자여야 합니다.");
+        }
     }
 }

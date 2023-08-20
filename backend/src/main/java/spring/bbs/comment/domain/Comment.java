@@ -5,7 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.bbs.base.domain.Written;
+import org.springframework.util.Assert;
+import spring.bbs.common.entity.Written;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.domain.Post;
 
@@ -16,7 +17,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends Written {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(length = 200, nullable = false)
     private String content;
@@ -34,8 +36,22 @@ public class Comment extends Written {
     private int groupOrder;
     private Long groupNum;
 
+    public static final String DELETED_CONTENT = "삭제된 댓글입니다.";
+
     @Builder
-    private Comment(String content, Member author, Post post, Comment parentComment, boolean isDeleted, int groupOrder, Long groupNum, boolean canDeleted) {
+    private Comment(
+        String content,
+        Member author,
+        Post post,
+        Comment parentComment,
+        boolean isDeleted,
+        int groupOrder,
+        Long groupNum,
+        boolean canDeleted) {
+        Assert.hasText(content, "content must be provided");
+        Assert.notNull(author, "author must be provided");
+        Assert.notNull(post, "post must be provided");
+
         this.content = content;
         this.author = author;
         this.post = post;
@@ -67,11 +83,13 @@ public class Comment extends Written {
                              Post post,
                              Comment parentComment,
                              int groupOrder) {
-        if(parentComment == null)
+        if (parentComment == null) {
             throw new IllegalStateException("대댓글을 달 수 있는 댓글이 없습니다.");
+        }
 
-        if (parentComment.getGroupNum() == null)
+        if (parentComment.getGroupNum() == null) {
             parentComment.updateGroupNum(parentComment.getId());
+        }
         Long groupNum = parentComment.getGroupNum();
         parentComment.setCanDeleted(false);
 
@@ -87,8 +105,8 @@ public class Comment extends Written {
             .build();
     }
 
-    public void setCanDeleted(boolean hasNoChild){
-        this.canDeleted = hasNoChild;
+    public void setCanDeleted(boolean hasNoChild) {
+        canDeleted = hasNoChild;
     }
 
     public Comment update(String content) {
@@ -97,8 +115,8 @@ public class Comment extends Written {
     }
 
     public void delete() {
-        this.isDeleted = true;
-        this.content = "이미 삭제된 댓글입니다.";
+        isDeleted = true;
+        content = DELETED_CONTENT;
     }
 
     public void updateGroupNum(Long groupNum) {

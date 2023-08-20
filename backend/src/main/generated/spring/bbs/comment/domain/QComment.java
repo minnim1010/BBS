@@ -22,7 +22,7 @@ public class QComment extends EntityPathBase<Comment> {
 
     public static final QComment comment = new QComment("comment");
 
-    public final spring.bbs.base.domain.QWritten _super;
+    public final spring.bbs.common.entity.QWritten _super;
 
     // inherited
     public final spring.bbs.member.domain.QMember author;
@@ -69,7 +69,7 @@ public class QComment extends EntityPathBase<Comment> {
 
     public QComment(Class<? extends Comment> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this._super = new spring.bbs.base.domain.QWritten(type, metadata, inits);
+        this._super = new spring.bbs.common.entity.QWritten(type, metadata, inits);
         this.author = _super.author;
         this.createdTime = _super.createdTime;
         this.lastModifiedTime = _super.lastModifiedTime;

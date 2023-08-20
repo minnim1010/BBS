@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.ProfileConfiguration;
+import spring.bbs.common.util.RoleType;
 import spring.bbs.jwt.JwtProvider;
 import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
@@ -28,9 +28,9 @@ import spring.bbs.jwt.dto.response.LoginResponse;
 import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.util.RoleType;
 import spring.helper.AccessTokenProvider;
 import spring.helper.MemberCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 
@@ -63,8 +63,8 @@ public class JwtIntegrationTests {
 
     @PostConstruct
     void init() {
-        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
-        this.memberCreator = new MemberCreator(memberRepository);
+        accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        memberCreator = new MemberCreator(memberRepository);
     }
 
     @AfterEach

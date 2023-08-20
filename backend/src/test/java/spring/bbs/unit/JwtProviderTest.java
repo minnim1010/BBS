@@ -8,17 +8,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import spring.bbs.common.util.RoleType;
 import spring.bbs.jwt.JwtProvider;
-import spring.bbs.util.RoleType;
 
 import java.util.List;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest()
 public class JwtProviderTest {
 
+    private static final String MEMBER_NAME = "JwtTestUser";
     @Autowired
     private JwtProvider jwtProvider;
-    private String testUserName = "testUser";
+
 
     @Test
     public void testGenerateAccessToken() {
@@ -26,7 +29,7 @@ public class JwtProviderTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
         String accessToken = jwtProvider.generateAccessToken(authentication);
 
-        assert accessToken.isEmpty() == false;
+        assertThat(accessToken).isNotEmpty();
     }
 
     @Test
@@ -35,7 +38,7 @@ public class JwtProviderTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
         String refreshToken = jwtProvider.generateRefreshToken(authentication);
 
-        assert refreshToken.isEmpty() == false;
+        assertThat(refreshToken).isNotEmpty();
     }
 
     @Test
@@ -43,7 +46,7 @@ public class JwtProviderTest {
         String token = generateValidToken();
         Authentication authentication = jwtProvider.getAuthentication(token);
 
-        assert authentication != null;
+        assertThat(authentication).isNotNull();
     }
 
     @Test
@@ -51,7 +54,7 @@ public class JwtProviderTest {
         String token = generateValidToken();
         long expirationTime = jwtProvider.getExpiration(token);
 
-        assert expirationTime > 0;
+        assertThat(expirationTime).isGreaterThan(0);
     }
 
     @Test
@@ -59,37 +62,37 @@ public class JwtProviderTest {
         String token = generateValidToken();
         String name = jwtProvider.getName(token);
 
-        assert name.equals(testUserName);
+        assertThat(name).isEqualTo(MEMBER_NAME);
     }
 
     @Test
     public void testIsValidToken() {
         String validToken = generateValidToken();
         String invalidToken = "invalid-token";
-        boolean isValidValidToken = jwtProvider.isValidToken(validToken);
-        boolean isValidInvalidToken = jwtProvider.isValidToken(invalidToken);
+        boolean isValidToken = jwtProvider.isValidToken(validToken);
+        assertThat(isValidToken).isTrue();
 
-        assert isValidValidToken;
-        assert !isValidInvalidToken;
+        isValidToken = jwtProvider.isValidToken(invalidToken);
+        assertThat(isValidToken).isFalse();
     }
 
     @Test
     public void testIsLogoutToken() {
         String token = generateValidToken();
         boolean isLogoutToken = jwtProvider.isLogoutAccessToken(token);
-        assert !isLogoutToken;
+        assertThat(isLogoutToken).isFalse();
     }
 
     private String generateValidToken() {
         UserDetails userDetails = generateTestUser();
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails, null, List.of(new SimpleGrantedAuthority(RoleType.user)));
+            new UsernamePasswordAuthenticationToken(
+                userDetails, null, List.of(new SimpleGrantedAuthority(RoleType.user)));
         return jwtProvider.generateAccessToken(authentication);
     }
-    
-    private UserDetails generateTestUser(){
-        return new User(testUserName, "password",
-                List.of(new SimpleGrantedAuthority(RoleType.user)));
+
+    private UserDetails generateTestUser() {
+        return new User(MEMBER_NAME, "password",
+            List.of(new SimpleGrantedAuthority(RoleType.user)));
     }
 }

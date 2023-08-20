@@ -14,17 +14,17 @@ import spring.bbs.post.domain.QPost;
 
 import java.util.List;
 
-import static spring.bbs.util.QuerydslUtil.getOrderSpecifier;
+import static spring.bbs.common.util.QuerydslUtil.getOrderSpecifier;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class PostCustomRepositoryImpl implements PostCustomRepository{
+public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory queryFactory;
     QPost p = QPost.post;
 
     @Override
-    public Page<Post> findAllToPage(Pageable pageable) {
+    public Page<Post> findAll(Pageable pageable) {
         List<Post> postList = queryFactory
             .select(p)
             .from(p)
@@ -38,7 +38,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
     }
 
     @Override
-    public Page<Post> findAllToPageAndSearchKeywordAndScope(String scope, String keyword, Pageable pageable) {
+    public Page<Post> findAllBySearchKeywordAndScope(String scope, String keyword, Pageable pageable) {
 
         BooleanExpression searchExpression = getSearchScopeAndKeyWordExpression(scope, keyword);
 
@@ -54,20 +54,20 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
 
     private BooleanExpression getSearchScopeAndKeyWordExpression(String scope, String keyword) {
         BooleanExpression searchExpression;
-        if("제목".equals(scope)){
+        if ("제목".equals(scope)) {
             searchExpression = p.title.containsIgnoreCase(keyword);
         } else if ("전체".equals(scope)) {
             searchExpression = p.title.containsIgnoreCase(keyword)
                 .or(p.content.containsIgnoreCase(keyword));
         } else if ("작성자".equals(scope)) {
             searchExpression = p.author.name.eq(keyword);
-        }else {
+        } else {
             throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
         }
         return searchExpression;
     }
 
-    private Long count(){
+    private Long count() {
         return queryFactory
             .select(p.count())
             .from(p)

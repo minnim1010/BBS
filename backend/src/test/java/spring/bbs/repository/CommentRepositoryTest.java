@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.repository.CommentRepository;
@@ -25,6 +24,7 @@ import spring.config.TestConfig;
 import spring.helper.CommentCreator;
 import spring.helper.MemberCreator;
 import spring.helper.PostCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,17 +48,17 @@ class CommentRepositoryTest {
     private CategoryRepositoryHandler categoryRepositoryHandler;
     @Autowired
     private EntityManager em;
-    
+
     private MemberCreator memberCreator;
     private PostCreator postCreator;
     private CommentCreator commentCreator;
     private final int PAGE_SIZE = 20;
 
     @PostConstruct
-    void init(){
-        this.memberCreator = new MemberCreator(memberRepository);
-        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
-        this.commentCreator = new CommentCreator(commentRepository);
+    void init() {
+        memberCreator = new MemberCreator(memberRepository);
+        postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+        commentCreator = new CommentCreator(commentRepository);
     }
 
     @AfterEach
@@ -115,7 +115,7 @@ class CommentRepositoryTest {
 
     @DisplayName("동일한 부모를 가진 댓글 중 가장 최근에 작성된 댓글의 order를 반환한다.")
     @Test
-    void findLatestCreatedCommentOrderWithSameParent(){
+    void findLatestCreatedCommentOrderWithSameParent() {
         //given
         Member member = memberCreator.createMember(MEMBER_NAME);
         Post post = postCreator.createPost(member);
@@ -131,7 +131,7 @@ class CommentRepositoryTest {
 
     @DisplayName("동일한 부모를 가진 댓글이 없으면 0을 반환한다.")
     @Test
-    void findLatestCreatedCommentOrderWithNoSameParent(){
+    void findLatestCreatedCommentOrderWithNoSameParent() {
         //given
         Member member = memberCreator.createMember(MEMBER_NAME);
         Post post = postCreator.createPost(member);
@@ -144,7 +144,7 @@ class CommentRepositoryTest {
 
     @DisplayName("대댓글 생성 시 같은 댓글을 부모로 가지는 대댓글 중 생성할 대댓글의 후 순서인 대댓글의 순서를 변경한다.")
     @Test
-    void updateOrder(){
+    void updateOrder() {
         //given
         Member member = memberCreator.createMember(MEMBER_NAME);
         Post post = postCreator.createPost(member);

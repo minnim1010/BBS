@@ -22,7 +22,7 @@ public class QPost extends EntityPathBase<Post> {
 
     public static final QPost post = new QPost("post");
 
-    public final spring.bbs.base.domain.QWritten _super;
+    public final spring.bbs.common.entity.QWritten _super;
 
     // inherited
     public final spring.bbs.member.domain.QMember author;
@@ -61,7 +61,7 @@ public class QPost extends EntityPathBase<Post> {
 
     public QPost(Class<? extends Post> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this._super = new spring.bbs.base.domain.QWritten(type, metadata, inits);
+        this._super = new spring.bbs.common.entity.QWritten(type, metadata, inits);
         this.author = _super.author;
         this.category = inits.isInitialized("category") ? new spring.bbs.category.domain.QCategory(forProperty("category")) : null;
         this.createdTime = _super.createdTime;

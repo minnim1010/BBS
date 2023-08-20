@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import spring.bbs.exceptionhandler.exception.ExistedMemberNameException;
-import spring.bbs.exceptionhandler.exception.NotSamePasswordException;
+import org.springframework.util.Assert;
+import spring.bbs.common.exception.DataNotFoundException;
+import spring.bbs.common.exception.ExistedMemberNameException;
+import spring.bbs.common.exception.NotSamePasswordException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.member.repository.MemberRepositoryHandler;
+import spring.bbs.post.repository.PostRepository;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,9 +25,14 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final MemberRepositoryHandler memberRepositoryHandler;
+    private final PostRepository postRepository;
 
     @Transactional
-    public JoinResponse createMember(JoinRequest req){
+    public JoinResponse createMember(
+        JoinRequest req
+    ) {
+        Assert.notNull(req, "요청값이 없습니다.");
+
         validatePassword(req.getPassword(), req.getCheckPassword());
         validateName(req.getName());
 
@@ -35,18 +43,37 @@ public class MemberService {
         return JoinResponse.of(savedMember);
     }
 
-    @Transactional
-    public void deleteMember(String memberName){
-        memberRepository.delete(memberRepositoryHandler.findByName(memberName));
-    }
-
-    private void validatePassword(String password, String checkPassword){
-        if(!password.equals(checkPassword))
+    private void validatePassword(
+        String password,
+        String checkPassword
+    ) {
+        if (!password.equals(checkPassword)) {
             throw new NotSamePasswordException();
+        }
     }
 
-    private void validateName(String name){
-        if(memberRepository.existsByName(name))
+    private void validateName(
+        String name
+    ) {
+        if (memberRepository.existsByName(name)) {
             throw new ExistedMemberNameException();
+        }
+    }
+
+    @Transactional
+    public void deleteMember(
+        String memberName
+    ) {
+        Assert.hasText(memberName, "회원 이름은 공백일 수 없습니다.");
+
+        Member member = findByName(memberName);
+
+        postRepository.deleteAllInBatchByAuthor(member);
+        memberRepository.delete(member);
+    }
+
+    public Member findByName(String authorName) {
+        return memberRepository.findByName(authorName).orElseThrow(
+            () -> new DataNotFoundException("회원을 찾을 수 없습니다."));
     }
 }

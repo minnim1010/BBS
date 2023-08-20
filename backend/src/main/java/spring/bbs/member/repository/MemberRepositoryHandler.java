@@ -2,7 +2,7 @@ package spring.bbs.member.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import spring.bbs.exceptionhandler.exception.DataNotFoundException;
+import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 
 @RequiredArgsConstructor
@@ -12,18 +12,18 @@ public class MemberRepositoryHandler {
 
     private final MemberRepository memberRepository;
 
-    public Member findByName(String authorName){
+    public Member findByName(String authorName) {
         return memberRepository.findByName(authorName).orElseThrow(
-                () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
+            () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
     }
 
-    public Member findById(Long memberId){
+    public Member findById(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(
-                () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
+            () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
     }
 
-    public Member findByEmail(String email){
+    public Member findByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(
-                () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
+            () -> new DataNotFoundException(MEMBER_NOT_FOUND_MSG));
     }
 }

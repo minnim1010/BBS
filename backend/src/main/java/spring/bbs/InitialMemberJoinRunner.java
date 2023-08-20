@@ -16,7 +16,7 @@ import spring.bbs.post.service.PostService;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test")
+@Profile("run")
 public class InitialMemberJoinRunner implements CommandLineRunner {
     private final MemberService memberService;
     private final PostService postService;
@@ -37,12 +37,11 @@ public class InitialMemberJoinRunner implements CommandLineRunner {
 
         for (int i = 1; i <= 30; i++) {
             commentService.createComment(
-                new CommentCreateRequest("comment-content-" + i, 12L, null)
+                new CommentCreateRequest("comment-content-" + i, 10L, null)
                     .toServiceRequest(member.getName())
             );
         }
         log.debug("created 30 Comments");
-
     }
 }
 

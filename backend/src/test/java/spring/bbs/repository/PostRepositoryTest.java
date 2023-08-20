@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import spring.ProfileConfiguration;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -20,6 +19,7 @@ import spring.bbs.post.repository.PostRepository;
 import spring.config.TestConfig;
 import spring.helper.MemberCreator;
 import spring.helper.PostCreator;
+import spring.profileResolver.ProfileConfiguration;
 
 import java.util.stream.Collectors;
 
@@ -30,14 +30,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ProfileConfiguration
 public class PostRepositoryTest {
     private static final String MEMBER_NAME = "PostTestUser";
-    
+
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private CategoryRepositoryHandler categoryRepositoryHandler;
-    
+
     private MemberCreator memberCreator;
     private PostCreator postCreator;
 
@@ -50,9 +50,9 @@ public class PostRepositoryTest {
     }
 
     @PostConstruct
-    void init(){
-        this.memberCreator = new MemberCreator(memberRepository);
-        this.postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
+    void init() {
+        memberCreator = new MemberCreator(memberRepository);
+        postCreator = new PostCreator(postRepository, categoryRepositoryHandler);
     }
 
     @DisplayName("페이지 번호가 주어지면 해당 페이지에 맞는 글 목록을 조회한다.")
@@ -67,7 +67,7 @@ public class PostRepositoryTest {
         int page = 2;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
         //when
-        Page<Post> result = postRepository.findAllToPage(pageable);
+        Page<Post> result = postRepository.findAll(pageable);
         //then
         assertThat(result.get().collect(Collectors.toList())).hasSize(3)
             .extracting("title")
@@ -84,7 +84,7 @@ public class PostRepositoryTest {
         int page = 1;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
         //when
-        Page<Post> result = postRepository.findAllToPageAndSearchKeywordAndScope("제목", "find", pageable);
+        Page<Post> result = postRepository.findAllBySearchKeywordAndScope("제목", "find", pageable);
         //then
         assertThat(result.get().collect(Collectors.toList())).hasSize(1)
             .extracting("title")
@@ -101,7 +101,7 @@ public class PostRepositoryTest {
         int page = 1;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
         //when
-        Page<Post> result = postRepository.findAllToPageAndSearchKeywordAndScope("전체", "find", pageable);
+        Page<Post> result = postRepository.findAllBySearchKeywordAndScope("전체", "find", pageable);
         //then
         assertThat(result.get().collect(Collectors.toList())).hasSize(1)
             .extracting("title")
@@ -120,7 +120,7 @@ public class PostRepositoryTest {
         int page = 1;
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
         //when
-        Page<Post> result = postRepository.findAllToPageAndSearchKeywordAndScope("작성자", searchMemberName, pageable);
+        Page<Post> result = postRepository.findAllBySearchKeywordAndScope("작성자", searchMemberName, pageable);
         //then
         assertThat(result.get().collect(Collectors.toList())).hasSize(1)
             .extracting("title")

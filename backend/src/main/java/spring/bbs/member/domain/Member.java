@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import spring.bbs.base.domain.BaseEntity;
+import spring.bbs.common.entity.BaseTime;
 import spring.bbs.member.dto.request.JoinRequest;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseEntity implements UserDetails {
+public class Member extends BaseTime implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +32,15 @@ public class Member extends BaseEntity implements UserDetails {
     private Authority authority;
 
     @Builder
-    private Member(Long id, String name, String oauthName, String password, String email, boolean isEnabled, Authority authority) {
+    private Member(
+        Long id,
+        String name,
+        String oauthName,
+        String password,
+        String email,
+        boolean isEnabled,
+        Authority authority
+    ) {
         this.id = id;
         this.name = name;
         this.oauthName = oauthName;
@@ -47,14 +55,14 @@ public class Member extends BaseEntity implements UserDetails {
         this.password = password;
         this.email = email;
         this.isEnabled = isEnabled;
-        this.authority = role;
+        authority = role;
     }
 
     public Member(String oauthName, String email, boolean isEnabled, Authority role) {
         this.oauthName = oauthName;
         this.email = email;
         this.isEnabled = isEnabled;
-        this.authority = role;
+        authority = role;
     }
 
     public static Member of(JoinRequest req, String roleUser, String encodedPassword, boolean isEnabled) {
@@ -67,18 +75,20 @@ public class Member extends BaseEntity implements UserDetails {
             .build();
     }
 
-    public Member updateOAuthName(String oauthName){
+    public Member updateOAuthName(String oauthName) {
         this.oauthName = oauthName;
         return this;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(this.authority.toString()));
+        return List.of(new SimpleGrantedAuthority(authority.toString()));
     }
 
     @Override
-    public String getUsername() {return name;}
+    public String getUsername() {
+        return name;
+    }
 
     @Override
     public String getPassword() {
@@ -102,19 +112,19 @@ public class Member extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return isEnabled;
     }
 
     @Override
     public String toString() {
         return "Member{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", oauthName='" + oauthName + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", isEnabled=" + isEnabled +
-                ", authority=" + authority.toString() +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", oauthName='" + oauthName + '\'' +
+            ", password='" + password + '\'' +
+            ", email='" + email + '\'' +
+            ", isEnabled=" + isEnabled +
+            ", authority=" + authority.toString() +
+            '}';
     }
 }
