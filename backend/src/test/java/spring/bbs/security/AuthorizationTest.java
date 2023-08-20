@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import spring.bbs.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtProvider;
 import spring.helper.AccessTokenProvider;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,7 +30,7 @@ public class AuthorizationTest {
 
     @PostConstruct
     void init() {
-        this.accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
+        accessTokenProvider = new AccessTokenProvider(jwtProvider, MEMBER_NAME);
     }
 
     @Nested

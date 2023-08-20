@@ -8,8 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import spring.bbs.common.util.RoleType;
-import spring.bbs.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.member.domain.Authority;
 
 import java.util.List;
 
@@ -87,12 +87,12 @@ public class JwtProviderTest {
         UserDetails userDetails = generateTestUser();
         Authentication authentication =
             new UsernamePasswordAuthenticationToken(
-                userDetails, null, List.of(new SimpleGrantedAuthority(RoleType.user)));
+                userDetails, null, List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
         return jwtProvider.generateAccessToken(authentication);
     }
 
     private UserDetails generateTestUser() {
         return new User(MEMBER_NAME, "password",
-            List.of(new SimpleGrantedAuthority(RoleType.user)));
+            List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
     }
 }

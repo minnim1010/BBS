@@ -3,8 +3,8 @@ package spring.helper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import spring.bbs.common.util.RoleType;
-import spring.bbs.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.member.domain.Authority;
 
 import java.util.List;
 
@@ -23,21 +23,21 @@ public class AccessTokenProvider {
     public String getJwtToken() {
         Authentication token =
             new UsernamePasswordAuthenticationToken(
-                memberName, "", List.of(new SimpleGrantedAuthority(RoleType.user)));
+                memberName, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
         return jwtProvider.generateAccessToken(token);
     }
 
     public String getJwtToken(String name) {
         Authentication token =
             new UsernamePasswordAuthenticationToken(
-                name, "", List.of(new SimpleGrantedAuthority(RoleType.user)));
+                name, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
         return jwtProvider.generateAccessToken(token);
     }
 
     public String getAccessTokenWithAdminRole() {
         Authentication token =
             new UsernamePasswordAuthenticationToken(
-                memberName, "", List.of(new SimpleGrantedAuthority(RoleType.admin)));
+                memberName, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_ADMIN.name())));
         return jwtProvider.generateAccessToken(token);
     }
 

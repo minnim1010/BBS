@@ -26,9 +26,7 @@ public class MemberService {
     private final PostRepository postRepository;
 
     @Transactional
-    public JoinResponse createMember(
-        JoinRequest req
-    ) {
+    public JoinResponse createMember(JoinRequest req) {
         Assert.notNull(req, "요청값이 없습니다.");
 
         validatePassword(req.getPassword(), req.getCheckPassword());
@@ -41,27 +39,20 @@ public class MemberService {
         return JoinResponse.from(savedMember);
     }
 
-    private void validatePassword(
-        String password,
-        String checkPassword
-    ) {
+    private void validatePassword(String password, String checkPassword) {
         if (!password.equals(checkPassword)) {
             throw new NotSamePasswordException();
         }
     }
 
-    private void validateName(
-        String name
-    ) {
+    private void validateName(String name) {
         if (memberRepository.existsByName(name)) {
             throw new ExistedMemberNameException();
         }
     }
 
     @Transactional
-    public void deleteMember(
-        String memberName
-    ) {
+    public void deleteMember(String memberName) {
         Assert.hasText(memberName, "회원 이름은 공백일 수 없습니다.");
 
         Member member = findByName(memberName);
@@ -70,9 +61,7 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
-    public Member findByName(
-        String authorName
-    ) {
+    private Member findByName(String authorName) {
         return memberRepository.findByName(authorName).orElseThrow(
             () -> new DataNotFoundException("회원을 찾을 수 없습니다."));
     }

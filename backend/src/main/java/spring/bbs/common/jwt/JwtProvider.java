@@ -1,4 +1,4 @@
-package spring.bbs.jwt;
+package spring.bbs.common.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -11,9 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 
@@ -36,7 +35,7 @@ public class JwtProvider implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+        key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateAccessToken(Authentication authentication) {
@@ -59,31 +58,31 @@ public class JwtProvider implements InitializingBean {
         return createToken(member, expiredTime);
     }
 
-    private String createToken(Authentication authentication, Date expiredTime){
+    private String createToken(Authentication authentication, Date expiredTime) {
         String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
 
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(expiredTime)
-                .compact();
+            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+            .setSubject(authentication.getName())
+            .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(expiredTime)
+            .compact();
     }
 
-    private String createToken(Member member, Date expiredTime){
+    private String createToken(Member member, Date expiredTime) {
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setSubject(member.getName())
-                .claim(AUTHORITIES_KEY, member.getAuthority())
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(expiredTime)
-                .compact();
+            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+            .setSubject(member.getName())
+            .claim(AUTHORITIES_KEY, member.getAuthority())
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(expiredTime)
+            .compact();
     }
 
-    public Authentication getAuthentication(String token){
+    public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
         String role = claims.get(AUTHORITIES_KEY).toString();
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
@@ -97,27 +96,28 @@ public class JwtProvider implements InitializingBean {
             currentMember, token, authorities);
     }
 
-    private Claims getClaims(String token){
+    private Claims getClaims(String token) {
         return Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+            .parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
     }
 
-    public long getExpiration(String token){
+    public long getExpiration(String token) {
         return getClaims(token).getExpiration().getTime();
     }
 
-    public String getName(String token){
+    public String getName(String token) {
         return getClaims(token).getSubject();
     }
-    public String getAuthorities(String token){
+
+    public String getAuthorities(String token) {
         return getClaims(token).get(AUTHORITIES_KEY).toString();
     }
 
-    public boolean isValidToken(String token){
+    public boolean isValidToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -133,7 +133,7 @@ public class JwtProvider implements InitializingBean {
         return false;
     }
 
-    public boolean isLogoutAccessToken(String token){
+    public boolean isLogoutAccessToken(String token) {
         return tokenRepository.existsByAccessToken(token);
     }
 }

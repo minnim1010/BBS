@@ -10,7 +10,6 @@ public class AuthenticationUtil {
 
     private AuthenticationUtil() {
     }
-    
 
     public static String getCurrentMemberNameOrAccessDenied() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -1,4 +1,4 @@
-package spring.bbs.jwt;
+package spring.bbs.common.jwt;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +20,10 @@ public class JwtProperties {
     @Override
     public String toString() {
         return "JwtProperties{" +
-                "header='" + header + '\'' +
-                ", secret='" + secret + '\'' +
-                ", accessTokenValidMilSeconds=" + accessTokenDuration +
-                ", refreshTokenValidMilSeconds=" + refreshTokenDuration +
-                '}';
+            "header='" + header + '\'' +
+            ", secret='" + secret + '\'' +
+            ", accessTokenValidMilSeconds=" + accessTokenDuration +
+            ", refreshTokenValidMilSeconds=" + refreshTokenDuration +
+            '}';
     }
 }

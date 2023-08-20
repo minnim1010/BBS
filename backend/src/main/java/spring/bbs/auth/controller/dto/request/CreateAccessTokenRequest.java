@@ -1,4 +1,4 @@
-package spring.bbs.jwt.dto.request;
+package spring.bbs.auth.controller.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

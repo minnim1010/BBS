@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.bbs.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;

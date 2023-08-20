@@ -27,13 +27,13 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.jwt.JwtAuthenticationFilter;
+import spring.bbs.common.jwt.JwtProperties;
+import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.common.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import spring.bbs.common.oauth.OAuth2SuccessHandler;
 import spring.bbs.common.oauth.OAuth2UserService;
-import spring.bbs.jwt.JwtAuthenticationFilter;
-import spring.bbs.jwt.JwtProperties;
-import spring.bbs.jwt.JwtProvider;
-import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
@@ -96,6 +96,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/logout").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/user").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin").hasAnyRole("ADMIN")
                 .anyRequest().permitAll());

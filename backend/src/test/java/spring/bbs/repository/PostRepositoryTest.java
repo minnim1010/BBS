@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
+import spring.bbs.common.config.QuerydslConfig;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(TestConfig.class)
+@Import({TestConfig.class, QuerydslConfig.class})
 @ProfileConfiguration
 public class PostRepositoryTest {
     private static final String MEMBER_NAME = "PostTestUser";

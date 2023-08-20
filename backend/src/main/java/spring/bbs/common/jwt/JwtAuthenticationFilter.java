@@ -1,4 +1,4 @@
-package spring.bbs.jwt;
+package spring.bbs.common.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,21 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
 
         if (StringUtils.hasText(jwt) &&
-                jwtProvider.isValidToken(jwt) &&
-                !jwtProvider.isLogoutAccessToken(jwt)) {
+            jwtProvider.isValidToken(jwt) &&
+            !jwtProvider.isLogoutAccessToken(jwt)) {
             Authentication authentication = jwtProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("{}: {} stored in context: {}", jwtProvider.getAuthorities(jwt), authentication.getName(), requestUri);
-        }else
+        } else {
             log.debug("No valid token: {}", requestUri);
+        }
 
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
         String tokenHeader = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(tokenHeader) && tokenHeader.startsWith(TOKEN_PREFIX))
+        if (StringUtils.hasText(tokenHeader) && tokenHeader.startsWith(TOKEN_PREFIX)) {
             return tokenHeader.substring(7);
+        }
 
         return null;
     }

@@ -6,7 +6,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import spring.bbs.common.util.RoleType;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -33,7 +32,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         Member member = memberRepository.findByEmail(email)
             .map(m -> m.updateOAuthName(name))
-            .orElse(new Member(name, email, true, Enum.valueOf(Authority.class, RoleType.user)));
+            .orElse(new Member(name, email, true, Enum.valueOf(Authority.class, Authority.ROLE_USER.name())));
 
         return memberRepository.save(member);
     }

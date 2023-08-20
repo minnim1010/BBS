@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
-import spring.bbs.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
@@ -152,7 +152,7 @@ public class PostIntegrationTest {
         @DisplayName("회원은 게시글을 작성할 수 있다.")
         void givenNewPost_thenGetNewPost() throws Exception {
             //given
-            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             PostRequest req = new PostRequest(
                 "createTestTitle", "createTestContent", "string");
             String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix();

@@ -1,6 +1,5 @@
 package spring.helper;
 
-import spring.bbs.common.util.RoleType;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -19,7 +18,7 @@ public class MemberCreator {
             .password("password")
             .email(name + "@test.com")
             .isEnabled(true)
-            .authority(Enum.valueOf(Authority.class, RoleType.user))
+            .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
             .build();
         return memberRepository.save(newMember);
     }
@@ -30,7 +29,7 @@ public class MemberCreator {
             .password(password)
             .email(name + "@test.com")
             .isEnabled(true)
-            .authority(Enum.valueOf(Authority.class, RoleType.user))
+            .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
             .build();
         return memberRepository.save(newMember);
     }

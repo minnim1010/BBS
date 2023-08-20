@@ -19,13 +19,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import spring.bbs.common.util.RoleType;
-import spring.bbs.jwt.JwtProvider;
-import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
-import spring.bbs.jwt.dto.request.LoginRequest;
-import spring.bbs.jwt.dto.response.AccessTokenResponse;
-import spring.bbs.jwt.dto.response.LoginResponse;
-import spring.bbs.jwt.repository.TokenRepository;
+import spring.bbs.auth.controller.dto.request.CreateAccessTokenRequest;
+import spring.bbs.auth.controller.dto.request.LoginRequest;
+import spring.bbs.auth.controller.dto.response.AccessTokenResponse;
+import spring.bbs.auth.controller.dto.response.LoginResponse;
+import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.helper.AccessTokenProvider;
@@ -85,7 +85,7 @@ public class JwtIntegrationTests {
         @DisplayName("유효한 아이디와 비밀번호를 입력하면 로그인할 수 있다.")
         public void login() throws Exception {
             //given
-            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             LoginRequest req = new LoginRequest(MEMBER_NAME, MEMBER_NAME);
             //when
             ResultActions response = request(req);
@@ -101,7 +101,7 @@ public class JwtIntegrationTests {
         @DisplayName("틀린 아이디와 비밀번호를 입력하면 로그인할 수 없다.")
         public void loginWithWrontAccount() throws Exception {
             //given
-            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             LoginRequest req = new LoginRequest("wrongAccount", "wrongAccount");
             //when
             ResultActions response = request(req);
@@ -125,7 +125,7 @@ public class JwtIntegrationTests {
             //given
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             String refreshToken = generateRefreshToken();
-            tokenRepository.saveRefreshToken(refreshToken, jwtProvider.getExpiration(refreshToken));
+            tokenRepository.saveRefreshToken(member.getName(), refreshToken, jwtProvider.getExpiration(refreshToken));
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
             //when
             ResultActions response = request(req);
@@ -142,7 +142,7 @@ public class JwtIntegrationTests {
         @DisplayName("Refresh token이 만료되었으면 액세스 토큰을 발급하지 않는다.")
         public void createNewAccessTokenWithExpiredRefreshToken() throws Exception {
             //given
-            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(generateRefreshToken());
             //when
             ResultActions response = request(req);
@@ -156,7 +156,7 @@ public class JwtIntegrationTests {
             //given
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             String refreshToken = "invalid-token";
-            tokenRepository.saveRefreshToken(refreshToken, 10000000);
+            tokenRepository.saveRefreshToken(member.getName(), refreshToken, 10000000);
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
 
             //when
@@ -179,7 +179,7 @@ public class JwtIntegrationTests {
         @DisplayName("유효한 액세스 토큰이면 로그아웃한다.")
         public void logout() throws Exception {
             //given
-            Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
+            memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             String token = accessTokenProvider.getJwtToken();
             String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(token);
             //when
@@ -195,12 +195,12 @@ public class JwtIntegrationTests {
         UserDetails userDetails = generateTestUser();
         Authentication authentication =
             new UsernamePasswordAuthenticationToken(
-                userDetails, null, List.of(new SimpleGrantedAuthority(RoleType.user)));
+                userDetails, null, List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
         return jwtProvider.generateRefreshToken(authentication);
     }
 
     private UserDetails generateTestUser() {
         return new User(MEMBER_NAME, MEMBER_NAME,
-            List.of(new SimpleGrantedAuthority(RoleType.user)));
+            List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
     }
 }

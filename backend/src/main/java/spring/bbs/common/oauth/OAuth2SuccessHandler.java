@@ -8,10 +8,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.jwt.JwtProperties;
+import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.common.util.CookieUtil;
-import spring.bbs.jwt.JwtProperties;
-import spring.bbs.jwt.JwtProvider;
-import spring.bbs.jwt.repository.TokenRepository;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
@@ -36,7 +36,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Member member = memberUtil.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
         String refreshToken = tokenProvider.generateRefreshToken(member);
-        tokenRepository.saveRefreshToken(refreshToken, tokenProvider.getExpiration(refreshToken));
+        tokenRepository.saveRefreshToken(member.getName(), refreshToken, tokenProvider.getExpiration(refreshToken));
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateAccessToken(member);

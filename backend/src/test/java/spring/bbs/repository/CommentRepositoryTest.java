@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.repository.CommentRepository;
+import spring.bbs.common.config.QuerydslConfig;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(TestConfig.class)
+@Import({TestConfig.class, QuerydslConfig.class})
 @ProfileConfiguration
 class CommentRepositoryTest {
 

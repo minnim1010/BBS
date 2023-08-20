@@ -1,4 +1,4 @@
-package spring.bbs.jwt.service;
+package spring.bbs.auth.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,16 +26,17 @@ public class MemberDetailsService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return memberRepository.findByName(username)
-                .map(member -> createUser(username, member))
-                .orElseThrow(() -> new UsernameNotFoundException(username + " can't find user."));
+            .map(member -> createUser(username, member))
+            .orElseThrow(() -> new UsernameNotFoundException(username + ": 회원을 찾을 수 없습니다."));
     }
 
     private User createUser(String username, Member member) {
-        if (!member.isEnabled())
-            throw new RuntimeException(username + " is not enabled.");
+        if (!member.isEnabled()) {
+            throw new RuntimeException(username + ": 활성화되어있지 않은 회원입니다.");
+        }
 
         List<GrantedAuthority> grantedAuthorities =
-                List.of(new SimpleGrantedAuthority(member.getAuthority().toString()));
+            List.of(new SimpleGrantedAuthority(member.getAuthority().toString()));
 
         return new User(member.getName(), member.getPassword(), grantedAuthorities);
     }

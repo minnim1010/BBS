@@ -1,4 +1,4 @@
-package spring.bbs.jwt.dto.response;
+package spring.bbs.auth.controller.dto.response;
 
 public class AccessTokenResponse {
     private String token;
@@ -12,9 +12,5 @@ public class AccessTokenResponse {
 
     public String getToken() {
         return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 }

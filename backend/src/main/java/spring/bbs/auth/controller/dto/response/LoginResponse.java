@@ -1,4 +1,4 @@
-package spring.bbs.jwt.dto.response;
+package spring.bbs.auth.controller.dto.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
