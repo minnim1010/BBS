@@ -10,10 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.common.exception.ExistedMemberNameException;
 import spring.bbs.common.exception.NotSamePasswordException;
+import spring.bbs.member.controller.dto.JoinRequest;
+import spring.bbs.member.controller.dto.JoinResponse;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.dto.request.JoinRequest;
-import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.member.service.MemberService;
 import spring.bbs.post.repository.PostRepository;
@@ -76,8 +76,10 @@ public class MemberServiceTest {
         @DisplayName("두 개의 비밀번호가 같지 않다면 회원을 생성하지 않는다.")
         public void failWithNotSamePassword() {
             //given
-            JoinRequest req = createJoinRequest();
-            req.setCheckPassword("NotSamePassword");
+            JoinRequest req = new JoinRequest(MEMBER_NAME,
+                MEMBER_NAME,
+                "NotSamePassword",
+                MEMBER_NAME + "@test.com");
             //when & then
             assertThatThrownBy(() ->
                 memberService.createMember(req))

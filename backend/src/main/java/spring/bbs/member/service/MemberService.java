@@ -9,11 +9,10 @@ import org.springframework.util.Assert;
 import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.common.exception.ExistedMemberNameException;
 import spring.bbs.common.exception.NotSamePasswordException;
+import spring.bbs.member.controller.dto.JoinRequest;
+import spring.bbs.member.controller.dto.JoinResponse;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.dto.request.JoinRequest;
-import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.member.repository.MemberRepositoryHandler;
 import spring.bbs.post.repository.PostRepository;
 
 @Slf4j
@@ -24,7 +23,6 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final MemberRepositoryHandler memberRepositoryHandler;
     private final PostRepository postRepository;
 
     @Transactional
@@ -40,7 +38,7 @@ public class MemberService {
         Member member = Member.of(req, "ROLE_USER", encodedPassword, true);
         Member savedMember = memberRepository.save(member);
 
-        return JoinResponse.of(savedMember);
+        return JoinResponse.from(savedMember);
     }
 
     private void validatePassword(
@@ -72,7 +70,9 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
-    public Member findByName(String authorName) {
+    public Member findByName(
+        String authorName
+    ) {
         return memberRepository.findByName(authorName).orElseThrow(
             () -> new DataNotFoundException("회원을 찾을 수 없습니다."));
     }

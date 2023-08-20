@@ -4,8 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.member.domain.Member;
@@ -23,40 +21,34 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPost(@PathVariable("id") long postId) {
-        PostResponse response = postService.getPost(postId);
-        return ResponseEntity.ok(response);
+    @ResponseStatus(HttpStatus.OK)
+    public PostResponse getPost(@PathVariable("id") long postId) {
+        return postService.getPost(postId);
     }
 
     @GetMapping
-    public ResponseEntity<Page<PostListResponse>> getPostList(@Valid PostListRequest req) {
-        Page<PostListResponse> response = postService.getPostList(req);
-
-        return ResponseEntity.ok(response);
+    @ResponseStatus(HttpStatus.OK)
+    public Page<PostListResponse> getPostList(@Valid PostListRequest req) {
+        return postService.getPostList(req);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PostResponse> createPost(@RequestBody @Valid PostRequest req,
-                                                   @AuthenticationPrincipal Member currentMember){
-        PostResponse response = postService.createPost(req.toServiceRequest(currentMember.getName()));
-
-        return ResponseEntity.ok(response);
+    public PostResponse createPost(@RequestBody @Valid PostRequest req,
+                                   @AuthenticationPrincipal Member currentMember) {
+        return postService.createPost(req.toServiceRequest(currentMember.getName()));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Void> deletePost(@PathVariable("id") long postId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deletePost(@PathVariable("id") long postId) {
         postService.deletePost(postId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<PostResponse> modifyPost(@RequestBody @Valid PostRequest req,
-                                                   @PathVariable("id") long postId) {
-        PostResponse response = postService.updatePost(req, postId);
-        return ResponseEntity.ok(response);
+    @ResponseStatus(HttpStatus.OK)
+    public PostResponse modifyPost(@RequestBody @Valid PostRequest req,
+                                   @PathVariable("id") long postId) {
+        return postService.updatePost(req, postId);
     }
 }

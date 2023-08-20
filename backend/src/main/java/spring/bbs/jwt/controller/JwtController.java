@@ -5,8 +5,10 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import spring.bbs.jwt.dto.request.CreateAccessTokenRequest;
 import spring.bbs.jwt.dto.request.LoginRequest;
 import spring.bbs.jwt.dto.response.AccessTokenResponse;
@@ -29,8 +31,8 @@ public class JwtController {
         LoginResponse response = jwtService.login(req);
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+            .status(HttpStatus.OK)
+            .body(response);
     }
 
     @PostMapping("/token")
@@ -38,17 +40,16 @@ public class JwtController {
         AccessTokenResponse response = jwtService.createNewAccessToken(req);
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+            .status(HttpStatus.OK)
+            .body(response);
     }
 
     @PostMapping("/logout")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         jwtService.logout(request.getHeader("Authorization").substring(7));
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(null);
+            .status(HttpStatus.OK)
+            .body(null);
     }
 }

@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.bbs.comment.domain.Comment;
-import spring.bbs.member.dto.response.MemberResponse;
+import spring.bbs.member.controller.dto.MemberResponse;
 
 import java.time.LocalDateTime;
 

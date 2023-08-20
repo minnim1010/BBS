@@ -1,4 +1,4 @@
-package spring.bbs.member.dto.response;
+package spring.bbs.member.controller.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -19,12 +19,8 @@ public class MemberResponse {
 
     public static MemberResponse of(Member author) {
         return MemberResponse.builder()
-                .id(author.getId())
-                .name(author.getName())
-                .build();
-    }
-
-    public static MemberResponse create(long id, String name){
-        return new MemberResponse(id, name);
+            .id(author.getId())
+            .name(author.getName())
+            .build();
     }
 }

@@ -3,7 +3,7 @@ package spring.bbs.post.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.bbs.member.dto.response.MemberResponse;
+import spring.bbs.member.controller.dto.MemberResponse;
 import spring.bbs.post.domain.Post;
 
 import java.time.LocalDateTime;
@@ -21,12 +21,12 @@ public class PostResponse {
 
     @Builder
     private PostResponse(long id,
-                        String title,
-                        String content,
-                        LocalDateTime createdTime,
-                        LocalDateTime modifiedTime,
-                        MemberResponse author,
-                        String category) {
+                         String title,
+                         String content,
+                         LocalDateTime createdTime,
+                         LocalDateTime modifiedTime,
+                         MemberResponse author,
+                         String category) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -36,15 +36,15 @@ public class PostResponse {
         this.category = category;
     }
 
-    public static PostResponse of(Post post){
+    public static PostResponse of(Post post) {
         return PostResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .createdTime(post.getCreatedTime())
-                .modifiedTime(post.getLastModifiedTime())
-                .author(MemberResponse.of(post.getAuthor()))
-                .category(post.getCategory().getName())
-                .build();
+            .id(post.getId())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .createdTime(post.getCreatedTime())
+            .modifiedTime(post.getLastModifiedTime())
+            .author(MemberResponse.of(post.getAuthor()))
+            .category(post.getCategory().getName())
+            .build();
     }
 }

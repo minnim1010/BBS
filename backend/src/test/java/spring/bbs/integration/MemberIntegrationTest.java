@@ -14,8 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import spring.bbs.jwt.JwtProvider;
+import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.dto.request.JoinRequest;
 import spring.bbs.member.repository.MemberRepository;
 import spring.helper.AccessTokenProvider;
 import spring.helper.MemberCreator;
@@ -107,8 +107,10 @@ public class MemberIntegrationTest {
         @DisplayName("두 비밀번호가 같지 않으면 회원가입할 수 없다.")
         public void joinWithNotSamePasswords() throws Exception {
             //given
-            JoinRequest req = createJoinRequest();
-            req.setCheckPassword("notSamePassword");
+            JoinRequest req = new JoinRequest(MEMBER_NAME,
+                MEMBER_NAME,
+                "NotSamePassword",
+                MEMBER_NAME + "@test.com");
             //when
             ResultActions response = request(req);
             //then

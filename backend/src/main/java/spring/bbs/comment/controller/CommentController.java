@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.comment.dto.request.CommentCreateRequest;
@@ -35,7 +34,6 @@ public class CommentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<CommentResponse> createComment(@RequestBody @Valid CommentCreateRequest req,
                                                          @AuthenticationPrincipal Member currentMember) {
         CommentResponse response = commentService.createComment(
@@ -44,7 +42,6 @@ public class CommentController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<CommentResponse> modifyComment(@RequestBody @Valid CommentUpdateRequest req,
                                                          @PathVariable("id") Long commentId,
                                                          @AuthenticationPrincipal Member currentMember) {
@@ -54,7 +51,6 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deleteComment(@PathVariable("id") Long commentId,
                                               @AuthenticationPrincipal Member currentMember) {
         commentService.deleteComment(

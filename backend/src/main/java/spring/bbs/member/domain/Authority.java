@@ -1,12 +1,12 @@
 package spring.bbs.member.domain;
 
 public enum Authority {
-    ROLE_USER {
-        @Override
-        public String toString() {return "ROLE_USER";}
-    }
-    , ROLE_ADMIN{
-        @Override
-        public String toString() {return "ROLE_ADMIN";}
+    ROLE_USER("사용자"),
+    ROLE_ADMIN("관리자");
+
+    private final String displayName;
+
+    Authority(String displayName) {
+        this.displayName = displayName;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import spring.bbs.common.entity.BaseTime;
-import spring.bbs.member.dto.request.JoinRequest;
+import spring.bbs.member.controller.dto.JoinRequest;
 
 import java.util.Collection;
 import java.util.List;

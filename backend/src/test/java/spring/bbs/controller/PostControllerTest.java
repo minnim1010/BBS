@@ -43,7 +43,7 @@
 //
 //@WebMvcTest(controllers = {PostController.class}
 ////    ,
-////    excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class})},
+////    excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebSecurityConfig.class})},
 ////    excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class}
 //)
 //@AutoConfigureMockMvc

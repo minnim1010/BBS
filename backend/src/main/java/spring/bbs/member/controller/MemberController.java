@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import spring.bbs.member.controller.dto.JoinRequest;
+import spring.bbs.member.controller.dto.JoinResponse;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.dto.request.JoinRequest;
-import spring.bbs.member.dto.response.JoinResponse;
 import spring.bbs.member.service.MemberService;
 
 @Slf4j

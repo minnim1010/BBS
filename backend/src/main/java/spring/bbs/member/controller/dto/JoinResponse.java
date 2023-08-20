@@ -1,4 +1,4 @@
-package spring.bbs.member.dto.response;
+package spring.bbs.member.controller.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -21,15 +21,7 @@ public class JoinResponse {
         this.email = email;
     }
 
-    public static JoinResponse create(
-        Long id,
-        String name,
-        String email
-    ) {
-        return new JoinResponse(id, name, email);
-    }
-
-    public static JoinResponse of(
+    public static JoinResponse from(
         Member savedMember
     ) {
         return JoinResponse.builder()
