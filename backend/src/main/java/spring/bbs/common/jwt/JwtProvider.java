@@ -12,11 +12,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,27 +42,21 @@ public class JwtProvider implements InitializingBean {
         key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessToken(Authentication authentication) {
-        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getAccessTokenDuration().toMillis());
-        return createToken(authentication, expiredTime);
+    public Date calAccessTokenExpirationTime(LocalDateTime now) {
+        ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
+        long date = zdt.toInstant().toEpochMilli();
+
+        return new Date(date + jwtProperties.getAccessTokenDuration().toMillis());
     }
 
-    public String generateAccessToken(Member member) {
-        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getAccessTokenDuration().toMillis());
-        return createToken(member, expiredTime);
+    public Date calRefreshTokenExpirationTime(LocalDateTime now) {
+        ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
+        long date = zdt.toInstant().toEpochMilli();
+
+        return new Date(date + jwtProperties.getRefreshTokenDuration().toMillis());
     }
 
-    public String generateRefreshToken(Authentication authentication) {
-        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getRefreshTokenDuration().toMillis());
-        return createToken(authentication, expiredTime);
-    }
-
-    public String generateRefreshToken(Member member) {
-        Date expiredTime = new Date(new Date().getTime() + jwtProperties.getRefreshTokenDuration().toMillis());
-        return createToken(member, expiredTime);
-    }
-
-    private String createToken(Authentication authentication, Date expiredTime) {
+    public String createToken(Authentication authentication, Date expirationTime) {
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
@@ -68,53 +66,18 @@ public class JwtProvider implements InitializingBean {
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(expiredTime)
+            .setExpiration(expirationTime)
             .compact();
     }
 
-    private String createToken(Member member, Date expiredTime) {
+    public String createToken(Member member, Date expirationTime) {
         return Jwts.builder()
             .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
             .setSubject(member.getName())
             .claim(AUTHORITIES_KEY, member.getAuthority())
             .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(expiredTime)
+            .setExpiration(expirationTime)
             .compact();
-    }
-
-    public Authentication getAuthentication(String token) {
-        Claims claims = getClaims(token);
-        String role = claims.get(AUTHORITIES_KEY).toString();
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
-
-        Member currentMember = Member.builder()
-            .name(claims.getSubject())
-            .authority(Authority.ROLE_USER)
-            .build();
-
-        return new UsernamePasswordAuthenticationToken(
-            currentMember, token, authorities);
-    }
-
-    private Claims getClaims(String token) {
-        return Jwts
-            .parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
-    }
-
-    public long getExpiration(String token) {
-        return getClaims(token).getExpiration().getTime();
-    }
-
-    public String getName(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    public String getAuthorities(String token) {
-        return getClaims(token).get(AUTHORITIES_KEY).toString();
     }
 
     public boolean isValidToken(String token) {
@@ -134,6 +97,41 @@ public class JwtProvider implements InitializingBean {
     }
 
     public boolean isLogoutAccessToken(String token) {
-        return tokenRepository.existsByAccessToken(token);
+        return tokenRepository.exists(new AccessToken(getName(token)));
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts
+            .parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    }
+    
+    public String getName(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public String getAuthorities(String token) {
+        return getClaims(token).get(AUTHORITIES_KEY).toString();
+    }
+
+    public long getExpirationTime(String token) {
+        return getClaims(token).getExpiration().getTime();
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = getClaims(token);
+        String role = claims.get(AUTHORITIES_KEY).toString();
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+
+        Member currentMember = Member.builder()
+            .name(claims.getSubject())
+            .authority(Authority.ROLE_USER)
+            .build();
+
+        return new UsernamePasswordAuthenticationToken(
+            currentMember, token, authorities);
     }
 }

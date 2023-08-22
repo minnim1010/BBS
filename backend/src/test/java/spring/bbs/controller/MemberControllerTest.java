@@ -11,13 +11,13 @@
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.ResultActions;
-//import spring.profileResolver.ProfileConfiguration;
-//import spring.bbs.exceptionhandler.ExistedMemberNameException;
-//import spring.bbs.exceptionhandler.NotSamePasswordException;
+//import spring.bbs.common.exception.ExistedMemberNameException;
+//import spring.bbs.common.exception.NotSamePasswordException;
 //import spring.bbs.member.controller.MemberController;
-//import spring.bbs.member.dto.request.JoinRequest;
-//import spring.bbs.member.dto.response.JoinResponse;
+//import spring.bbs.member.controller.dto.JoinRequest;
+//import spring.bbs.member.controller.dto.JoinResponse;
 //import spring.bbs.member.service.MemberService;
+//import spring.profileResolver.ProfileConfiguration;
 //
 //import static org.hamcrest.Matchers.is;
 //import static org.mockito.ArgumentMatchers.any;
@@ -29,11 +29,7 @@
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
-//@WebMvcTest(controllers = MemberController.class
-////    ,
-////    excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebSecurityConfig.class})},
-////    excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class}
-//)
+//@WebMvcTest(controllers = MemberController.class)
 //@AutoConfigureMockMvc
 //@ProfileConfiguration
 //public class MemberControllerTest {
@@ -64,7 +60,11 @@
 //            //given
 //            JoinRequest req = createJoinRequest();
 //            Long newMemberId = 1L;
-//            JoinResponse expectedResponse = JoinResponse.create(newMemberId, req.getName(), req.getEmail());
+//            JoinResponse expectedResponse = JoinResponse.builder()
+//                .id(newMemberId)
+//                .name(req.getName())
+//                .email(req.getEmail())
+//                .build();
 //
 //            given(memberService.createMember(any(JoinRequest.class)))
 //                .willReturn(expectedResponse);

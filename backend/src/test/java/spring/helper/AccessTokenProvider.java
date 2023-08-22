@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.domain.Authority;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AccessTokenProvider {
@@ -20,29 +21,29 @@ public class AccessTokenProvider {
         this.jwtProvider = jwtProvider;
     }
 
-    public String getJwtToken() {
-        Authentication token =
+    public String createAccessToken() {
+        Authentication authentication =
             new UsernamePasswordAuthenticationToken(
                 memberName, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
-        return jwtProvider.generateAccessToken(token);
+        return jwtProvider.createToken(authentication, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
     }
 
-    public String getJwtToken(String name) {
-        Authentication token =
+    public String createAccessToken(String name) {
+        Authentication authentication =
             new UsernamePasswordAuthenticationToken(
                 name, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_USER.name())));
-        return jwtProvider.generateAccessToken(token);
+        return jwtProvider.createToken(authentication, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
     }
 
     public String getAccessTokenWithAdminRole() {
-        Authentication token =
+        Authentication authentication =
             new UsernamePasswordAuthenticationToken(
                 memberName, "", List.of(new SimpleGrantedAuthority(Authority.ROLE_ADMIN.name())));
-        return jwtProvider.generateAccessToken(token);
+        return jwtProvider.createToken(authentication, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
     }
 
     public String getUserRoleTokenWithHeaderPrefix() {
-        String token = getJwtToken();
+        String token = createAccessToken();
         return TOKEN_PREFIX + token;
     }
 

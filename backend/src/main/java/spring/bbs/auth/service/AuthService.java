@@ -12,11 +12,16 @@ import spring.bbs.auth.controller.dto.request.CreateAccessTokenRequest;
 import spring.bbs.auth.controller.dto.request.LoginRequest;
 import spring.bbs.auth.controller.dto.response.AccessTokenResponse;
 import spring.bbs.auth.controller.dto.response.LoginResponse;
+import spring.bbs.auth.domain.AccessToken;
+import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.exception.DataNotFoundException;
 import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Transactional(readOnly = true)
 @Slf4j
@@ -35,10 +40,14 @@ public class AuthService {
         Authentication authentication = authenticateCredentials(req);
         log.debug("logined: {}", req.getName());
 
-        String refreshToken = jwtProvider.generateRefreshToken(authentication);
-        tokenRepository.saveRefreshToken(req.getName(), refreshToken, jwtProvider.getExpiration(refreshToken));
+        Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
+        String refreshToken = jwtProvider.createToken(authentication, expiredTime);
+        long timeout = expiredTime.getTime() - System.currentTimeMillis();
+        tokenRepository.save(
+            new RefreshToken(req.getName(), refreshToken), timeout);
 
-        String accessToken = jwtProvider.generateAccessToken(authentication);
+        expiredTime = jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now());
+        String accessToken = jwtProvider.createToken(authentication, expiredTime);
 
         return new LoginResponse(accessToken, refreshToken);
     }
@@ -52,12 +61,13 @@ public class AuthService {
 
     public AccessTokenResponse createNewAccessToken(CreateAccessTokenRequest req) {
         String refreshToken = req.getRefreshToken();
-        validateRefreshToken(refreshToken);
+        verify(refreshToken);
         String memberName = jwtProvider.getName(refreshToken);
-        checkExistedRefreshToken(memberName);
+        checkRefreshTokenExists(memberName);
 
         Member member = findByName(memberName);
-        String token = jwtProvider.generateAccessToken(member);
+        Date expiredTime = jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now());
+        String token = jwtProvider.createToken(member, expiredTime);
 
         return new AccessTokenResponse(token);
     }
@@ -69,21 +79,22 @@ public class AuthService {
 
     @Transactional
     public void logout(String token) {
-        long expiration = jwtProvider.getExpiration(token);
-        tokenRepository.saveAccessToken(token, expiration);
-
+        long expiration = jwtProvider.getExpirationTime(token);
         String memberName = jwtProvider.getName(token);
-        tokenRepository.deleteRefreshToken(memberName);
+        long timeout = expiration - System.currentTimeMillis();
+        tokenRepository.save(new AccessToken(memberName, token), timeout);
+
+        tokenRepository.delete(new RefreshToken(memberName));
     }
 
-    private void validateRefreshToken(String refreshToken) {
+    private void verify(String refreshToken) {
         if (!jwtProvider.isValidToken(refreshToken)) {
             throw new BadCredentialsException("Refresh 토큰이 유효하지 않습니다.");
         }
     }
 
-    private void checkExistedRefreshToken(String name) {
-        if (!tokenRepository.existsRefreshTokenByName(name)) {
+    private void checkRefreshTokenExists(String name) {
+        if (!tokenRepository.exists(new RefreshToken(name))) {
             throw new BadCredentialsException("Refresh 토큰이 존재하지 않습니다.");
         }
     }

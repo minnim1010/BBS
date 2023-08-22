@@ -92,11 +92,14 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/members").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+
                 .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/logout").hasAnyRole("USER", "ADMIN")
+
                 .requestMatchers(HttpMethod.GET, "/api/v1/user").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin").hasAnyRole("ADMIN")
                 .anyRequest().permitAll());

@@ -5,13 +5,15 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.bbs.auth.controller.dto.request.CreateAccessTokenRequest;
 import spring.bbs.auth.controller.dto.request.LoginRequest;
 import spring.bbs.auth.controller.dto.response.AccessTokenResponse;
 import spring.bbs.auth.controller.dto.response.LoginResponse;
+import spring.bbs.auth.domain.AccessToken;
+import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.auth.service.AuthService;
 import spring.bbs.common.jwt.JwtProvider;
@@ -19,6 +21,9 @@ import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.profileResolver.ProfileConfiguration;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,12 +47,12 @@ public class AuthServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate StringRedisTemplate;
 
     @AfterEach
     void setUp() {
         memberRepository.deleteAllInBatch();
-        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
+        StringRedisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
     }
 
     @Nested
@@ -75,7 +80,7 @@ public class AuthServiceTest {
             assertThat(jwtProvider.isValidToken(refreshToken)).isTrue();
             assertThat(jwtProvider.getName(accessToken)).isEqualTo(req.getName());
             assertThat(jwtProvider.getName(refreshToken)).isEqualTo(req.getName());
-            assertThat(tokenRepository.existsRefreshTokenByName(req.getName())).isTrue();
+            assertThat(tokenRepository.exists(new RefreshToken(req.getName()))).isTrue();
         }
 
         @DisplayName("없는 아이디라면 토큰을 발급하지 않는다.")
@@ -131,14 +136,16 @@ public class AuthServiceTest {
                 .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
                 .build();
             memberRepository.save(member);
-            String refreshToken = jwtProvider.generateRefreshToken(member);
-            tokenRepository.saveRefreshToken(member.getName(), refreshToken, jwtProvider.getExpiration(refreshToken));
+            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
+            String refreshToken = jwtProvider.createToken(member, expiredTime);
+            long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
+            tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
             //when
             AccessTokenResponse response = authService.createNewAccessToken(req);
             //then
             String accessToken = response.getToken();
-            assertThat(tokenRepository.existsRefreshTokenByName(member.getName())).isTrue();
+            assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isTrue();
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
             assertThat(jwtProvider.getName(accessToken)).isEqualTo(member.getName());
         }
@@ -155,8 +162,10 @@ public class AuthServiceTest {
                 .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
                 .build();
             memberRepository.save(member);
-            String refreshToken = jwtProvider.generateRefreshToken(member);
-            tokenRepository.saveRefreshToken(member.getName(), refreshToken, jwtProvider.getExpiration(refreshToken));
+            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
+            String refreshToken = jwtProvider.createToken(member, expiredTime);
+            long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
+            tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
             CreateAccessTokenRequest req = new CreateAccessTokenRequest("invalidRefreshToken");
             //when then
             assertThatThrownBy(() -> authService.createNewAccessToken(req))
@@ -175,14 +184,14 @@ public class AuthServiceTest {
                 .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
                 .build();
             memberRepository.save(member);
-            String refreshToken = jwtProvider.generateRefreshToken(member);
+            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
+            String refreshToken = jwtProvider.createToken(member, expiredTime);
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
             //when then
             assertThatThrownBy(() -> authService.createNewAccessToken(req))
                 .isInstanceOf(BadCredentialsException.class);
         }
     }
-
 
     @Nested
     @DisplayName("로그아웃 요청 시 ")
@@ -200,12 +209,13 @@ public class AuthServiceTest {
                 .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
                 .build();
             memberRepository.save(member);
-            String accessToken = jwtProvider.generateAccessToken(member);
+            Date expiredTime = jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now());
+            String accessToken = jwtProvider.createToken(member, expiredTime);
             //when
             authService.logout(accessToken);
             //then
-            assertThat(tokenRepository.existsRefreshTokenByName(member.getName())).isFalse();
-            assertThat(tokenRepository.existsByAccessToken(accessToken)).isTrue();
+            assertThat(tokenRepository.exists(new RefreshToken(member.getName(), null))).isFalse();
+            assertThat(tokenRepository.exists(new AccessToken(member.getName(), null))).isTrue();
         }
 
         @DisplayName("access 토큰이 유효하지 않으면 로그아웃할 수 없다.")

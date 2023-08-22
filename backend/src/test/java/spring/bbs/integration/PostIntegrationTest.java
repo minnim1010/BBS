@@ -231,7 +231,7 @@ public class PostIntegrationTest {
             //given
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             Long postId = postCreator.createPost(member).getId();
-            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(accessTokenProvider.getJwtToken(otherUsername));
+            String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(accessTokenProvider.createAccessToken(otherUsername));
             PostRequest req = new PostRequest(
                 "upDateTestTitle", "upDateTestContent", "string");
             //when //then
@@ -271,7 +271,7 @@ public class PostIntegrationTest {
             Post post = postCreator.createPost(member);
             postRepository.delete(post);
 
-            String token = accessTokenProvider.getJwtToken();
+            String token = accessTokenProvider.createAccessToken();
             String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(token);
             //when
             mockMvc.perform(
@@ -288,7 +288,7 @@ public class PostIntegrationTest {
             //given
             Member member = memberCreator.createMember(MEMBER_NAME, passwordEncoder.encode(MEMBER_NAME));
             Long postId = postCreator.createPost(member).getId();
-            String token = accessTokenProvider.getJwtToken(otherUsername);
+            String token = accessTokenProvider.createAccessToken(otherUsername);
             String tokenHeader = accessTokenProvider.getUserRoleTokenWithHeaderPrefix(token);
             //when //then
             mockMvc.perform(

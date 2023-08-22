@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
@@ -16,6 +17,7 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Component
@@ -24,7 +26,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final String REDIRECT_PATH = "/home";
 
-    private final JwtProvider tokenProvider;
+    private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
     private final TokenRepository tokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
@@ -35,11 +37,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Member member = memberUtil.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
-        String refreshToken = tokenProvider.generateRefreshToken(member);
-        tokenRepository.saveRefreshToken(member.getName(), refreshToken, tokenProvider.getExpiration(refreshToken));
+        String refreshToken = jwtProvider.createToken(
+            member, jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now()));
+        tokenRepository.save(new RefreshToken(member.getName(), refreshToken), jwtProvider.getExpirationTime(refreshToken));
         addRefreshTokenToCookie(request, response, refreshToken);
 
-        String accessToken = tokenProvider.generateAccessToken(member);
+        String accessToken = jwtProvider.createToken(
+            member, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
         String targetUrl = getTargetUrl(accessToken);
 
         clearAuthenticationAttributes(request, response);

@@ -3,8 +3,9 @@ package spring.bbs.auth.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import spring.bbs.auth.domain.Token;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,30 +14,24 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Component
 public class TokenRepository {
-    private final String ACCESS_TOKEN_VALUE = "access";
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public boolean existsByAccessToken(String token) {
-        return (String) redisTemplate.opsForValue().get(token) != null;
+    public boolean exists(Token token) {
+        String resultToken = stringRedisTemplate.opsForValue().get(token.getKey());
+        return resultToken != null;
     }
 
-    public boolean existsRefreshTokenByName(String name) {
-        return (String) redisTemplate.opsForValue().get(name) != null;
+    public Token save(Token token, long timeout) {
+        stringRedisTemplate.opsForValue().set(
+            token.getKey(), token.getToken(), timeout, TimeUnit.MILLISECONDS);
+        return token;
     }
 
-    public void saveAccessToken(String key, long timeout) {
-        redisTemplate.opsForValue().set(key, ACCESS_TOKEN_VALUE, timeout, TimeUnit.MILLISECONDS);
-    }
-
-    public void saveRefreshToken(String key, String token, long timeout) {
-        redisTemplate.opsForValue().set(key, token, timeout, TimeUnit.MILLISECONDS);
-    }
-
-    public void deleteRefreshToken(String key) {
-        Boolean result = redisTemplate.delete(key);
+    public void delete(Token token) {
+        Boolean result = stringRedisTemplate.delete(token.getKey());
         if (result == null || !result) {
-            log.warn("{}: Cannot remove refresh token", key);
+            log.info("{}: did not exist.", token.getKey());
         }
     }
 }
