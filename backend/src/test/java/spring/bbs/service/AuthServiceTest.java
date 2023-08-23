@@ -1,13 +1,15 @@
 package spring.bbs.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import spring.IntegrationTestConfig;
 import spring.bbs.auth.controller.dto.request.CreateAccessTokenRequest;
 import spring.bbs.auth.controller.dto.request.LoginRequest;
 import spring.bbs.auth.controller.dto.response.AccessTokenResponse;
@@ -20,7 +22,6 @@ import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
-import spring.profileResolver.ProfileConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -29,11 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@AutoConfigureMockMvc
-@ProfileConfiguration
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AuthServiceTest {
+public class AuthServiceTest extends IntegrationTestConfig {
     private static final String MEMBER_NAME = "AuthTestUser";
 
     @Autowired
@@ -67,15 +64,19 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             LoginRequest req = new LoginRequest(MEMBER_NAME, MEMBER_NAME);
+
             //when
             LoginResponse response = authService.login(req);
+
             //then
             String accessToken = response.getAccessToken();
             String refreshToken = response.getRefreshToken();
+
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
             assertThat(jwtProvider.isValidToken(refreshToken)).isTrue();
             assertThat(jwtProvider.getName(accessToken)).isEqualTo(req.getName());
@@ -92,10 +93,12 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             LoginRequest req = new LoginRequest("NonExistedName", MEMBER_NAME);
+
             //when then
             assertThatThrownBy(() -> authService.login(req))
                 .isInstanceOf(BadCredentialsException.class);
@@ -110,10 +113,12 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             LoginRequest req = new LoginRequest(MEMBER_NAME, "invalidPassword");
+
             //when then
             assertThatThrownBy(() -> authService.login(req))
                 .isInstanceOf(BadCredentialsException.class);
@@ -133,18 +138,24 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
             String refreshToken = jwtProvider.createToken(member, expiredTime);
+
             long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
             tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
+
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
+
             //when
             AccessTokenResponse response = authService.createNewAccessToken(req);
             //then
+
             String accessToken = response.getToken();
+
             assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isTrue();
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
             assertThat(jwtProvider.getName(accessToken)).isEqualTo(member.getName());
@@ -159,14 +170,18 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
             String refreshToken = jwtProvider.createToken(member, expiredTime);
+
             long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
             tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
+
             CreateAccessTokenRequest req = new CreateAccessTokenRequest("invalidRefreshToken");
+
             //when then
             assertThatThrownBy(() -> authService.createNewAccessToken(req))
                 .isInstanceOf(BadCredentialsException.class);
@@ -181,12 +196,15 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
             String refreshToken = jwtProvider.createToken(member, expiredTime);
+
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
+
             //when then
             assertThatThrownBy(() -> authService.createNewAccessToken(req))
                 .isInstanceOf(BadCredentialsException.class);
@@ -206,16 +224,19 @@ public class AuthServiceTest {
                 .password(passwordEncoder.encode(MEMBER_NAME))
                 .email(MEMBER_NAME + "@test.com")
                 .isEnabled(true)
-                .authority(Enum.valueOf(Authority.class, Authority.ROLE_USER.name()))
+                .authority(Authority.ROLE_USER)
                 .build();
             memberRepository.save(member);
+
             Date expiredTime = jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now());
             String accessToken = jwtProvider.createToken(member, expiredTime);
+
             //when
             authService.logout(accessToken);
+
             //then
-            assertThat(tokenRepository.exists(new RefreshToken(member.getName(), null))).isFalse();
-            assertThat(tokenRepository.exists(new AccessToken(member.getName(), null))).isTrue();
+            assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isFalse();
+            assertThat(tokenRepository.exists(new AccessToken(member.getName()))).isTrue();
         }
 
         @DisplayName("access 토큰이 유효하지 않으면 로그아웃할 수 없다.")

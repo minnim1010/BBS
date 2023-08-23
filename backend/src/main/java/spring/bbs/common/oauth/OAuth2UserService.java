@@ -27,12 +27,18 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private Member saveOrUpdate(OAuth2User oAuth2User) {
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
+        String email = (String) attributes.get("email");
 
         Member member = memberRepository.findByEmail(email)
             .map(m -> m.updateOAuthName(name))
-            .orElse(new Member(name, email, true, Enum.valueOf(Authority.class, Authority.ROLE_USER.name())));
+            .orElse(Member.builder()
+                .name(name)
+                .oauthName(name)
+                .email(email)
+                .isEnabled(true)
+                .authority(Authority.ROLE_USER)
+                .build());
 
         return memberRepository.save(member);
     }

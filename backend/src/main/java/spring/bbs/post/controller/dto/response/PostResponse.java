@@ -1,4 +1,4 @@
-package spring.bbs.post.dto.response;
+package spring.bbs.post.controller.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

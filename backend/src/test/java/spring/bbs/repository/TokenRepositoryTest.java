@@ -6,20 +6,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import spring.IntegrationTestConfig;
 import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.domain.Token;
 import spring.bbs.auth.repository.TokenRepository;
-import spring.profileResolver.ProfileConfiguration;
 
 import static java.lang.Thread.sleep;
 
 
-@ProfileConfiguration
-@SpringBootTest
-public class TokenRepositoryTest {
+public class TokenRepositoryTest extends IntegrationTestConfig {
 
     private static final String MEMBER_NAME = "TokenTestUser";
 
@@ -42,11 +39,14 @@ public class TokenRepositoryTest {
             //given
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
+
             stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getToken());
             stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getToken());
+
             //when
             boolean existsAccessToken = tokenRepository.exists(accessToken);
             boolean existsRefreshToken = tokenRepository.exists(refreshToken);
+
             //then
             Assertions.assertThat(existsAccessToken).isTrue();
             Assertions.assertThat(existsRefreshToken).isTrue();
@@ -58,9 +58,11 @@ public class TokenRepositoryTest {
             //given
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
+
             //when
             boolean existsAccessToken = tokenRepository.exists(accessToken);
             boolean existsRefreshToken = tokenRepository.exists(refreshToken);
+
             //then
             Assertions.assertThat(existsAccessToken).isFalse();
             Assertions.assertThat(existsRefreshToken).isFalse();
@@ -75,17 +77,23 @@ public class TokenRepositoryTest {
         @Test
         void success() throws InterruptedException {
             //given
+            long timeout = 2000;
+
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
+
             //when
-            tokenRepository.save(accessToken, 5000);
-            tokenRepository.save(refreshToken, 5000);
+            tokenRepository.save(accessToken, timeout);
+            tokenRepository.save(refreshToken, timeout);
+
             //then
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(accessToken.getKey()))
                 .isEqualTo(accessToken.getToken());
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(refreshToken.getKey()))
                 .isEqualTo(refreshToken.getToken());
-            sleep(5000);
+
+            sleep(timeout);
+
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(accessToken.getKey()))
                 .isNull();
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(refreshToken.getKey()))
@@ -94,7 +102,7 @@ public class TokenRepositoryTest {
     }
 
     @Nested
-    @DisplayName("토큰 키를 가진 토큰이 ")
+    @DisplayName("토큰의 키가 ")
     class Delete {
         @DisplayName("있는 경우, 삭제한다.")
         @Test
@@ -102,11 +110,14 @@ public class TokenRepositoryTest {
             //given
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
+
             stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getToken());
             stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getToken());
+
             //when
             tokenRepository.delete(accessToken);
             tokenRepository.delete(refreshToken);
+
             //then
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(accessToken.getKey()))
                 .isNull();
@@ -120,9 +131,11 @@ public class TokenRepositoryTest {
             //given
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
+
             //when
             tokenRepository.delete(accessToken);
             tokenRepository.delete(refreshToken);
+
             //then
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(accessToken.getKey()))
                 .isNull();

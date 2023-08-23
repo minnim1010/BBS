@@ -1,6 +1,7 @@
 package spring.bbs.post.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import spring.bbs.category.domain.Category;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.common.entity.Written;
 import spring.bbs.member.domain.Member;
-import spring.bbs.post.dto.request.PostServiceRequest;
+import spring.bbs.post.service.dto.PostServiceRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,13 @@ public class Post extends Written {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     private String title;
     @Column(columnDefinition = "TEXT")
+    @NotNull
     private String content;
     @ManyToOne
+    @NotNull
     private Category category;
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     List<Comment> commentList = new ArrayList<>();

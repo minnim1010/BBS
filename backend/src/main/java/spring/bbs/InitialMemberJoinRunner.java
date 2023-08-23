@@ -10,7 +10,7 @@ import spring.bbs.comment.service.CommentService;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.controller.dto.JoinResponse;
 import spring.bbs.member.service.MemberService;
-import spring.bbs.post.dto.request.PostRequest;
+import spring.bbs.post.controller.dto.request.PostRequest;
 import spring.bbs.post.service.PostService;
 
 @Component

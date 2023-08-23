@@ -1,4 +1,4 @@
-package spring.bbs.post.dto.response;
+package spring.bbs.post.controller.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import spring.bbs.post.domain.Post;
 import java.time.LocalDateTime;
 
 @Getter
-
 @NoArgsConstructor
 public class PostListResponse {
     private long id;

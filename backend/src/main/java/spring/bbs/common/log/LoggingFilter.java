@@ -47,7 +47,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         String queryString = request.getQueryString();
         log.info("Request : {} {} content-type=[{}]",
             request.getMethod(),
-            queryString == null ? request.getRequestURI() : request.getRequestURI() + queryString,
+            queryString == null ? request.getRequestURI() : request.getRequestURI() + "?" + queryString,
             request.getContentType()
         );
         String authorization = request.getHeader("Authorization");

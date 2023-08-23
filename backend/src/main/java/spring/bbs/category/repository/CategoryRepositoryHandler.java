@@ -12,6 +12,6 @@ public class CategoryRepositoryHandler {
 
     public Category findByName(String name) {
         return categoryRepository.findByName(name).orElseThrow(
-            () -> new DataNotFoundException("Category doesn't exist."));
+            () -> new DataNotFoundException("카테고리가 존재하지 않습니다."));
     }
 }

@@ -7,11 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import spring.bbs.member.domain.Member;
-import spring.bbs.post.dto.request.PostListRequest;
-import spring.bbs.post.dto.request.PostRequest;
-import spring.bbs.post.dto.response.PostListResponse;
-import spring.bbs.post.dto.response.PostResponse;
+import spring.bbs.post.controller.dto.request.PostListRequest;
+import spring.bbs.post.controller.dto.request.PostRequest;
+import spring.bbs.post.controller.dto.response.PostListResponse;
+import spring.bbs.post.controller.dto.response.PostResponse;
 import spring.bbs.post.service.PostService;
+import spring.bbs.post.service.dto.PostDeleteServiceRequest;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -41,14 +42,16 @@ public class PostController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deletePost(@PathVariable("id") long postId) {
-        postService.deletePost(postId);
+    public void deletePost(@PathVariable("id") long postId,
+                           @AuthenticationPrincipal Member currentMember) {
+        postService.deletePost(PostDeleteServiceRequest.of(postId, currentMember.getName()));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PostResponse modifyPost(@RequestBody @Valid PostRequest req,
-                                   @PathVariable("id") long postId) {
-        return postService.updatePost(req, postId);
+                                   @PathVariable("id") long postId,
+                                   @AuthenticationPrincipal Member currentMember) {
+        return postService.updatePost(req.toServiceRequest(currentMember.getName(), postId));
     }
 }

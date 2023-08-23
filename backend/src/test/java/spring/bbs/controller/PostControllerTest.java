@@ -19,7 +19,7 @@
 //import spring.bbs.exceptionhandler.DataNotFoundException;
 //import spring.bbs.member.dto.response.MemberResponse;
 //import spring.bbs.post.controller.PostController;
-//import spring.bbs.post.dto.request.PostListRequest;
+//import spring.bbs.post.dto.request.PostListServiceRequest;
 //import spring.bbs.post.dto.request.PostRequest;
 //import spring.bbs.post.dto.request.PostServiceRequest;
 //import spring.bbs.post.dto.response.PostListResponse;
@@ -113,10 +113,10 @@
 //        @DisplayName("게시글 목록을 조회할 수 있다.")
 //        void getPostList() throws Exception {
 //            //given
-//            PostListRequest req = new PostListRequest(1, "string", null, null);
+//            PostListServiceRequest req = new PostListServiceRequest(1, "string", null, null);
 //            Page<PostListResponse> response = getPostListResponse(LocalDateTime.now());
 //            List<PostListResponse> expect = response.toList();
-//            given(postService.getPostList(any(PostListRequest.class))).willReturn(response);
+//            given(postService.getPostList(any(PostListServiceRequest.class))).willReturn(response);
 //            //when
 //            ResultActions result = request();
 //            //then

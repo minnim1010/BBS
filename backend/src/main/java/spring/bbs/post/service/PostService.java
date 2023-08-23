@@ -10,18 +10,20 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
-import spring.bbs.common.util.AuthenticationUtil;
 import spring.bbs.member.domain.Member;
-import spring.bbs.member.repository.MemberRepositoryHandler;
+import spring.bbs.member.repository.MemberRepository;
+import spring.bbs.post.controller.dto.SearchScope;
+import spring.bbs.post.controller.dto.request.PostListRequest;
+import spring.bbs.post.controller.dto.response.PostListResponse;
+import spring.bbs.post.controller.dto.response.PostResponse;
 import spring.bbs.post.domain.Post;
-import spring.bbs.post.dto.request.PostListRequest;
-import spring.bbs.post.dto.request.PostRequest;
-import spring.bbs.post.dto.request.PostServiceRequest;
-import spring.bbs.post.dto.response.PostListResponse;
-import spring.bbs.post.dto.response.PostResponse;
 import spring.bbs.post.repository.PostRepository;
 import spring.bbs.post.repository.PostRepositoryHandler;
+import spring.bbs.post.service.dto.PostDeleteServiceRequest;
+import spring.bbs.post.service.dto.PostServiceRequest;
+import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 
 @Slf4j
 @Service
@@ -32,17 +34,21 @@ public class PostService {
     private final static int PAGE_SIZE = 10;
 
     private final PostRepository postRepository;
-    private final MemberRepositoryHandler memberRepositoryHandler;
+    private final MemberRepository memberRepository;
     private final PostRepositoryHandler postRepositoryHandler;
     private final CategoryRepositoryHandler categoryRepositoryHandler;
 
     public PostResponse getPost(long postId) {
-        return PostResponse.of(postRepositoryHandler.findById(postId));
+        Post post = postRepositoryHandler.findById(postId);
+
+        return PostResponse.of(post);
     }
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
         int page = getValidPage(req.getPage());
-        Page<Post> postList = findBySearchScopeAndKeyword(req.getSearchScope(), req.getSearchKeyword(), page);
+
+        Page<Post> postList = findPostList(req.getSearchScope(), req.getSearchKeyword(), page);
+
         return postList.map(PostListResponse::of);
     }
 
@@ -53,54 +59,60 @@ public class PostService {
         return pageInRequest;
     }
 
-    private Page<Post> findBySearchScopeAndKeyword(String scope, String keyword, int page) {
-        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
+    private Page<Post> findPostList(String scope, String keyword, int page) {
+        Pageable pageable =
+            PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
+
         if (StringUtils.hasText(keyword)) {
             validateSearchScope(scope);
-            return postRepository.findAllBySearchKeywordAndScope(
-                scope, keyword, pageable);
+            return postRepository.findAllBySearchKeywordAndScope(scope, keyword, pageable);
         }
         return postRepository.findAll(pageable);
     }
 
     private void validateSearchScope(String scope) {
-        if (!(scope.equals("전체") || scope.equals("제목") || scope.equals("작성자"))) {
+        if (!SearchScope.contains(scope)) {
             throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
         }
     }
 
     @Transactional
     public PostResponse createPost(PostServiceRequest req) {
+        Member member = memberRepository
+            .findByName(req.getCurMemberName())
+            .orElseThrow(() -> new AccessDeniedException("로그인해야 합니다."));
 
-        Member author = memberRepositoryHandler.findByName(req.getCurMemberName());
-        Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), author);
+        Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), member);
+
         Post savedPost = postRepository.save(post);
 
         return PostResponse.of(savedPost);
     }
 
     @Transactional
-    public PostResponse updatePost(PostRequest req, long postId) {
-        Post post = postRepositoryHandler.findById(postId);
-        String loginedMemberName = AuthenticationUtil.getCurrentMemberNameOrAccessDenied();
-        validAuthor(post.getAuthor().getName(), loginedMemberName);
+    public PostResponse updatePost(PostUpdateServiceRequest req) {
+        Post post = postRepositoryHandler.findById(req.getId());
 
-        post.update(req.getTitle(), req.getContent(), categoryRepositoryHandler.findByName(req.getCategory()));
+        validAuthor(post.getAuthor().getName(), req.getCurMemberName());
+
+        Category category = categoryRepositoryHandler.findByName(req.getCategory());
+        post.update(req.getTitle(), req.getContent(), category);
 
         return PostResponse.of(post);
     }
 
-    @Transactional
-    public void deletePost(long postId) {
-        Post post = postRepositoryHandler.findById(postId);
-        validAuthor(post.getAuthor().getName(), AuthenticationUtil.getCurrentMemberNameOrAccessDenied());
-
-        postRepository.delete(post);
-    }
-
-    private void validAuthor(String authorName, String currentMember) {
-        if (!authorName.equals(currentMember)) {
+    private void validAuthor(String authorName, String currentMemberName) {
+        if (!authorName.equals(currentMemberName)) {
             throw new AccessDeniedException("작성자여야 합니다.");
         }
+    }
+
+    @Transactional
+    public void deletePost(PostDeleteServiceRequest req) {
+        Post post = postRepositoryHandler.findById(req.getId());
+
+        validAuthor(post.getAuthor().getName(), req.getCurMemberName());
+
+        postRepository.delete(post);
     }
 }

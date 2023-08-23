@@ -7,35 +7,28 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import spring.IntegrationTestConfig;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.repository.CommentRepository;
-import spring.bbs.common.config.QuerydslConfig;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;
 import spring.bbs.post.repository.PostRepository;
-import spring.config.TestConfig;
 import spring.helper.CommentCreator;
 import spring.helper.MemberCreator;
 import spring.helper.PostCreator;
-import spring.profileResolver.ProfileConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-@Import({TestConfig.class, QuerydslConfig.class})
-@ProfileConfiguration
-class CommentRepositoryTest {
+class CommentRepositoryTest extends IntegrationTestConfig {
 
     private static final String MEMBER_NAME = "CommentTestUser";
 
@@ -148,18 +141,23 @@ class CommentRepositoryTest {
     void updateOrder() {
         //given
         Member member = memberCreator.createMember(MEMBER_NAME);
+
         Post post = postCreator.createPost(member);
+
         Comment parentComment = commentCreator.createComment(post, member, "parentComment");
         Comment childComment1 = commentCreator.createComment(post, member, "childComment1", parentComment, 1);
         Comment childComment2 = commentCreator.createComment(post, member, "childComment2", parentComment, 2);
         Comment childComment3 = commentCreator.createComment(post, member, "childComment3", parentComment, 3);
 //        Comment grandChildComment = commentCreator.createComment(post, member, "grandChildComment", childComment1, 2);
         commentRepository.flush();
+
         //when
         commentRepository.updateOrder(post, parentComment.getId(), 2);
+
         //then
         em.flush();
         em.clear();
+
         List<Comment> result = commentRepository.findAll();
 
         assertThat(result).hasSize(4)

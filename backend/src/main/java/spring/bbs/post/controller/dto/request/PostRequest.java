@@ -1,12 +1,13 @@
-package spring.bbs.post.dto.request;
+package spring.bbs.post.controller.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import spring.bbs.post.service.dto.PostServiceRequest;
+import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class PostRequest {
     private String title;
     @NotBlank
     private String content;
-    @NotEmpty
+    @NotBlank
     private String category;
 
     @Builder
@@ -29,6 +30,16 @@ public class PostRequest {
 
     public PostServiceRequest toServiceRequest(String curMemberName) {
         return PostServiceRequest.builder()
+            .title(title)
+            .content(content)
+            .category(category)
+            .curMemberName(curMemberName)
+            .build();
+    }
+
+    public PostUpdateServiceRequest toServiceRequest(String curMemberName, Long postId) {
+        return PostUpdateServiceRequest.builder()
+            .id(postId)
             .title(title)
             .content(content)
             .category(category)

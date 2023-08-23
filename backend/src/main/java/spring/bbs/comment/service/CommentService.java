@@ -40,9 +40,10 @@ public class CommentService {
 
     public Page<CommentResponse> getCommentsByPost(CommentListServiceRequest req) {
         int page = getValidPage(req.getPage());
+
         Post post = postRepositoryHandler.findById(req.getPostId());
-        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
-        Page<Comment> comments = findToPageByRequest(req.getSearchKeyword(), post, pageable);
+
+        Page<Comment> comments = findToPageByRequest(page, req.getSearchKeyword(), post);
 
         return comments.map(CommentResponse::of);
     }
@@ -54,7 +55,9 @@ public class CommentService {
         return pageInRequest;
     }
 
-    private Page<Comment> findToPageByRequest(String searchKeyword, Post post, Pageable pageable) {
+    private Page<Comment> findToPageByRequest(int page, String searchKeyword, Post post) {
+        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
+
         if (StringUtils.hasText(searchKeyword)) {
             return commentRepository.findAllByPostAndSearchKeyword(post, searchKeyword, pageable);
         }
@@ -64,7 +67,9 @@ public class CommentService {
     @Transactional
     public CommentResponse createComment(CommentCreateServiceRequest req) {
         Member author = getLoginedMember(req.getCurMemberName());
+
         Post post = postRepositoryHandler.findById(req.getPostId());
+
         Comment parentComment = getParentComment(req.getParentCommentId());
         Comment comment = createCommentWithParentComment(req.getContent(), parentComment, post, author);
 
@@ -76,9 +81,12 @@ public class CommentService {
         if (parentComment != null) {
             int curOrder = getCurOrder(parentComment);
             Long curGroupNum = getCurGroupNum(parentComment);
+
             commentRepository.updateOrder(post, curGroupNum, curOrder);
+
             em.flush();
             em.clear();
+
             return Comment.of(content, author, post, parentComment, curOrder);
         }
         return Comment.of(content, author, post);
@@ -91,9 +99,11 @@ public class CommentService {
 
     private Long getCurGroupNum(Comment parentComment) {
         Long groupNum = parentComment.getGroupNum();
+
         if (groupNum == null) {
             groupNum = parentComment.getId();
         }
+
         return groupNum;
     }
 
@@ -101,12 +111,14 @@ public class CommentService {
         if (parentCommentId != null && parentCommentId != 0) {
             return commentRepositoryHandler.findById(parentCommentId);
         }
+
         return null;
     }
 
     @Transactional
     public CommentResponse updateComment(CommentUpdateServiceRequest req) {
         Comment comment = findById(req.getCommentId());
+
         validAuthor(comment.getAuthor().getName(), req.getCurMemberName());
 
         Comment updatedComment = comment.update(req.getContent());
@@ -120,6 +132,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(CommentDeleteServiceRequest req) {
         Comment comment = findById(req.getCommentId());
+
         checkAlreadyDeletedComment(comment);
         validAuthor(comment.getAuthor().getName(), req.getCurMemberName());
 
@@ -167,6 +180,7 @@ public class CommentService {
             comment.delete();
             return;
         }
+
         commentRepository.delete(comment);
     }
 
