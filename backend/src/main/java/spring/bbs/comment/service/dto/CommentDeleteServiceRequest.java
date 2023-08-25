@@ -1,7 +1,6 @@
-package spring.bbs.comment.dto.service;
+package spring.bbs.comment.service.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

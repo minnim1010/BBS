@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import spring.bbs.comment.dto.request.CommentCreateRequest;
+import spring.bbs.comment.controller.dto.request.CommentCreateRequest;
 import spring.bbs.comment.service.CommentService;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.controller.dto.JoinResponse;

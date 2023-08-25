@@ -22,32 +22,23 @@ public class QComment extends EntityPathBase<Comment> {
 
     public static final QComment comment = new QComment("comment");
 
-    public final spring.bbs.common.entity.QWritten _super;
+    public final spring.bbs.common.entity.QBaseTime _super = new spring.bbs.common.entity.QBaseTime(this);
 
-    // inherited
     public final spring.bbs.member.domain.QMember author;
 
-    public final BooleanPath canDeleted = createBoolean("canDeleted");
-
-    public final ListPath<Comment, QComment> childComments = this.<Comment, QComment>createList("childComments", Comment.class, QComment.class, PathInits.DIRECT2);
+    public final ListPath<Comment, QComment> children = this.<Comment, QComment>createList("children", Comment.class, QComment.class, PathInits.DIRECT2);
 
     public final StringPath content = createString("content");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdTime;
-
-    public final NumberPath<Long> groupNum = createNumber("groupNum", Long.class);
-
-    public final NumberPath<Integer> groupOrder = createNumber("groupOrder", Integer.class);
+    public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final BooleanPath isDeleted = createBoolean("isDeleted");
-
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> lastModifiedTime;
+    public final DateTimePath<java.time.LocalDateTime> lastModifiedTime = _super.lastModifiedTime;
 
-    public final QComment parentComment;
+    public final QComment parent;
 
     public final spring.bbs.post.domain.QPost post;
 
@@ -69,11 +60,8 @@ public class QComment extends EntityPathBase<Comment> {
 
     public QComment(Class<? extends Comment> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this._super = new spring.bbs.common.entity.QWritten(type, metadata, inits);
-        this.author = _super.author;
-        this.createdTime = _super.createdTime;
-        this.lastModifiedTime = _super.lastModifiedTime;
-        this.parentComment = inits.isInitialized("parentComment") ? new QComment(forProperty("parentComment"), inits.get("parentComment")) : null;
+        this.author = inits.isInitialized("author") ? new spring.bbs.member.domain.QMember(forProperty("author")) : null;
+        this.parent = inits.isInitialized("parent") ? new QComment(forProperty("parent"), inits.get("parent")) : null;
         this.post = inits.isInitialized("post") ? new spring.bbs.post.domain.QPost(forProperty("post"), inits.get("post")) : null;
     }
 

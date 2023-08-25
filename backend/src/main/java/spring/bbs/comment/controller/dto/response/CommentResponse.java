@@ -1,4 +1,4 @@
-package spring.bbs.comment.dto.response;
+package spring.bbs.comment.controller.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -40,8 +40,8 @@ public class CommentResponse {
             .createdTime(comment.getCreatedTime())
             .modifiedTime(comment.getLastModifiedTime())
             .author(MemberResponse.of(comment.getAuthor()))
-            .parentCommentId(comment.getParentComment() == null ?
-                null : comment.getParentComment().getId())
+            .parentCommentId(comment.getParent() == null ?
+                null : comment.getParent().getId())
             .build();
     }
 }

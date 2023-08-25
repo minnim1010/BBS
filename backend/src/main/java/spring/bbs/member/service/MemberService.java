@@ -15,12 +15,13 @@ import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.repository.PostRepository;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
-
+    
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;

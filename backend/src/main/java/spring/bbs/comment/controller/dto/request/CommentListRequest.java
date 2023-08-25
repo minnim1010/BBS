@@ -1,4 +1,4 @@
-package spring.bbs.comment.dto.request;
+package spring.bbs.comment.controller.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import spring.bbs.comment.dto.service.CommentListServiceRequest;
+import spring.bbs.comment.service.dto.CommentListServiceRequest;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class CommentListRequest {
 
     public CommentListRequest(int page, String keyword, long postId) {
         this.page = page;
-        this.searchKeyword = keyword;
+        searchKeyword = keyword;
         this.postId = postId;
     }
 

@@ -22,17 +22,23 @@ public class Member extends BaseTime implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true)
     @NotNull
     private String name;
+
     @Column(unique = true)
     private String oauthName;
+
     @NotNull
     private String password;
+
     @NotNull
     private String email;
+
     @NotNull
     private boolean isEnabled = true;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private Authority authority;

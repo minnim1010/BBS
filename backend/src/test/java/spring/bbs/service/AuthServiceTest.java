@@ -79,8 +79,10 @@ public class AuthServiceTest extends IntegrationTestConfig {
 
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
             assertThat(jwtProvider.isValidToken(refreshToken)).isTrue();
+
             assertThat(jwtProvider.getName(accessToken)).isEqualTo(req.getName());
             assertThat(jwtProvider.getName(refreshToken)).isEqualTo(req.getName());
+
             assertThat(tokenRepository.exists(new RefreshToken(req.getName()))).isTrue();
         }
 
@@ -152,8 +154,8 @@ public class AuthServiceTest extends IntegrationTestConfig {
 
             //when
             AccessTokenResponse response = authService.createNewAccessToken(req);
-            //then
 
+            //then
             String accessToken = response.getToken();
 
             assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isTrue();
@@ -237,13 +239,6 @@ public class AuthServiceTest extends IntegrationTestConfig {
             //then
             assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isFalse();
             assertThat(tokenRepository.exists(new AccessToken(member.getName()))).isTrue();
-        }
-
-        @DisplayName("access 토큰이 유효하지 않으면 로그아웃할 수 없다.")
-        @Test
-        void failWithInvalidAccessToken() {
-            // 유효하지 않은 토큰은 spring security에서 처리되므로
-            // service 단에서는 검사하지 않는다.
         }
     }
 }

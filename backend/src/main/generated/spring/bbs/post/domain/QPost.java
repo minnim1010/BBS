@@ -22,9 +22,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public static final QPost post = new QPost("post");
 
-    public final spring.bbs.common.entity.QWritten _super;
+    public final spring.bbs.common.entity.QBaseTime _super = new spring.bbs.common.entity.QBaseTime(this);
 
-    // inherited
     public final spring.bbs.member.domain.QMember author;
 
     public final spring.bbs.category.domain.QCategory category;
@@ -34,12 +33,12 @@ public class QPost extends EntityPathBase<Post> {
     public final StringPath content = createString("content");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdTime;
+    public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> lastModifiedTime;
+    public final DateTimePath<java.time.LocalDateTime> lastModifiedTime = _super.lastModifiedTime;
 
     public final StringPath title = createString("title");
 
@@ -61,11 +60,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public QPost(Class<? extends Post> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this._super = new spring.bbs.common.entity.QWritten(type, metadata, inits);
-        this.author = _super.author;
+        this.author = inits.isInitialized("author") ? new spring.bbs.member.domain.QMember(forProperty("author")) : null;
         this.category = inits.isInitialized("category") ? new spring.bbs.category.domain.QCategory(forProperty("category")) : null;
-        this.createdTime = _super.createdTime;
-        this.lastModifiedTime = _super.lastModifiedTime;
     }
 
 }

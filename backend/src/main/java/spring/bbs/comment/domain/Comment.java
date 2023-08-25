@@ -1,12 +1,13 @@
 package spring.bbs.comment.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
-import spring.bbs.common.entity.Written;
+import spring.bbs.common.entity.BaseTime;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.domain.Post;
 
@@ -16,38 +17,36 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment extends Written {
+public class Comment extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 200, nullable = false)
-    private String content;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Post post;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Comment parentComment;
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
-    private List<Comment> childComments = new ArrayList<>();
-    @Column(nullable = false)
-    private boolean isDeleted;
-    @Column(nullable = false)
-    private boolean canDeleted;
-    @Column(nullable = false)
-    private int groupOrder;
-    private Long groupNum;
 
-    public static final String DELETED_CONTENT = "삭제된 댓글입니다.";
+    @Column(length = 200)
+    @NotNull
+    private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID")
+    private Member author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 
     @Builder
     private Comment(
         String content,
         Member author,
         Post post,
-        Comment parentComment,
-        boolean isDeleted,
-        int groupOrder,
-        Long groupNum,
-        boolean canDeleted) {
+        Comment parent) {
         Assert.hasText(content, "content must be provided");
         Assert.notNull(author, "author must be provided");
         Assert.notNull(post, "post must be provided");
@@ -55,58 +54,34 @@ public class Comment extends Written {
         this.content = content;
         this.author = author;
         this.post = post;
-        this.parentComment = parentComment;
-        this.isDeleted = isDeleted;
-        this.groupOrder = groupOrder;
-        this.groupNum = groupNum;
-        this.canDeleted = canDeleted;
+        this.parent = parent;
     }
 
-    public static Comment of(String content,
-                             Member author,
-                             Post post) {
+    public static Comment create(String content,
+                                 Member author,
+                                 Post post) {
         return Comment.builder()
             .content(content)
             .author(author)
             .post(post)
-            .parentComment(null)
-            .groupOrder(0)
-            .groupNum(null)
-            .isDeleted(false)
-            .canDeleted(true)
+            .parent(null)
             .build();
     }
 
-
-    public static Comment of(String content,
-                             Member author,
-                             Post post,
-                             Comment parentComment,
-                             int groupOrder) {
-        if (parentComment == null) {
+    public static Comment createReply(String content,
+                                      Member author,
+                                      Post post,
+                                      Comment parent) {
+        if (parent == null) {
             throw new IllegalStateException("대댓글을 달 수 있는 댓글이 없습니다.");
         }
 
-        if (parentComment.getGroupNum() == null) {
-            parentComment.updateGroupNum(parentComment.getId());
-        }
-        Long groupNum = parentComment.getGroupNum();
-        parentComment.setCanDeleted(false);
-
         return Comment.builder()
             .content(content)
             .author(author)
             .post(post)
-            .parentComment(parentComment)
-            .groupOrder(groupOrder)
-            .groupNum(groupNum)
-            .isDeleted(false)
-            .canDeleted(true)
+            .parent(parent)
             .build();
-    }
-
-    public void setCanDeleted(boolean hasNoChild) {
-        canDeleted = hasNoChild;
     }
 
     public Comment update(String content) {
@@ -114,12 +89,8 @@ public class Comment extends Written {
         return this;
     }
 
-    public void delete() {
-        isDeleted = true;
-        content = DELETED_CONTENT;
-    }
-
-    public void updateGroupNum(Long groupNum) {
-        this.groupNum = groupNum;
+    public void addChildren(Comment child) {
+        children.add(child);
+        child.parent = this;
     }
 }

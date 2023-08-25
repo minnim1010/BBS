@@ -1,4 +1,4 @@
-package spring.bbs.comment.dto.request;
+package spring.bbs.comment.controller.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import spring.bbs.comment.dto.service.CommentCreateServiceRequest;
+import spring.bbs.comment.service.dto.CommentCreateServiceRequest;
 
 @Getter
 @Setter
@@ -25,17 +25,17 @@ public class CommentCreateRequest {
     @Override
     public String toString() {
         return "CommentCreateRequest{" +
-                "content='" + content + '\'' +
-                ", postId=" + postId +
-                ", parentCommentId=" + parentCommentId +
-                '}';
+            "content='" + content + '\'' +
+            ", postId=" + postId +
+            ", parentCommentId=" + parentCommentId +
+            '}';
     }
 
-    public CommentCreateServiceRequest toServiceRequest(String curMemberName){
+    public CommentCreateServiceRequest toServiceRequest(String curMemberName) {
         return CommentCreateServiceRequest.builder()
-            .content(this.content)
-            .postId(this.postId)
-            .parentCommentId(this.parentCommentId)
+            .content(content)
+            .postId(postId)
+            .parentCommentId(parentCommentId)
             .curMemberName(curMemberName)
             .build();
     }

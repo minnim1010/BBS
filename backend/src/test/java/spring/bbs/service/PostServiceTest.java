@@ -193,6 +193,9 @@ public class PostServiceTest extends IntegrationTestConfig {
             assertThat(response)
                 .extracting("title", "content", "author.name", "category")
                 .contains(title, content, MEMBER_NAME, CATEGORY_NAME);
+
+            List<Post> result = postRepository.findAll();
+            assertThat(result).hasSize(1);
         }
 
         @DisplayName("유효하지 않은 사용자라면, 게시글을 생성할 수 없다.")
@@ -212,6 +215,9 @@ public class PostServiceTest extends IntegrationTestConfig {
             //when then
             assertThatThrownBy(() -> postService.createPost(request))
                 .isInstanceOf(AccessDeniedException.class);
+
+            List<Post> result = postRepository.findAll();
+            assertThat(result).isEmpty();
         }
 
         @DisplayName("유효하지 않은 카테고리라면, 게시글을 생성할 수 없다.")
@@ -233,6 +239,9 @@ public class PostServiceTest extends IntegrationTestConfig {
             //when then
             assertThatThrownBy(() -> postService.createPost(request))
                 .isInstanceOf(DataNotFoundException.class);
+
+            List<Post> result = postRepository.findAll();
+            assertThat(result).isEmpty();
         }
     }
 

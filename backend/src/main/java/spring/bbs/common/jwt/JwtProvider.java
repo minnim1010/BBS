@@ -84,14 +84,12 @@ public class JwtProvider implements InitializingBean {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (ExpiredJwtException e) {
-            log.info("토큰이 만료되었습니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("지원하지 않는 토큰 형식입니다. ");
-        } catch (MalformedJwtException | SignatureException e) {
-            log.info("토큰이 위조되었습니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("토큰 타입이 올바르지 않습니다.");
+        } catch (ExpiredJwtException |
+                 IllegalArgumentException |
+                 UnsupportedJwtException |
+                 MalformedJwtException |
+                 SignatureException e) {
+            log.error(e.getMessage(), e);
         }
         return false;
     }
@@ -108,7 +106,7 @@ public class JwtProvider implements InitializingBean {
             .parseClaimsJws(token)
             .getBody();
     }
-    
+
     public String getName(String token) {
         return getClaims(token).getSubject();
     }
