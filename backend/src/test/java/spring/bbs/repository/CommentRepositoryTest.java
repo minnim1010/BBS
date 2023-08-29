@@ -1,5 +1,6 @@
 package spring.bbs.repository;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,6 +11,7 @@ import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.comment.domain.Comment;
 import spring.bbs.comment.repository.CommentRepository;
+import spring.bbs.comment.repository.dto.CommentResponse;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -49,7 +51,7 @@ class CommentRepositoryTest extends IntegrationTestConfig {
         @Test
         void successWithNoReplyComments() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            Member member = createMember("member");
 
             Post post = createPost(member);
 
@@ -58,19 +60,19 @@ class CommentRepositoryTest extends IntegrationTestConfig {
             createComment(post, member, "RightPageComment3");
 
             //when
-            List<Comment> result = commentRepository.findAllByPost(post);
+            List<CommentResponse> result = commentRepository.findAllByPost(post.getId());
 
             //then
             assertThat(result).hasSize(3)
-                .extracting("content")
+                .extracting("content", "authorName")
                 .containsExactly(
-                    "RightPageComment1",
-                    "RightPageComment2",
-                    "RightPageComment3"
+                    Tuple.tuple("RightPageComment1", "member"),
+                    Tuple.tuple("RightPageComment2", "member"),
+                    Tuple.tuple("RightPageComment3", "member")
                 );
         }
 
-        @DisplayName("답글 있는 댓글이 있는 게시글의 댓글 목록을 반환한다.")
+        @DisplayName("답글 있는 댓글이 있는 게시글의 답글이 아닌 댓글 목록을 반환한다.")
         @Test
         void successWithReplyComments() {
             //given
@@ -80,13 +82,10 @@ class CommentRepositoryTest extends IntegrationTestConfig {
 
             Comment grandParentComment1 = createComment(post, member, "GrandParentComment1");
             Comment parentComment1 = createReplyComment(post, member, "ParentComment1", grandParentComment1);
-            Comment parentComment2 = createReplyComment(post, member, "ParentComment2", grandParentComment1);
-            Comment comment1 = createReplyComment(post, member, "Comment1", parentComment1);
-            Comment comment2 = createReplyComment(post, member, "Comment2", parentComment1);
             Comment grandParentComment2 = createComment(post, member, "GrandParentComment2");
 
             //when
-            List<Comment> result = commentRepository.findAllByPost(post);
+            List<CommentResponse> result = commentRepository.findAllByPost(post.getId());
 
             //then
             assertThat(result).hasSize(2)
@@ -95,21 +94,33 @@ class CommentRepositoryTest extends IntegrationTestConfig {
                     "GrandParentComment1",
                     "GrandParentComment2"
                 );
+        }
+    }
 
-            Comment grandParentComment = result.get(0);
-            assertThat(grandParentComment.getChildren()).hasSize(2)
+    @DisplayName("부모 댓글 번호를 줄 때 ")
+    @Nested
+    class FindAllByParent {
+        @DisplayName("해당 댓글 번호를 부모 댓글로 가지는 모든 댓글을 조회한다.")
+        @Test
+        void successReturnCommentsWithSpecificParentCommentId() {
+            //given
+            Member member = createMember(MEMBER_NAME);
+
+            Post post = createPost(member);
+
+            Comment grandParentComment1 = createComment(post, member, "GrandParentComment1");
+            Comment parentComment1 = createReplyComment(post, member, "ParentComment1", grandParentComment1);
+            Comment parentComment2 = createReplyComment(post, member, "ParentComment2", grandParentComment1);
+
+            //when
+            List<CommentResponse> result = commentRepository.findAllByParent(grandParentComment1);
+
+            //then
+            assertThat(result).hasSize(2)
                 .extracting("content")
                 .containsExactly(
                     "ParentComment1",
                     "ParentComment2"
-                );
-
-            List<Comment> children = grandParentComment.getChildren().get(0).getChildren();
-            assertThat(children).hasSize(2)
-                .extracting("content")
-                .containsExactly(
-                    "Comment1",
-                    "Comment2"
                 );
         }
     }

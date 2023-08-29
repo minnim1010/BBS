@@ -12,7 +12,7 @@ public class MemberResponse {
     private String name;
 
     @Builder
-    private MemberResponse(Long id, String name) {
+    public MemberResponse(Long id, String name) {
         this.id = id;
         this.name = name;
     }

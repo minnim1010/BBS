@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class CommentResponse {
-    private long id;
+    private Long id;
     private String content;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
@@ -42,6 +42,17 @@ public class CommentResponse {
             .author(MemberResponse.of(comment.getAuthor()))
             .parentCommentId(comment.getParent() == null ?
                 null : comment.getParent().getId())
+            .build();
+    }
+
+    public static CommentResponse of(spring.bbs.comment.repository.dto.CommentResponse commentResponse) {
+        return CommentResponse.builder()
+            .id(commentResponse.id())
+            .content(commentResponse.content())
+            .createdTime(commentResponse.createdTime())
+            .modifiedTime(commentResponse.lastModifiedTime())
+            .author(new MemberResponse(commentResponse.authorId(), commentResponse.authorName()))
+            .parentCommentId(commentResponse.parentCommentId())
             .build();
     }
 }

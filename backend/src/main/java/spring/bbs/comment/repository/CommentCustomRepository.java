@@ -1,10 +1,12 @@
 package spring.bbs.comment.repository;
 
 import spring.bbs.comment.domain.Comment;
-import spring.bbs.post.domain.Post;
+import spring.bbs.comment.repository.dto.CommentResponse;
 
 import java.util.List;
 
 public interface CommentCustomRepository {
-    List<Comment> findAllByPost(Post post);
+    List<CommentResponse> findAllByPost(Long postId);
+
+    List<CommentResponse> findAllByParent(Comment parent);
 }

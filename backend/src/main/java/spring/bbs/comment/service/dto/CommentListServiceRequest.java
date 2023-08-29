@@ -8,13 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentListServiceRequest {
     private Long postId;
-    private int page;
-    private String searchKeyword;
+    private Long parentCommentId;
 
     @Builder
-    private CommentListServiceRequest(int page, String searchKeyword, long postId) {
-        this.page = page;
-        this.searchKeyword = searchKeyword;
+    private CommentListServiceRequest(Long postId, Long parentCommentId) {
         this.postId = postId;
+        this.parentCommentId = parentCommentId;
     }
 }

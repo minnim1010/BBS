@@ -51,6 +51,31 @@ public class CommentServiceTest extends IntegrationTestConfig {
     }
 
     @Nested
+    @DisplayName("댓글의 답글을 요청할 때 ")
+    class GetCommentsByParent {
+        @DisplayName("해당 댓글의 답글 목록을 반환한다.")
+        @Test
+        void test() {
+            //given
+            Member member = createMember(MEMBER_NAME);
+
+            Post post = createPost(member, "title");
+
+            Comment grandParentComment1 = createComment("GrandParentComment1", member, post, null);
+            Comment parentComment1 = createComment("parentComment1", member, post, grandParentComment1);
+            Comment parentComment2 = createComment("parentComment2", member, post, grandParentComment1);
+
+            //when
+            List<CommentResponse> replies = commentService.getCommentsByParent(grandParentComment1.getId());
+
+            //then
+            assertThat(replies).hasSize(2)
+                .extracting("content")
+                .contains("parentComment1", "parentComment2");
+        }
+    }
+
+    @Nested
     @DisplayName("특정 게시글의 댓글 목록을 요청할 때 ")
     class GetCommentsByPost {
         @DisplayName("댓글 목록을 반환한다.")
@@ -73,22 +98,12 @@ public class CommentServiceTest extends IntegrationTestConfig {
                 .build();
 
             //when
-            List<Comment> response = commentService.getCommentsByPost(request);
+            List<CommentResponse> response = commentService.getCommentsByPost(request);
 
             //then
             assertThat(response).hasSize(2)
                 .extracting("content")
                 .containsExactly("grandParentComment1", "grandParentComment2");
-
-            List<Comment> parent = response.get(0).getChildren();
-            assertThat(parent).hasSize(2)
-                .extracting("content")
-                .containsExactly("parentComment1", "parentComment2");
-
-            List<Comment> children = parent.get(0).getChildren();
-            assertThat(children).hasSize(2)
-                .extracting("content")
-                .containsExactly("childComment1", "childComment2");
         }
     }
 

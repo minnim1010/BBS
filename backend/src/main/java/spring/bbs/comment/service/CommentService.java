@@ -19,6 +19,7 @@ import spring.bbs.post.domain.Post;
 import spring.bbs.post.repository.PostRepositoryHandler;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,9 +31,23 @@ public class CommentService {
     private final PostRepositoryHandler postRepositoryHandler;
     private final CommentRepository commentRepository;
 
-    public List<Comment> getCommentsByPost(CommentListServiceRequest req) {
-        Post post = postRepositoryHandler.findById(req.getPostId());
-        return commentRepository.findAllByPost(post);
+    public List<CommentResponse> getCommentsByParent(Long parentCommentId) {
+        Comment parentComment = commentRepository.findById(parentCommentId)
+            .orElseThrow(() -> new DataNotFoundException("답글을 달 댓글이 존재하지 않습니다."));
+
+        List<spring.bbs.comment.repository.dto.CommentResponse> comments = commentRepository.findAllByParent(parentComment);
+
+        return comments.stream()
+            .map(CommentResponse::of)
+            .collect(Collectors.toList());
+    }
+
+    public List<CommentResponse> getCommentsByPost(CommentListServiceRequest req) {
+        List<spring.bbs.comment.repository.dto.CommentResponse> comments = commentRepository.findAllByPost(req.getPostId());
+
+        return comments.stream()
+            .map(CommentResponse::of)
+            .collect(Collectors.toList());
     }
 
     @Transactional
@@ -71,15 +86,15 @@ public class CommentService {
         return CommentResponse.of(updatedComment);
     }
 
+    private Comment findById(long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+            () -> new DataNotFoundException("댓글이 존재하지 않습니다."));
+    }
+
     private void validAuthor(String authorName, String curMemberName) {
         if (!authorName.equals(curMemberName)) {
             throw new AccessDeniedException("작성자여야 합니다.");
         }
-    }
-
-    private Comment findById(long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(
-            () -> new DataNotFoundException("댓글이 존재하지 않습니다."));
     }
 
     @Transactional

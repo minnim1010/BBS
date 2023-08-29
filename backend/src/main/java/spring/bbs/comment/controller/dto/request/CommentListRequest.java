@@ -1,6 +1,5 @@
 package spring.bbs.comment.controller.dto.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,21 +14,17 @@ import spring.bbs.comment.service.dto.CommentListServiceRequest;
 public class CommentListRequest {
     @NotBlank
     private Long postId;
-    @Min(1)
-    private int page;
-    private String searchKeyword;
+    private Long parentCommentId;
 
-    public CommentListRequest(int page, String keyword, long postId) {
-        this.page = page;
-        searchKeyword = keyword;
+    public CommentListRequest(Long postId, Long parentCommentId) {
         this.postId = postId;
+        this.parentCommentId = parentCommentId;
     }
 
     public CommentListServiceRequest toServiceRequest() {
         return CommentListServiceRequest.builder()
-            .page(page)
-            .searchKeyword(searchKeyword)
             .postId(postId)
+            .parentCommentId(parentCommentId)
             .build();
     }
 }

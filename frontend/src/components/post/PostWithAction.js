@@ -44,31 +44,6 @@ function PostWithAction(props) {
       </Form.Item>
       <Button onClick={action}>확인</Button>
     </Form>
-
-    // <div>
-    //   <select name="category" id="category-select" onChange={changeCategory}>
-    //     <option value="string">string</option>
-    //     <option value="Java">Java</option>
-    //     <option value="Spring">Spring</option>
-    //   </select>
-    // </div>
-    // <div>
-    //   <input
-    //     type="text"
-    //     placeholder="제목"
-    //     value={state.title}
-    //     onChange={changeTitle}
-    //   ></input>
-    // </div>
-    // <div>
-    //   <textarea
-    //     type="text"
-    //     placeholder="내용"
-    //     value={state.content}
-    //     onChange={changeContent}
-    //   ></textarea>
-    // </div>
-    // <button onClick={action}>확인</button>
   );
 }
 
