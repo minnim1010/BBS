@@ -19,6 +19,7 @@ import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.auth.service.AuthService;
 import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -37,6 +38,8 @@ public class AuthServiceTest extends IntegrationTestConfig {
     private AuthService authService;
     @Autowired
     private JwtProvider jwtProvider;
+    @Autowired
+    private JwtResolver jwtResolver;
     @Autowired
     private TokenRepository tokenRepository;
     @Autowired
@@ -80,8 +83,8 @@ public class AuthServiceTest extends IntegrationTestConfig {
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
             assertThat(jwtProvider.isValidToken(refreshToken)).isTrue();
 
-            assertThat(jwtProvider.getName(accessToken)).isEqualTo(req.getName());
-            assertThat(jwtProvider.getName(refreshToken)).isEqualTo(req.getName());
+            assertThat(jwtResolver.getName(accessToken)).isEqualTo(req.getName());
+            assertThat(jwtResolver.getName(refreshToken)).isEqualTo(req.getName());
 
             assertThat(tokenRepository.exists(new RefreshToken(req.getName()))).isTrue();
         }
@@ -147,7 +150,7 @@ public class AuthServiceTest extends IntegrationTestConfig {
             Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
             String refreshToken = jwtProvider.createToken(member, expiredTime);
 
-            long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
+            long timeout = jwtResolver.getExpirationTime(refreshToken) - System.currentTimeMillis();
             tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
 
             CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
@@ -160,7 +163,7 @@ public class AuthServiceTest extends IntegrationTestConfig {
 
             assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isTrue();
             assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
-            assertThat(jwtProvider.getName(accessToken)).isEqualTo(member.getName());
+            assertThat(jwtResolver.getName(accessToken)).isEqualTo(member.getName());
         }
 
         @DisplayName("refresh token이 유효하지 않다면 새 토큰을 발급하지 않는다.")
@@ -179,7 +182,7 @@ public class AuthServiceTest extends IntegrationTestConfig {
             Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
             String refreshToken = jwtProvider.createToken(member, expiredTime);
 
-            long timeout = jwtProvider.getExpirationTime(refreshToken) - System.currentTimeMillis();
+            long timeout = jwtResolver.getExpirationTime(refreshToken) - System.currentTimeMillis();
             tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
 
             CreateAccessTokenRequest req = new CreateAccessTokenRequest("invalidRefreshToken");

@@ -11,8 +11,4 @@ public class AccessTokenResponse {
     public AccessTokenResponse(String token) {
         this.token = token;
     }
-
-    public String getToken() {
-        return token;
-    }
 }

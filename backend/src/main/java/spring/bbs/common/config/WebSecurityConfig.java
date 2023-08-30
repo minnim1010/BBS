@@ -31,6 +31,7 @@ import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.jwt.JwtAuthenticationFilter;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.common.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import spring.bbs.common.oauth.OAuth2SuccessHandler;
 import spring.bbs.common.oauth.OAuth2UserService;
@@ -46,6 +47,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 public class WebSecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final JwtResolver jwtResolver;
     private final OAuth2UserService oAuth2UserService;
     private final JwtProperties jwtProperties;
     private final TokenRepository tokenRepository;
@@ -152,6 +154,7 @@ public class WebSecurityConfig {
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler() {
         return new OAuth2SuccessHandler(jwtProvider,
+            jwtResolver,
             jwtProperties,
             tokenRepository,
             oAuth2AuthorizationRequestBasedOnCookieRepository(),
@@ -160,7 +163,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider);
+        return new JwtAuthenticationFilter(jwtProvider, jwtResolver);
     }
 
     @Bean

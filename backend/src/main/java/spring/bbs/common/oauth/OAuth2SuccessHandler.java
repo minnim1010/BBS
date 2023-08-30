@@ -12,6 +12,7 @@ import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.common.util.CookieUtil;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
@@ -27,7 +28,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public static final String REDIRECT_PATH = "/home";
 
     private final JwtProvider jwtProvider;
+    private final JwtResolver jwtResolver;
     private final JwtProperties jwtProperties;
+
     private final TokenRepository tokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
     private final MemberRepositoryHandler memberUtil;
@@ -39,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String refreshToken = jwtProvider.createToken(
             member, jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now()));
-        tokenRepository.save(new RefreshToken(member.getName(), refreshToken), jwtProvider.getExpirationTime(refreshToken));
+        tokenRepository.save(new RefreshToken(member.getName(), refreshToken), jwtResolver.getExpirationTime(refreshToken));
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = jwtProvider.createToken(

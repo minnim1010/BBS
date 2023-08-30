@@ -17,6 +17,7 @@ import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.common.jwt.JwtProvider;
+import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 
@@ -30,6 +31,8 @@ import java.util.Date;
 public class AuthService {
 
     private final JwtProvider jwtProvider;
+    private final JwtResolver jwtResolver;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
@@ -61,7 +64,7 @@ public class AuthService {
     public AccessTokenResponse createNewAccessToken(CreateAccessTokenRequest req) {
         String refreshToken = req.getRefreshToken();
         verify(refreshToken);
-        String memberName = jwtProvider.getName(refreshToken);
+        String memberName = jwtResolver.getName(refreshToken);
         checkRefreshTokenExists(memberName);
 
         Member member = findByName(memberName);
@@ -78,8 +81,8 @@ public class AuthService {
 
     @Transactional
     public void logout(String token) {
-        long expiration = jwtProvider.getExpirationTime(token);
-        String memberName = jwtProvider.getName(token);
+        long expiration = jwtResolver.getExpirationTime(token);
+        String memberName = jwtResolver.getName(token);
         long timeout = expiration - System.currentTimeMillis();
         tokenRepository.save(new AccessToken(memberName, token), timeout);
 

@@ -20,6 +20,7 @@ public class AuthorizationTest extends IntegrationTestConfig {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private JwtProvider jwtProvider;
 
