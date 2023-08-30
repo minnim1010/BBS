@@ -2,10 +2,10 @@ package spring.bbs.post.controller.dto.request;
 
 import lombok.*;
 
-@Getter
-@NoArgsConstructor
 @ToString
 @Setter
+@Getter
+@NoArgsConstructor
 public class PostListRequest {
     private int page;
     private String category = "string";
@@ -13,10 +13,10 @@ public class PostListRequest {
     private String searchKeyword;
 
     @Builder
-    private PostListRequest(int page, String category, String scope, String keyword) {
-        page = page;
-        category = category;
-        searchScope = scope;
-        searchKeyword = keyword;
+    public PostListRequest(int page, String category, String searchScope, String searchKeyword) {
+        this.page = page;
+        this.category = category;
+        this.searchScope = searchScope;
+        this.searchKeyword = searchKeyword;
     }
 }

@@ -14,7 +14,6 @@ import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
-import spring.bbs.post.controller.dto.SearchScope;
 import spring.bbs.post.controller.dto.request.PostListRequest;
 import spring.bbs.post.controller.dto.response.PostListResponse;
 import spring.bbs.post.controller.dto.response.PostResponse;
@@ -46,7 +45,7 @@ public class PostService {
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
         int page = getValidPage(req.getPage());
-        
+
         Page<Post> postList = findPostList(req.getSearchScope(), req.getSearchKeyword(), page);
 
         return postList.map(PostListResponse::of);
@@ -65,13 +64,15 @@ public class PostService {
 
         if (StringUtils.hasText(keyword)) {
             validateSearchScope(scope);
+
             return postRepository.findAllBySearchKeywordAndScope(scope, keyword, pageable);
         }
+
         return postRepository.findAll(pageable);
     }
 
-    private void validateSearchScope(String scope) {
-        if (!SearchScope.contains(scope)) {
+    private void validateSearchScope(String searchScope) {
+        if (!SearchScope.contains(searchScope)) {
             throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
         }
     }

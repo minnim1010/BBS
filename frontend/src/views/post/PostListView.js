@@ -35,14 +35,14 @@ function PostListView() {
         .then(response => {
           model.posts = response.content;
           const { content, ...pageData } = response;
-          model.page = pageData;
+          model.page = pageData
+          console.log(pageData)
           model.loading = false;
         })
   };
 
   useEffect(() => {
     void getPostList(params, null);
-    console.log(state.page);
   }, [params.page]);
 
   const columns = [

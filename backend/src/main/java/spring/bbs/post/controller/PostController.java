@@ -14,6 +14,8 @@ import spring.bbs.post.controller.dto.response.PostListResponse;
 import spring.bbs.post.controller.dto.response.PostResponse;
 import spring.bbs.post.service.PostService;
 import spring.bbs.post.service.dto.PostDeleteServiceRequest;
+import spring.bbs.post.service.dto.PostServiceRequest;
+import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,9 +33,7 @@ public class PostController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<PostListResponse> getPostList(@ModelAttribute @Valid PostListRequest req) {
-        log.info(req.toString());
-        
+    public Page<PostListResponse> getPostList(@ModelAttribute PostListRequest req) {
         return postService.getPostList(req);
     }
 
@@ -41,14 +41,18 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse createPost(@RequestBody @Valid PostRequest req,
                                    @AuthenticationPrincipal Member currentMember) {
-        return postService.createPost(req.toServiceRequest(currentMember.getName()));
+        PostServiceRequest serviceRequest = req.toServiceRequest(currentMember.getName());
+
+        return postService.createPost(serviceRequest);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deletePost(@PathVariable("id") long postId,
                            @AuthenticationPrincipal Member currentMember) {
-        postService.deletePost(PostDeleteServiceRequest.of(postId, currentMember.getName()));
+        PostDeleteServiceRequest serviceRequest = PostDeleteServiceRequest.of(postId, currentMember.getName());
+
+        postService.deletePost(serviceRequest);
     }
 
     @PatchMapping("/{id}")
@@ -56,7 +60,9 @@ public class PostController {
     public PostResponse modifyPost(@PathVariable("id") long postId,
                                    @RequestBody @Valid PostRequest req,
                                    @AuthenticationPrincipal Member currentMember) {
-        return postService.updatePost(req.toServiceRequest(currentMember.getName(), postId));
+        PostUpdateServiceRequest serviceRequest = req.toServiceRequest(currentMember.getName(), postId);
+
+        return postService.updatePost(serviceRequest);
     }
 }
 

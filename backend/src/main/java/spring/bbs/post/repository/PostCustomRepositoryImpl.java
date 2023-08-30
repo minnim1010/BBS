@@ -34,7 +34,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             .limit(pageable.getPageSize())
             .fetch();
 
-        return new PageImpl<>(postList, pageable, count());
+        return new PageImpl<>(postList, pageable, count(null));
     }
 
     @Override
@@ -47,30 +47,33 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             .where(searchExpression)
             .orderBy(getOrderSpecifier(
                 pageable.getSort(), new PathBuilder(Post.class, "post")))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
 
-        return new PageImpl<>(postList, pageable, count());
+        return new PageImpl<>(postList, pageable, count(searchExpression));
     }
 
-    private BooleanExpression getSearchScopeAndKeyWordExpression(String scope, String keyword) {
+    private BooleanExpression getSearchScopeAndKeyWordExpression(String searchScope, String searchKeyword) {
         BooleanExpression searchExpression;
-        if ("제목".equals(scope)) {
-            searchExpression = p.title.containsIgnoreCase(keyword);
-        } else if ("전체".equals(scope)) {
-            searchExpression = p.title.containsIgnoreCase(keyword)
-                .or(p.content.containsIgnoreCase(keyword));
-        } else if ("작성자".equals(scope)) {
-            searchExpression = p.author.name.eq(keyword);
+        if ("제목".equals(searchScope)) {
+            searchExpression = p.title.containsIgnoreCase(searchKeyword);
+        } else if ("전체".equals(searchScope)) {
+            searchExpression = p.title.containsIgnoreCase(searchKeyword)
+                .or(p.content.containsIgnoreCase(searchKeyword));
+        } else if ("작성자".equals(searchScope)) {
+            searchExpression = p.author.name.eq(searchKeyword);
         } else {
             throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
         }
         return searchExpression;
     }
 
-    private Long count() {
+    private Long count(BooleanExpression expression) {
         return queryFactory
             .select(p.count())
             .from(p)
+            .where(expression)
             .fetchOne();
     }
 }

@@ -89,9 +89,9 @@ public class PostServiceTest extends IntegrationTestConfig {
             //given
             Member member = createMember(MEMBER_NAME);
 
-            Post post1 = createPost(member, "title1");
-            Post post2 = createPost(member, "title2");
-            Post post3 = createPost(member, "title3");
+            createPost(member, "title1");
+            createPost(member, "title2");
+            createPost(member, "title3");
 
             PostListRequest request = PostListRequest.builder()
                 .page(1)
@@ -120,14 +120,14 @@ public class PostServiceTest extends IntegrationTestConfig {
                 //given
                 Member member = createMember(MEMBER_NAME);
 
-                Post post1 = createPost(member, "search1");
-                Post post2 = createPost(member, "title2");
-                Post post3 = createPost(member, "search3");
+                createPost(member, "title2");
+                createPost(member, "search1");
+                createPost(member, "search3");
 
                 PostListRequest request = PostListRequest.builder()
                     .page(1)
-                    .scope("제목")
-                    .keyword("search")
+                    .searchScope("제목")
+                    .searchKeyword("search")
                     .category(CATEGORY_NAME)
                     .build();
 
@@ -149,14 +149,14 @@ public class PostServiceTest extends IntegrationTestConfig {
                 //given
                 Member member = createMember(MEMBER_NAME);
 
-                Post post1 = createPost(member, "search1");
-                Post post2 = createPost(member, "title2");
-                Post post3 = createPost(member, "search3");
+                createPost(member, "search1");
+                createPost(member, "title2");
+                createPost(member, "search3");
 
                 PostListRequest request = PostListRequest.builder()
                     .page(1)
-                    .scope("invalidScope")
-                    .keyword("search")
+                    .searchScope("invalidScope")
+                    .searchKeyword("search")
                     .category(CATEGORY_NAME)
                     .build();
 
@@ -174,7 +174,7 @@ public class PostServiceTest extends IntegrationTestConfig {
         @Test
         void returnNewPost() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            createMember(MEMBER_NAME);
 
             String title = "title";
             String content = "content";
@@ -224,7 +224,7 @@ public class PostServiceTest extends IntegrationTestConfig {
         @Test
         void failWithInvalidCategory() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            createMember(MEMBER_NAME);
 
             String title = "title";
             String content = "content";
@@ -298,7 +298,7 @@ public class PostServiceTest extends IntegrationTestConfig {
         @Test
         void failWithNonExistedPost() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            createMember(MEMBER_NAME);
 
             PostUpdateServiceRequest request = PostUpdateServiceRequest.builder()
                 .id(1L)
@@ -360,7 +360,7 @@ public class PostServiceTest extends IntegrationTestConfig {
         @Test
         void failWithNonExistedPost() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            createMember(MEMBER_NAME);
 
             PostDeleteServiceRequest request = PostDeleteServiceRequest.builder()
                 .id(1L)

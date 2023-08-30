@@ -1,9 +1,9 @@
-package spring.bbs.post.controller.dto;
+package spring.bbs.post.service;
 
 import java.util.Arrays;
 
 public enum SearchScope {
-    TITLE_AND_CONTENT("제목+내용"),
+    TITLE_AND_CONTENT("전체"),
     TITLE("제목"),
     AUTHOR("작성자");
 

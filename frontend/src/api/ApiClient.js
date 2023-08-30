@@ -50,7 +50,6 @@ class ApiClient {
             throw error;
         }
     }
-
 }
 
 export default ApiClient;
