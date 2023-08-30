@@ -95,7 +95,7 @@ public class JwtProvider implements InitializingBean {
     }
 
     public boolean isLogoutAccessToken(String token) {
-        return tokenRepository.exists(new AccessToken(getName(token)));
+        return tokenRepository.exists(new AccessToken(getName(token), token));
     }
 
     private Claims getClaims(String token) {

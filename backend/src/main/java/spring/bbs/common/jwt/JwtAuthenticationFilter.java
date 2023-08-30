@@ -28,6 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = resolveToken(request);
         String requestUri = request.getRequestURI();
 
+        if (StringUtils.hasText(jwt)) {
+            log.info("{} {}", jwtProvider.isValidToken(jwt), !jwtProvider.isLogoutAccessToken(jwt));
+        }
+
         if (StringUtils.hasText(jwt) &&
             jwtProvider.isValidToken(jwt) &&
             !jwtProvider.isLogoutAccessToken(jwt)) {

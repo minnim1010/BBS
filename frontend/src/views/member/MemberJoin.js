@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { API } from "../../config/url";
 import { proxy, useSnapshot } from "valtio";
 import MemberJoinModel from "../../entity/viewmodel/member/MemberJoinModel";
 import { Button, Form, Input } from "antd";
+import ApiClient from "../../api/ApiClient";
+import {API} from "../../api/url";
 
 function MemberJoin() {
   const model = useRef(proxy(new MemberJoinModel())).current;
@@ -13,21 +13,19 @@ function MemberJoin() {
 
   const navigate = useNavigate();
 
-  const join = async () => {
+  const join = () => {
+
     if (!state.checkSamePassword()) {
       alert("비밀번호가 서로 다릅니다.");
       return;
     }
-    const data = state;
-    await axios
-      .post(`${API.MEMBER}`, data)
-      .then((res) => {
-        alert(`${state.name}님, 회원가입이 완료되었습니다.`);
-        navigate("/login");
-      })
-      .catch((err) => {
-        console.log("error occured");
-      });
+
+    new ApiClient()
+        .post(API.MEMBER, state, null)
+        .then(response => {
+          alert(`${response.name}님, 회원가입이 완료되었습니다.`);
+          navigate("/login");
+        })
   };
 
   const changeName = (event) => {
@@ -132,33 +130,6 @@ function MemberJoin() {
         <Button onClick={join}>회원가입</Button>
       </Form>
     </div>
-    // <div>
-    //   <div>
-    //     <span>아이디</span>
-    //     <input type="text" value={state.name} onChange={changeName} />
-    //   </div>
-    //   <div>
-    //     <span>비밀번호</span>
-    //     <input
-    //       type="password"
-    //       value={state.password}
-    //       onChange={changePassword}
-    //     />
-    //   </div>
-    //   <div>
-    //     <span>비밀번호 확인</span>
-    //     <input
-    //       type="password"
-    //       value={state.checkPassword}
-    //       onChange={changeCheckPassword}
-    //     />
-    //   </div>
-    //   <div>
-    //     <span>이메일</span>
-    //     <input type="text" value={state.email} onChange={changeEmail} />
-    //   </div>
-    //   <button onClick={join}>회원 가입</button>
-    // </div>
   );
 }
 

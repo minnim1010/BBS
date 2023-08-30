@@ -1,12 +1,12 @@
-import React, { useContext, useRef } from "react";
-import { Button, Form, Input } from "antd";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
-import { API } from "../../config/url";
-import { proxy, useSnapshot } from "valtio";
+import React, {useContext, useRef} from "react";
+import {Button, Form, Input} from "antd";
+import {useNavigate} from "react-router-dom";
+
+import {AuthContext} from "../../context/AuthProvider";
+import {HttpHeaderTokenContext} from "../../context/HttpHeaderTokenProvider";
+import {proxy, useSnapshot} from "valtio";
 import MemberLoginModel from "../../entity/viewmodel/member/MemberLoginModel";
+import ApiClient from "../../api/ApiClient";
 
 function MemberLogin() {
   const { setAuth } = useContext(AuthContext);
@@ -25,24 +25,20 @@ function MemberLogin() {
 
   const navigate = useNavigate();
 
-  const login = async () => {
-    const params = state;
-    await axios
-      .post(`${API.LOGIN}`, params)
-      .then((res) => {
-        localStorage.setItem("username", state.name);
-        localStorage.setItem("access_token", res.data.accessToken);
-        localStorage.setItem("refresh_token", res.data.refreshToken);
-        setAuth(state.name);
-        setHeaders({ Authorization: `Bearer ${res.data.accessToken}` });
+  const login = () => {
+      new ApiClient()
+          .post("/login", state, null)
+          .then(response => {
+              localStorage.setItem("username", state.name);
+              localStorage.setItem("access_token", response.accessToken);
+              localStorage.setItem("refresh_token", response.refreshToken);
 
-        alert("로그인되었습니다.");
-        navigate(-1);
-      })
-      .catch((err) => {
-        console.log("error occured");
-        console.log(err);
-      });
+              setAuth(state.name);
+              setHeaders({ Authorization: `Bearer ${response.accessToken}` });
+
+              alert(`안녕하세요, ${state.name}님!`);
+              navigate(-1);
+          })
   };
 
   return (

@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Loading from "../../components/basic/Loading";
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import PostDetail from "../../components/post/PostDetail";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
 import CommentView from "../comment/CommentView";
+import ApiClient from "../../api/ApiClient";
 
 function PostDetailView() {
   const { postId } = useParams();
@@ -20,33 +20,26 @@ function PostDetailView() {
 
   const navigate = useNavigate();
 
-  const getPost = async () => {
-    const url = `http://localhost:8081/api/v1/posts/${postId}`;
-    await axios
-      .get(url)
-      .then((res) => {
-        setPost(res.data);
-        setAfterLoad(true);
-      })
-      .catch((err) => {
-        console.log("error occured");
-      });
+  const getPost = (postId, params, headers) => {
+      new ApiClient()
+          .get(`${API.POST}/${postId}`, params, headers)
+          .then(response => {
+              setPost(response)
+              setAfterLoad(true)
+          })
   };
 
-  const deletePost = async (postId, headers) => {
-    await axios
-      .delete(`${API.POST}/${postId}`, { headers })
-      .then((res) => {
-        alert("게시글이 삭제되었습니다.");
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log("error occured");
-      });
+  const deletePost = (postId, headers) => {
+      new ApiClient()
+          .delete(`${API.POST}/${postId}`, headers)
+          .then(() => {
+              alert("게시글이 삭제되었습니다.");
+              navigate("/");
+          })
   };
 
   useEffect(() => {
-    void getPost();
+    getPost(postId, null, headers);
   }, []);
 
   return (

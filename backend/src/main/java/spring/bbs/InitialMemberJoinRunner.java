@@ -28,20 +28,22 @@ public class InitialMemberJoinRunner implements CommandLineRunner {
         JoinResponse member = memberService.createMember(joinRequest);
         log.debug("joined member: {}", member);
 
-        for (int i = 1; i <= 10; i++) {
+        int postNum = 15;
+        for (int i = 1; i <= postNum; i++) {
             postService.createPost(
-                new PostRequest("title" + i, "content!", "string")
+                new PostRequest("title" + i, "content" + i, "string")
                     .toServiceRequest(member.getName()));
         }
-        log.debug("created 10 Posts");
+        log.debug("created {} Posts", postNum);
 
-        for (int i = 1; i <= 30; i++) {
+        int commentNum = 10;
+        for (int i = 1; i <= commentNum; i++) {
             commentService.createComment(
-                new CommentCreateRequest("comment-content-" + i, 10L, null)
+                new CommentCreateRequest("comment-content-" + i, 15L, null)
                     .toServiceRequest(member.getName())
             );
         }
-        log.debug("created 30 Comments");
+        log.debug("created {} Comments", commentNum);
     }
 }
 

@@ -2,6 +2,7 @@ package spring.bbs.post.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,9 +15,10 @@ import spring.bbs.post.controller.dto.response.PostResponse;
 import spring.bbs.post.service.PostService;
 import spring.bbs.post.service.dto.PostDeleteServiceRequest;
 
-@RestController
-@RequestMapping("/api/v1/posts")
+@Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/posts")
+@RestController
 public class PostController {
 
     private final PostService postService;
@@ -29,7 +31,9 @@ public class PostController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<PostListResponse> getPostList(@Valid PostListRequest req) {
+    public Page<PostListResponse> getPostList(@ModelAttribute @Valid PostListRequest req) {
+        log.info(req.toString());
+        
         return postService.getPostList(req);
     }
 
@@ -49,9 +53,10 @@ public class PostController {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostResponse modifyPost(@RequestBody @Valid PostRequest req,
-                                   @PathVariable("id") long postId,
+    public PostResponse modifyPost(@PathVariable("id") long postId,
+                                   @RequestBody @Valid PostRequest req,
                                    @AuthenticationPrincipal Member currentMember) {
         return postService.updatePost(req.toServiceRequest(currentMember.getName(), postId));
     }
 }
+

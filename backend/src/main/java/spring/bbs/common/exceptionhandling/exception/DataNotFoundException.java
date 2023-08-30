@@ -1,4 +1,4 @@
-package spring.bbs.common.exception;
+package spring.bbs.common.exceptionhandling.exception;
 
 public class DataNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;

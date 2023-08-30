@@ -12,7 +12,7 @@ import spring.bbs.comment.service.dto.CommentCreateServiceRequest;
 import spring.bbs.comment.service.dto.CommentDeleteServiceRequest;
 import spring.bbs.comment.service.dto.CommentListServiceRequest;
 import spring.bbs.comment.service.dto.CommentUpdateServiceRequest;
-import spring.bbs.common.exception.DataNotFoundException;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.domain.Post;

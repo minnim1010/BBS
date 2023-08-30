@@ -14,17 +14,14 @@ import spring.bbs.comment.service.dto.CommentListServiceRequest;
 public class CommentListRequest {
     @NotBlank
     private Long postId;
-    private Long parentCommentId;
 
-    public CommentListRequest(Long postId, Long parentCommentId) {
+    public CommentListRequest(Long postId) {
         this.postId = postId;
-        this.parentCommentId = parentCommentId;
     }
 
     public CommentListServiceRequest toServiceRequest() {
         return CommentListServiceRequest.builder()
             .postId(postId)
-            .parentCommentId(parentCommentId)
             .build();
     }
 }

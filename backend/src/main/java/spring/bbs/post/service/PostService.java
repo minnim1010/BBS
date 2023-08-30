@@ -46,7 +46,7 @@ public class PostService {
 
     public Page<PostListResponse> getPostList(PostListRequest req) {
         int page = getValidPage(req.getPage());
-
+        
         Page<Post> postList = findPostList(req.getSearchScope(), req.getSearchKeyword(), page);
 
         return postList.map(PostListResponse::of);

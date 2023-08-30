@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useRef } from "react";
-import axios from "axios";
 
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { useLocation, useNavigate } from "react-router-dom";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
 import Post from "../../entity/Post";
 import { proxy, useSnapshot } from "valtio";
 import PostWithAction from "../../components/post/PostWithAction";
+import ApiClient from "../../api/ApiClient";
 
 function PostUpdateView() {
   const { auth } = useContext(AuthContext);
@@ -27,20 +27,13 @@ function PostUpdateView() {
     }
   }, []);
 
-  const modifyPost = async () => {
-    const url = `${API.POST}/${prevPost.id}`;
-    const data = state;
-
-    await axios
-      .patch(url, data, { headers: headers })
-      .then((res) => {
-        alert("글이 수정되었습니다.");
-        navigate(`/${prevPost.id}`);
-      })
-      .catch((err) => {
-        console.log("error occured");
-        console.log(err);
-      });
+  const modifyPost = () => {
+    new ApiClient()
+        .patch(`${API.POST}/${prevPost.id}`, state, headers)
+        .then(() => {
+          alert("글이 수정되었습니다.");
+          navigate(`/${prevPost.id}`);
+        })
   };
 
   return <PostWithAction model={model} state={state} action={modifyPost} />;

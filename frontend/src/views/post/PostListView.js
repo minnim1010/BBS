@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 
 import Loading from "../../components/basic/Loading";
 import { proxy, useSnapshot } from "valtio";
 import PostListModel from "../../entity/viewmodel/post/PostListModel";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
 import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
+import ApiClient from "../../api/ApiClient";
 
 function PostListView() {
   const model = useRef(proxy(new PostListModel())).current;
@@ -29,18 +29,21 @@ function PostListView() {
     setParams((prevParams) => ({ ...prevParams, page }));
   };
 
-  const getPostList = async () => {
-    const { data: response } = await axios.get(`${API.POST}?`, { params });
-    model.posts = response.content;
-    const { content, ...pageData } = response;
-    model.page = pageData;
-    model.loading = false;
+  const getPostList = (params, headers) => {
+    new ApiClient()
+        .get(API.POST, params, headers)
+        .then(response => {
+          model.posts = response.content;
+          const { content, ...pageData } = response;
+          model.page = pageData;
+          model.loading = false;
+        })
   };
 
   useEffect(() => {
-    void getPostList();
+    void getPostList(params, null);
     console.log(state.page);
-  }, [params]);
+  }, [params.page]);
 
   const columns = [
     {

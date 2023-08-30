@@ -1,5 +1,4 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthProvider";
@@ -7,7 +6,8 @@ import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 
 import Search from "antd/es/input/Search";
 import { Button, Select } from "antd";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
+import ApiClient from "../../api/ApiClient";
 
 function Nav() {
   const { auth, setAuth } = useContext(AuthContext);
@@ -17,8 +17,6 @@ function Nav() {
   const [searchKeyword, setSearchKeyword] = useState("");
 
   const navigate = useNavigate();
-  const location = useLocation();
-  let currentPath = "";
 
   const searchScopeValue = [
     { value: "전체", label: "전체" },
@@ -26,22 +24,19 @@ function Nav() {
     { value: "작성자", label: "작성자" },
   ];
 
-  const logout = async (headers) => {
-    console.log(headers);
-    await axios
-      .post(`${API.LOGOUT}`, null, { headers })
-      .then((res) => {
-        localStorage.removeItem("username");
-        localStorage.removeItem("access_token");
-        setAuth(null);
-        setHeaders(null);
+  const logout = (headers) => {
+    new ApiClient()
+        .post(API.LOGOUT, null, headers)
+        .then(() => {
+          localStorage.removeItem("username");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          setAuth(null);
+          setHeaders(null);
 
-        alert("로그아웃되었습니다.");
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log("error occured");
-      });
+          alert("로그아웃되었습니다.");
+          navigate("/");
+        })
   };
 
   const onSearch = async () => {

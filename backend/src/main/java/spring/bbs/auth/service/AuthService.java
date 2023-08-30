@@ -15,7 +15,7 @@ import spring.bbs.auth.controller.dto.response.LoginResponse;
 import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
-import spring.bbs.common.exception.DataNotFoundException;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.common.jwt.JwtProvider;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
@@ -33,7 +33,6 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
-
 
     @Transactional
     public LoginResponse login(LoginRequest req) {

@@ -11,7 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import spring.IntegrationTestConfig;
 import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
-import spring.bbs.common.exception.DataNotFoundException;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.member.domain.Authority;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;

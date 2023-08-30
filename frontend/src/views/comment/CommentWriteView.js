@@ -1,12 +1,12 @@
 import React, { useContext, useRef } from "react";
-import axios from "axios";
 
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
 import { proxy, useSnapshot } from "valtio";
 import Comment from "../../entity/Comment";
 import CommentWithAction from "../../components/comment/CommentWithAction";
+import ApiClient from "../../api/ApiClient";
 
 function CommentWriteView(props) {
   const { postId, parentCommentId, refreshCommentList } = props;
@@ -17,20 +17,16 @@ function CommentWriteView(props) {
   const model = useRef(proxy(new Comment(""))).current;
   const state = useSnapshot(model);
 
-  const writeComment = async (content, headers) => {
+  const writeComment = (content, postId, parentCommentId, headers) => {
     const params = { content, postId, parentCommentId };
 
-    await axios
-      .post(`${API.COMMENT}`, params, { headers })
-      .then((res) => {
-        alert("댓글이 작성되었습니다.");
-        model.content = "";
-        refreshCommentList();
-      })
-      .catch((err) => {
-        console.log("error occured");
-        console.log(err);
-      });
+    new ApiClient()
+        .post(API.COMMENT, params, headers)
+        .then(() => {
+          alert("댓글이 작성되었습니다.");
+          model.content = "";
+          refreshCommentList();
+        })
   };
 
   return (
@@ -39,7 +35,7 @@ function CommentWriteView(props) {
         <CommentWithAction
           model={model}
           state={state}
-          action={() => writeComment(state.content, headers)}
+          action={() => writeComment(state.content, postId, parentCommentId, headers)}
         />
       ) : null}
     </div>

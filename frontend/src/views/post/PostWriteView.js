@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import Post from "../../entity/Post";
 import { proxy, useSnapshot } from "valtio";
 import PostWithAction from "../../components/post/PostWithAction";
-import axios from "axios";
-import { API } from "../../config/url";
+import ApiClient from "../../api/ApiClient";
+import {API} from "../../api/url";
 
 function PostWriteView() {
   const { auth } = useContext(AuthContext);
@@ -30,20 +30,13 @@ function PostWriteView() {
     }
   }, []);
 
-  const writePost = async () => {
-    const data = state;
-
-    await axios
-      .post(`${API.POST}`, data, { headers: headers })
-      .then((res) => {
-        alert("글이 작성되었습니다.");
-        const { data: post } = res;
-        navigate(`/${post.id}`);
-      })
-      .catch((err) => {
-        console.log("error occured");
-        console.log(err);
-      });
+  const writePost = () => {
+    new ApiClient()
+        .post(API.POST, state, headers)
+        .then((post) => {
+          alert("글이 작성되었습니다.");
+          navigate(`/${post.id}`);
+        })
   };
 
   return <PostWithAction model={model} state={state} action={writePost} />;

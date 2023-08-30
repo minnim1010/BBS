@@ -18,18 +18,28 @@ public class TokenRepository {
     private final StringRedisTemplate stringRedisTemplate;
 
     public boolean exists(Token token) {
-        String resultToken = stringRedisTemplate.opsForValue().get(token.getKey());
-        return resultToken != null;
+        String key = token.getKey();
+        String value = token.getToken();
+
+        String resultToken = stringRedisTemplate.opsForValue().get(key);
+
+        if (value == null) {
+            return resultToken != null;
+        }
+
+        return value.equals(resultToken);
     }
 
     public Token save(Token token, long timeout) {
         stringRedisTemplate.opsForValue().set(
             token.getKey(), token.getToken(), timeout, TimeUnit.MILLISECONDS);
+
         return token;
     }
 
     public void delete(Token token) {
         Boolean result = stringRedisTemplate.delete(token.getKey());
+
         if (result == null || !result) {
             log.info("{}: did not exist.", token.getKey());
         }

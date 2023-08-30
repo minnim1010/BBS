@@ -21,19 +21,13 @@ public class MemberController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public JoinResponse createMember(
-        @RequestBody @Valid
-        JoinRequest req
-    ) {
+    public JoinResponse createMember(@RequestBody @Valid JoinRequest req) {
         return memberService.createMember(req);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    public void deleteMember(
-        @AuthenticationPrincipal
-        Member member
-    ) {
+    public void deleteMember(@AuthenticationPrincipal Member member) {
         memberService.deleteMember(member.getName());
     }
 }

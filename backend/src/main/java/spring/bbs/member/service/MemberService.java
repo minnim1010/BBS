@@ -6,9 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import spring.bbs.common.exception.DataNotFoundException;
-import spring.bbs.common.exception.ExistedMemberNameException;
-import spring.bbs.common.exception.NotSamePasswordException;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
+import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
+import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.controller.dto.JoinResponse;
 import spring.bbs.member.domain.Member;
@@ -21,7 +21,7 @@ import spring.bbs.post.repository.PostRepository;
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
-    
+
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;

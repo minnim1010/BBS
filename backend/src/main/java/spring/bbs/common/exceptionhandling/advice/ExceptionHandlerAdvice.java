@@ -1,4 +1,4 @@
-package spring.bbs.common.exception;
+package spring.bbs.common.exceptionhandling.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
+import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
+import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
+import spring.bbs.common.exceptionhandling.response.ExceptionResponse;
 
 import java.util.HashMap;
 import java.util.Map;

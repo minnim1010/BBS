@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
 
 import CommentWriteView from "./CommentWriteView";
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import CommentUpdateView from "./CommentUpdateView";
-import { API } from "../../config/url";
+import { API } from "../../api/url";
 import { Button, Divider } from "antd";
+import ApiClient from "../../api/ApiClient";
 
 function CommentListElementView(prop) {
   const { index, comment, postId, refreshCommentList } = prop;
@@ -17,16 +17,13 @@ function CommentListElementView(prop) {
   const [showRecommentWrite, setShowRecommentWrite] = useState(false);
   const [isModify, setIsModify] = useState(false);
 
-  const deleteComment = async (commentId, headers) => {
-    await axios
-      .delete(`${API.COMMENT}/${commentId}`, { headers: headers })
-      .then((res) => {
-        alert("댓글이 삭제되었습니다.");
-        refreshCommentList();
-      })
-      .catch((err) => {
-        console.log("error occured");
-      });
+  const deleteComment = (commentId, headers) => {
+    new ApiClient()
+        .delete(`${API.COMMENT}/${commentId}`, headers)
+        .then(() => {
+          alert("댓글이 삭제되었습니다.");
+          refreshCommentList();
+        })
   };
 
   const showReplyWrite = () => {
