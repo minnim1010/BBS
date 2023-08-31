@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuerydslUtil {
+
+    private QuerydslUtil() {
+    }
+
     public static OrderSpecifier[] getOrderSpecifier(Sort sort, PathBuilder pathBuilder) {
         List<OrderSpecifier> orders = new ArrayList<>();
 

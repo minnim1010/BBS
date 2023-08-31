@@ -40,8 +40,8 @@ public class TokenRepositoryTest extends IntegrationTestConfig {
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
 
-            stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getToken());
-            stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getToken());
+            stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getValue());
+            stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getValue());
 
             //when
             boolean existsAccessToken = tokenRepository.exists(accessToken);
@@ -88,9 +88,9 @@ public class TokenRepositoryTest extends IntegrationTestConfig {
 
             //then
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(accessToken.getKey()))
-                .isEqualTo(accessToken.getToken());
+                .isEqualTo(accessToken.getValue());
             Assertions.assertThat(stringRedisTemplate.opsForValue().get(refreshToken.getKey()))
-                .isEqualTo(refreshToken.getToken());
+                .isEqualTo(refreshToken.getValue());
 
             sleep(timeout);
 
@@ -111,8 +111,8 @@ public class TokenRepositoryTest extends IntegrationTestConfig {
             Token accessToken = new AccessToken(MEMBER_NAME, "AccessToken");
             Token refreshToken = new RefreshToken(MEMBER_NAME, "RefreshToken");
 
-            stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getToken());
-            stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getToken());
+            stringRedisTemplate.opsForValue().set(accessToken.getKey(), accessToken.getValue());
+            stringRedisTemplate.opsForValue().set(refreshToken.getKey(), refreshToken.getValue());
 
             //when
             tokenRepository.delete(accessToken);

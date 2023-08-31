@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,7 +24,9 @@ import java.util.UUID;
 public class LoggingFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         MDC.put("traceId", UUID.randomUUID().toString());
         if (isAsyncDispatch(request)) {
             filterChain.doFilter(request, response);
@@ -50,7 +53,6 @@ public class LoggingFilter extends OncePerRequestFilter {
             queryString == null ? request.getRequestURI() : request.getRequestURI() + "?" + queryString,
             request.getContentType()
         );
-        String authorization = request.getHeader("Authorization");
 
         logPayload("Request", request.getContentType(), request.getInputStream());
     }
@@ -73,7 +75,7 @@ public class LoggingFilter extends OncePerRequestFilter {
     }
 
     private static boolean isVisible(MediaType mediaType) {
-        final List<MediaType> VISIBLE_TYPES = Arrays.asList(
+        final List<MediaType> visibleTypes = Arrays.asList(
             MediaType.valueOf("text/*"),
             MediaType.APPLICATION_FORM_URLENCODED,
             MediaType.APPLICATION_JSON,
@@ -83,7 +85,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             MediaType.MULTIPART_FORM_DATA
         );
 
-        return VISIBLE_TYPES.stream()
+        return visibleTypes.stream()
             .anyMatch(visibleType -> visibleType.includes(mediaType));
     }
 }

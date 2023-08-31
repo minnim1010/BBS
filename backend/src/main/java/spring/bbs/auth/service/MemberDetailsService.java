@@ -32,7 +32,7 @@ public class MemberDetailsService implements UserDetailsService {
 
     private User createUser(String username, Member member) {
         if (!member.isEnabled()) {
-            throw new RuntimeException(username + ": 활성화되어있지 않은 회원입니다.");
+            throw new IllegalStateException(username + ": 활성화되어있지 않은 회원입니다.");
         }
 
         List<GrantedAuthority> grantedAuthorities =

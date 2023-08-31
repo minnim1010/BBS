@@ -2,13 +2,13 @@ package spring.bbs.auth.domain;
 
 public abstract class Token {
     protected String key;
-    protected String token;
+    protected String value;
 
     public String getKey() {
         return key;
     }
 
-    public String getToken() {
-        return token;
+    public String getValue() {
+        return value;
     }
 }

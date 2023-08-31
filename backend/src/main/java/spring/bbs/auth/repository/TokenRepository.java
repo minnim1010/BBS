@@ -19,7 +19,7 @@ public class TokenRepository {
 
     public boolean exists(Token token) {
         String key = token.getKey();
-        String value = token.getToken();
+        String value = token.getValue();
 
         String resultToken = stringRedisTemplate.opsForValue().get(key);
 
@@ -32,7 +32,7 @@ public class TokenRepository {
 
     public Token save(Token token, long timeout) {
         stringRedisTemplate.opsForValue().set(
-            token.getKey(), token.getToken(), timeout, TimeUnit.MILLISECONDS);
+            token.getKey(), token.getValue(), timeout, TimeUnit.MILLISECONDS);
 
         return token;
     }

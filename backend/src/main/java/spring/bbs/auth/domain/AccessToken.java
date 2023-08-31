@@ -5,18 +5,18 @@ import org.springframework.util.Assert;
 
 @Getter
 public class AccessToken extends Token {
-    public final String ACCESS_TOKEN_KEY_PREFIX = "access:";
+    public static final String KEY_PREFIX = "access:";
 
-    public AccessToken(String key, String token) {
+    public AccessToken(String key, String value) {
         Assert.hasText(key, "key는 공백일 수 없습니다.");
 
-        this.key = ACCESS_TOKEN_KEY_PREFIX + key;
-        this.token = token;
+        this.key = KEY_PREFIX + key;
+        this.value = value;
     }
 
     public AccessToken(String key) {
         Assert.hasText(key, "key는 공백일 수 없습니다.");
 
-        this.key = ACCESS_TOKEN_KEY_PREFIX + key;
+        this.key = KEY_PREFIX + key;
     }
 }
