@@ -30,7 +30,7 @@ import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 @Transactional(readOnly = true)
 public class PostService {
 
-    private final static int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 10;
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;

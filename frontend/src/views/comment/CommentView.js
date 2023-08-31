@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
 import CommentWriteView from "./CommentWriteView";
 import { AuthContext } from "../../context/AuthProvider";
@@ -21,9 +21,9 @@ function CommentView({ postId }) {
     postId: postId,
   };
 
-  const getCommentList = (params, headers) => {
+  const getCommentList = (params) => {
       new ApiClient()
-          .get(API.COMMENT, params, headers)
+          .get(API.COMMENT, params, null)
           .then(response => {
               model.comments = response;
               model.loading = false;
@@ -47,10 +47,8 @@ function CommentView({ postId }) {
         <div className="comment-write">
           <CommentWriteView
             postId={postId}
-            commentId={null}
             parentCommentId={0}
-            refreshCommentList={refreshCommentList}
-            initialContent={""}
+            refresh={refreshCommentList}
           />
         </div>
       )}
@@ -64,6 +62,7 @@ function CommentView({ postId }) {
               comment={c}
               postId={postId}
               refreshCommentList={refreshCommentList}
+              depth={0}
             />
           );
         })

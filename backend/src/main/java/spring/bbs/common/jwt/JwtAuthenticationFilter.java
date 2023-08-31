@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -23,16 +24,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtResolver jwtResolver;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = resolveToken(request);
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        String token = resolveToken(request);
         String requestUri = request.getRequestURI();
 
-        if (StringUtils.hasText(jwt) &&
-            jwtProvider.isValidToken(jwt) &&
-            !jwtProvider.isLogoutAccessToken(jwt)) {
-            Authentication authentication = jwtResolver.getAuthentication(jwt);
+        if (validate(token)) {
+            Authentication authentication = jwtResolver.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("{}: {} stored in context: {}", jwtResolver.getAuthorities(jwt), authentication.getName(), requestUri);
+
+            log.debug("{}: {} stored in context: {}", jwtResolver.getAuthorities(token), authentication.getName(), requestUri);
         } else {
             log.debug("No valid token: {}", requestUri);
         }
@@ -42,10 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String tokenHeader = request.getHeader(AUTHORIZATION_HEADER);
+
         if (StringUtils.hasText(tokenHeader) && tokenHeader.startsWith(TOKEN_PREFIX)) {
             return tokenHeader.substring(7);
         }
-
         return null;
+    }
+
+    private boolean validate(String token) {
+        return StringUtils.hasText(token) &&
+            jwtProvider.isValidToken(token) &&
+            !jwtProvider.isLogoutAccessToken(token);
     }
 }

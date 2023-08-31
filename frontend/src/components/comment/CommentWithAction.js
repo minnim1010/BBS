@@ -14,10 +14,8 @@ function CommentWithAction(props) {
       <Form>
         <Form.Item>
           <TextArea rows={5} onChange={changeContent} value={state.content} />
+          <Button onClick={action} block>확인</Button>
         </Form.Item>
-        <div>
-          <Button onClick={action}>확인</Button>
-        </div>
       </Form>
     </div>
   );

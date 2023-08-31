@@ -30,6 +30,7 @@ public class JwtProvider implements InitializingBean {
 
     private final JwtProperties jwtProperties;
     private final JwtResolver jwtResolver;
+
     private final TokenRepository tokenRepository;
     private Key key;
 

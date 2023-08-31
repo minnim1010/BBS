@@ -16,11 +16,15 @@ public class HomeController {
     @GetMapping("/api/v1/user")
     @ResponseBody
     public void user() {
+        // TODO: 2023/08/31
+        // For checking auth and authorization
     }
 
     @GetMapping("/api/v1/admin")
     @ResponseBody
     public void admin() {
+        // TODO: 2023/08/31
+        // For checking auth and authorization
     }
 
     @GetMapping("/social-login")

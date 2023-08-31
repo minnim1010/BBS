@@ -7,6 +7,7 @@ public record CommentResponse(Long id,
                               LocalDateTime createdTime,
                               LocalDateTime lastModifiedTime,
                               Long parentCommentId,
+                              int repliesCount,
                               Long authorId,
                               String authorName) {
 }

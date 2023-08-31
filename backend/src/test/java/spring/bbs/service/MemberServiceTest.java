@@ -21,7 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class MemberServiceTest extends IntegrationTestConfig {
+class MemberServiceTest extends IntegrationTestConfig {
 
     private static final String MEMBER_NAME = "MemberTestUser";
     @Autowired
@@ -40,7 +40,7 @@ public class MemberServiceTest extends IntegrationTestConfig {
 
         @Test
         @DisplayName("회원을 생성하고 생성된 회원 정보를 반환한다.")
-        public void returnResponse() {
+        void returnResponse() {
             //given
             JoinRequest request = new JoinRequest(
                 MEMBER_NAME,
@@ -62,7 +62,7 @@ public class MemberServiceTest extends IntegrationTestConfig {
 
         @Test
         @DisplayName("두 개의 비밀번호가 같지 않다면 회원을 생성하지 않는다.")
-        public void failWithNotSamePassword() {
+        void failWithNotSamePassword() {
             //given
             JoinRequest request = new JoinRequest(
                 MEMBER_NAME,
@@ -78,7 +78,7 @@ public class MemberServiceTest extends IntegrationTestConfig {
 
         @Test
         @DisplayName("회원 이름이 이미 존재한다면 회원을 생성하지 않는다.")
-        public void failWithDuplicatedName() {
+        void failWithDuplicatedName() {
             //given
             Member member = createMember(MEMBER_NAME);
 
@@ -100,7 +100,7 @@ public class MemberServiceTest extends IntegrationTestConfig {
     class DeleteMember {
         @Test
         @DisplayName("회원을 삭제한다.")
-        public void success() {
+        void success() {
             //given
             createMember(MEMBER_NAME);
 

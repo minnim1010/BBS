@@ -15,6 +15,7 @@ public class CommentResponse {
     private String content;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
+    private int repliesCount;
     private MemberResponse author;
     private Long parentCommentId;
 
@@ -23,12 +24,14 @@ public class CommentResponse {
                             String content,
                             LocalDateTime createdTime,
                             LocalDateTime modifiedTime,
+                            int repliesCount,
                             MemberResponse author,
                             Long parentCommentId) {
         this.id = id;
         this.content = content;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
+        this.repliesCount = repliesCount;
         this.author = author;
         this.parentCommentId = parentCommentId;
     }
@@ -51,6 +54,7 @@ public class CommentResponse {
             .content(commentResponse.content())
             .createdTime(commentResponse.createdTime())
             .modifiedTime(commentResponse.lastModifiedTime())
+            .repliesCount(commentResponse.repliesCount())
             .author(new MemberResponse(commentResponse.authorId(), commentResponse.authorName()))
             .parentCommentId(commentResponse.parentCommentId())
             .build();

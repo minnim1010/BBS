@@ -64,11 +64,11 @@ class CommentRepositoryTest extends IntegrationTestConfig {
 
             //then
             assertThat(result).hasSize(3)
-                .extracting("content", "authorName")
+                .extracting("content", "repliesCount")
                 .containsExactly(
-                    Tuple.tuple("RightPageComment1", "member"),
-                    Tuple.tuple("RightPageComment2", "member"),
-                    Tuple.tuple("RightPageComment3", "member")
+                    Tuple.tuple("RightPageComment1", 0),
+                    Tuple.tuple("RightPageComment2", 0),
+                    Tuple.tuple("RightPageComment3", 0)
                 );
         }
 
@@ -81,18 +81,21 @@ class CommentRepositoryTest extends IntegrationTestConfig {
             Post post = createPost(member);
 
             Comment grandParentComment1 = createComment(post, member, "GrandParentComment1");
-            Comment parentComment1 = createReplyComment(post, member, "ParentComment1", grandParentComment1);
+            createReplyComment(post, member, "ParentComment1", grandParentComment1);
+
             Comment grandParentComment2 = createComment(post, member, "GrandParentComment2");
+            createReplyComment(post, member, "ParentComment2", grandParentComment2);
+            createReplyComment(post, member, "ParentComment3", grandParentComment2);
 
             //when
             List<CommentResponse> result = commentRepository.findAllByPost(post.getId());
 
             //then
             assertThat(result).hasSize(2)
-                .extracting("content")
+                .extracting("content", "repliesCount")
                 .containsExactly(
-                    "GrandParentComment1",
-                    "GrandParentComment2"
+                    Tuple.tuple("GrandParentComment1", 1),
+                    Tuple.tuple("GrandParentComment2", 2)
                 );
         }
     }
@@ -117,10 +120,10 @@ class CommentRepositoryTest extends IntegrationTestConfig {
 
             //then
             assertThat(result).hasSize(2)
-                .extracting("content")
+                .extracting("content", "repliesCount")
                 .containsExactly(
-                    "ParentComment1",
-                    "ParentComment2"
+                    Tuple.tuple("ParentComment1", 0),
+                    Tuple.tuple("ParentComment2", 0)
                 );
         }
     }

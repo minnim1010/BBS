@@ -1,5 +1,6 @@
 package spring.bbs.service;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -55,7 +56,7 @@ public class CommentServiceTest extends IntegrationTestConfig {
     class GetCommentsByParent {
         @DisplayName("해당 댓글의 답글 목록을 반환한다.")
         @Test
-        void test() {
+        void ReturnCommentReplies() {
             //given
             Member member = createMember(MEMBER_NAME);
 
@@ -70,8 +71,10 @@ public class CommentServiceTest extends IntegrationTestConfig {
 
             //then
             assertThat(replies).hasSize(2)
-                .extracting("content")
-                .contains("parentComment1", "parentComment2");
+                .extracting("content", "repliesCount")
+                .containsExactly(
+                    Tuple.tuple("parentComment1", 0),
+                    Tuple.tuple("parentComment2", 0));
         }
     }
 
@@ -88,9 +91,7 @@ public class CommentServiceTest extends IntegrationTestConfig {
 
             Comment grandParentComment1 = createComment("grandParentComment1", member, post, null);
             Comment parentComment1 = createComment("parentComment1", member, post, grandParentComment1);
-            Comment childComment1 = createComment("childComment1", member, post, parentComment1);
             Comment parentComment2 = createComment("parentComment2", member, post, grandParentComment1);
-            Comment childComment2 = createComment("childComment2", member, post, parentComment1);
             Comment grandParentComment2 = createComment("grandParentComment2", member, post, null);
 
             CommentListServiceRequest request = CommentListServiceRequest.builder()
@@ -102,8 +103,10 @@ public class CommentServiceTest extends IntegrationTestConfig {
 
             //then
             assertThat(response).hasSize(2)
-                .extracting("content")
-                .containsExactly("grandParentComment1", "grandParentComment2");
+                .extracting("content", "repliesCount")
+                .containsExactly(
+                    Tuple.tuple("grandParentComment1", 2),
+                    Tuple.tuple("grandParentComment2", 0));
         }
     }
 

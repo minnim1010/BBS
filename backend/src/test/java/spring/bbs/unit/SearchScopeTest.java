@@ -7,7 +7,7 @@ import spring.bbs.post.service.SearchScope;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SearchScopeTest {
+class SearchScopeTest {
 
     @DisplayName("검색 범위가 주어질 때, SearchScope에 값이 존재하는지 확인한다.")
     @CsvSource(value = {"전체:true", "제목:true", "작성자:true", "제목+내용:false"}, delimiter = ':')

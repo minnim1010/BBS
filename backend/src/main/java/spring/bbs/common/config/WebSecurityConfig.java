@@ -56,7 +56,7 @@ public class WebSecurityConfig {
     @Bean
     @Profile("local")
     public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring()
+        return web -> web.ignoring()
             .requestMatchers(toH2Console())
             .requestMatchers("/api-docs", "/swagger-ui/**");
     }
@@ -80,33 +80,28 @@ public class WebSecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .logout(AbstractHttpConfigurer::disable)
             .rememberMe(AbstractHttpConfigurer::disable)
-            .sessionManagement((session) ->
+            .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.cors((cors) -> cors
+        http.cors(cors -> cors
             .configurationSource(corsConfigurationSource()));
 
         http.addFilterBefore(
             jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.authorizeHttpRequests((request) ->
+        http.authorizeHttpRequests(request ->
             request
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/members").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
-
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
-
-                .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/comments").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/logout").hasAnyRole("USER", "ADMIN")
-
+                .requestMatchers(HttpMethod.DELETE,
+                    "/api/v1/members", "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.PATCH,
+                    "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST,
+                    "/api/v1/members", "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/user").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin").hasAnyRole("ADMIN")
                 .anyRequest().permitAll());
 
-        http.exceptionHandling((exceptionHandling) ->
+        http.exceptionHandling(exceptionHandling ->
             exceptionHandling
                 .defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),

@@ -1,5 +1,5 @@
 .basic {
-    padding: 2% 2%;
+    padding: 1rem 1rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
@@ -8,7 +8,6 @@
 .flex {
     display: flex;
 }
-
 
 .flex-vertical-center {
     display: flex;
@@ -21,38 +20,60 @@
     align-items: center;
 }
 
+.right-align {
+    display: flex;
+    justify-content: end;
+}
+
 .nav {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5%;
+    margin-bottom: 2rem;
 }
 
 .writeBtn, .joinBtn, .logoutBtn, .loginBtn {
-    margin-left: 3%;
+    padding-left: 0.5rem;
 }
 
 .noAuth, .auth {
     display: flex;
 }
 
-.comment-additional-info, .comment-content {
-    margin-bottom: 2%;
+.comment {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
-.comment-list {
-    margin-bottom: 4%;
+.comment .profile {
+    display: flex
 }
 
-.comment-write {
-    margin-bottom: 10%;
+.comment .profile .img {
+    display: flex;
+    align-items: center;
+}
+
+.comment .profile .comment-info {
+    margin-left: 1rem;
+}
+
+.comment .profile .comment-info .username {
+    font-weight: bold;
+}
+
+.comment .profile .comment-info .date {
+    margin-top: 8px;
+    color: dimgray;
+}
+
+.comment .content {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .comment-with-action {
-    margin-bottom: 10%;
-}
-
-.comment-time {
-    color: dimgray;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .post-category {
@@ -77,5 +98,5 @@
 }
 
 .post-delete-btn, .comment-delete-btn {
-    margin-left: 2%;
+    margin-left: 0.5rem;
 }

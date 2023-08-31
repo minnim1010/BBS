@@ -1,7 +1,6 @@
 package spring.bbs.post.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +12,6 @@ import spring.bbs.post.domain.Post;
 import spring.bbs.post.domain.QPost;
 
 import java.util.List;
-
-import static spring.bbs.common.util.QuerydslUtil.getOrderSpecifier;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,8 +25,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         List<Post> postList = queryFactory
             .select(p)
             .from(p)
-            .orderBy(getOrderSpecifier(
-                pageable.getSort(), new PathBuilder(Post.class, "post")))
+            .orderBy(p.createdTime.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -45,8 +41,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         List<Post> postList = queryFactory
             .selectFrom(p)
             .where(searchExpression)
-            .orderBy(getOrderSpecifier(
-                pageable.getSort(), new PathBuilder(Post.class, "post")))
+            .orderBy(p.createdTime.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();

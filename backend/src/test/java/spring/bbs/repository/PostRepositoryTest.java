@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PostRepositoryTest extends IntegrationTestConfig {
+class PostRepositoryTest extends IntegrationTestConfig {
     private static final String MEMBER_NAME = "PostTestUser";
 
     @Autowired
@@ -61,6 +61,7 @@ public class PostRepositoryTest extends IntegrationTestConfig {
         postCreator.createPost(member, "title2");
         postCreator.createPost(member, "title3");
         postCreator.createPostList(member, 10);
+
 
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, Sort.by("createdTime").descending());
 

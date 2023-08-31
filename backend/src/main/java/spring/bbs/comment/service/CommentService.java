@@ -19,7 +19,6 @@ import spring.bbs.post.domain.Post;
 import spring.bbs.post.repository.PostRepositoryHandler;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,7 +38,7 @@ public class CommentService {
 
         return comments.stream()
             .map(CommentResponse::of)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<CommentResponse> getCommentsByPost(CommentListServiceRequest req) {
@@ -47,7 +46,7 @@ public class CommentService {
 
         return comments.stream()
             .map(CommentResponse::of)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Transactional

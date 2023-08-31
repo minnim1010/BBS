@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, {useContext, useRef} from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
@@ -9,7 +9,7 @@ import CommentWithAction from "../../components/comment/CommentWithAction";
 import ApiClient from "../../api/ApiClient";
 
 function CommentWriteView(props) {
-  const { postId, parentCommentId, refreshCommentList } = props;
+  const { postId, parentCommentId, refresh } = props;
 
   const { auth } = useContext(AuthContext);
   const { headers } = useContext(HttpHeaderTokenContext);
@@ -25,19 +25,19 @@ function CommentWriteView(props) {
         .then(() => {
           alert("댓글이 작성되었습니다.");
           model.content = "";
-          refreshCommentList();
+          refresh();
         })
   };
 
   return (
     <div>
-      {auth ? (
+      {auth && (
         <CommentWithAction
           model={model}
           state={state}
           action={() => writeComment(state.content, postId, parentCommentId, headers)}
         />
-      ) : null}
+      )}
     </div>
   );
 }

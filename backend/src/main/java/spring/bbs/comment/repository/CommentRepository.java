@@ -13,7 +13,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     @Override
     @Query("SELECT NEW spring.bbs.comment.repository.dto.CommentResponse(" +
-        "c.id, c.content, c.createdTime, c.lastModifiedTime, c.parent.id, a.id, a.name) " +
+        "c.id, c.content, c.createdTime, c.lastModifiedTime, c.parent.id, SIZE(c.children), a.id, a.name) " +
         "FROM Comment c " +
         "JOIN c.author a " +
         "WHERE c.post.id = :postId AND c.parent IS NULL")
@@ -21,7 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     @Override
     @Query("SELECT NEW spring.bbs.comment.repository.dto.CommentResponse(" +
-        "c.id, c.content, c.createdTime, c.lastModifiedTime, c.parent.id, a.id, a.name) " +
+        "c.id, c.content, c.createdTime, c.lastModifiedTime, c.parent.id, SIZE(c.children), a.id, a.name) " +
         "FROM Comment AS c " +
         "JOIN c.author AS a " +
         "WHERE c.parent = :parent")
