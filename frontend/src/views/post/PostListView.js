@@ -7,6 +7,7 @@ import { API } from "../../api/url";
 import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
 import ApiClient from "../../api/ApiClient";
+import DateFormatter from "../../util/DateFormatter"
 
 function PostListView() {
   const model = useRef(proxy(new PostListModel())).current;
@@ -66,6 +67,7 @@ function PostListView() {
       title: "작성일",
       dataIndex: "createdTime",
       key: "createdTime",
+      render: (text) => DateFormatter(text)
     },
   ];
 

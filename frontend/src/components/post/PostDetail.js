@@ -2,9 +2,13 @@ import React from "react";
 
 import { Button, Divider } from "antd";
 import { Link } from "react-router-dom";
+import DateFormatter from "../../util/DateFormatter";
 
 function PostDetail(props) {
   const { post, isValidAuthor, deletePost } = props;
+
+  const createdTime = DateFormatter(post.createdTime)
+  const modifiedTime = DateFormatter(post.modifiedTime)
 
   return (
     <div className="post-body">
@@ -29,11 +33,11 @@ function PostDetail(props) {
       <div className="flex">
         <div className="post-author">{post.author.name}</div>
         <div className="post-time">
-          {post.createdTime === post.modifiedTime ? (
-            <div>{post.createdTime} </div>
+          {createdTime === modifiedTime ? (
+            <div>{createdTime} </div>
           ) : (
             <div>
-              {post.createdTime}(최근 수정 {post.modifiedTime})
+              {createdTime}(최근 수정 {modifiedTime})
             </div>
           )}
         </div>

@@ -9,6 +9,7 @@ import {API} from "../../api/url";
 import {Button, Divider} from "antd";
 import ApiClient from "../../api/ApiClient";
 import ReplyListElementView from "./ReplyListElementView";
+import DateFormatter from "../../util/DateFormatter";
 
 function CommentListElementView(prop) {
   const {index, comment, postId, refreshCommentList, depth} = prop;
@@ -19,6 +20,9 @@ function CommentListElementView(prop) {
   const [showReplyWrite, setShowReplyWrite] = useState(false);
   const [ReplyWriteText, setReplyWriteText] = useState("답글 달기");
   const [isModify, setIsModify] = useState(false);
+
+  const createdTime = DateFormatter(comment.createdTime)
+  const modifiedTime = DateFormatter(comment.modifiedTime)
 
   const paddingValue = depth > 0 ? 3 : 0;
   const paddingStyle = {
@@ -61,11 +65,11 @@ function CommentListElementView(prop) {
               <div className="comment-info">
                 <div className="username">{comment.author.name}</div>
                 <div className="date">
-                  {comment.createdTime === comment.modifiedTime ? (
-                    <div>{comment.createdTime}</div>
+                  {createdTime === modifiedTime ? (
+                    <div>{createdTime}</div>
                   ) : (
                     <div>
-                      {comment.createdTime}(최근 수정 {comment.modifiedTime})
+                      {createdTime}(최근 수정 {modifiedTime})
                     </div>
                   )}
                 </div>
