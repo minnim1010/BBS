@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.SerializationUtils;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class CookieUtil {
@@ -13,7 +15,8 @@ public class CookieUtil {
     }
 
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
+        String encodedValue = getEncodedValue(value);
+        Cookie cookie = new Cookie(name, encodedValue);
 
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
@@ -21,9 +24,13 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
+    private static String getEncodedValue(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8)
+            .replace("+", "%20");
+    }
+
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
         Cookie[] cookies = request.getCookies();
-
         if (cookies == null) {
             return;
         }

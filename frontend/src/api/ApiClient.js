@@ -2,7 +2,7 @@ import axios from "axios";
 import { BASE_API_PATH, BASE_ORIGIN } from "./url";
 
 class ApiClient {
-  api;
+  static api;
 
   constructor(hasBaseUrl = true) {
     if (hasBaseUrl) {

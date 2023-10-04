@@ -8,11 +8,6 @@ import Nav from "./components/basic/Nav";
 import "./style/basic.css";
 
 function App() {
-  // const initializeUserInfo = async () => {
-  //   const loggedInfo = localStorage.getItem("username");
-  //   if (!loggedInfo) return;
-  // };
-
   return (
     <div className="basic">
       <Header />
