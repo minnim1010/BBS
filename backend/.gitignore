@@ -180,3 +180,6 @@ gradle-app.setting
 # Custom
 src/main/resources-local/privacy.yml
 log/*
+
+# QueryDSL
+src/main/generated/
