@@ -30,7 +30,6 @@ public class Member extends BaseTime implements UserDetails {
     @Column(unique = true)
     private String oauthName;
 
-    @NotNull
     private String password;
 
     @NotNull
@@ -45,13 +44,8 @@ public class Member extends BaseTime implements UserDetails {
 
     @Builder
     private Member(
-        Long id,
-        String name,
-        String oauthName,
-        String password,
-        String email,
-        boolean isEnabled,
-        Authority authority
+        Long id, String name, String oauthName, String password,
+        String email, boolean isEnabled, Authority authority
     ) {
         this.id = id;
         this.name = name;

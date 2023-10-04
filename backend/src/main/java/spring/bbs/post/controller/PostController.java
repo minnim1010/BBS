@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import spring.bbs.common.constant.Api;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.controller.dto.request.PostListRequest;
 import spring.bbs.post.controller.dto.request.PostRequest;
@@ -19,7 +20,7 @@ import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/posts")
+@RequestMapping(Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
 @RestController
 public class PostController {
 

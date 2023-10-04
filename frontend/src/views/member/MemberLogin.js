@@ -1,12 +1,13 @@
-import React, {useContext, useRef} from "react";
-import {Button, Form, Input} from "antd";
-import {useNavigate} from "react-router-dom";
+import React, { useContext, useRef } from "react";
+import { Button, Form, Input } from "antd";
+import { useNavigate } from "react-router-dom";
 
-import {AuthContext} from "../../context/AuthProvider";
-import {HttpHeaderTokenContext} from "../../context/HttpHeaderTokenProvider";
-import {proxy, useSnapshot} from "valtio";
+import { AuthContext } from "../../context/AuthProvider";
+import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
+import { proxy, useSnapshot } from "valtio";
 import MemberLoginModel from "../../entity/viewmodel/member/MemberLoginModel";
 import ApiClient from "../../api/ApiClient";
+import { API } from "../../api/url";
 
 function MemberLogin() {
   const { setAuth } = useContext(AuthContext);
@@ -26,19 +27,21 @@ function MemberLogin() {
   const navigate = useNavigate();
 
   const login = () => {
-      new ApiClient()
-          .post("/login", state, null)
-          .then(response => {
-              localStorage.setItem("username", state.name);
-              localStorage.setItem("access_token", response.accessToken);
-              localStorage.setItem("refresh_token", response.refreshToken);
+    new ApiClient().post("/login", state, null).then((response) => {
+      sessionStorage.setItem("username", state.name);
+      sessionStorage.setItem("access_token", response.accessToken);
+      sessionStorage.setItem("refresh_token", response.refreshToken);
 
-              setAuth(state.name);
-              setHeaders({ Authorization: `Bearer ${response.accessToken}` });
+      setAuth(state.name);
+      setHeaders({ Authorization: `Bearer ${response.accessToken}` });
 
-              alert(`안녕하세요, ${state.name}님!`);
-              navigate(-1);
-          })
+      alert(`안녕하세요, ${state.name}님!`);
+      navigate(-1);
+    });
+  };
+
+  const oauthLogin = () => {
+    new ApiClient(false).get(API.OAUTH_LOGIN, [], null);
   };
 
   return (
@@ -90,6 +93,7 @@ function MemberLogin() {
         </Form.Item>
 
         <Button onClick={login}>로그인</Button>
+        <Button onClick={oauthLogin}>구글 로그인</Button>
       </Form>
     </div>
   );

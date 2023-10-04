@@ -28,6 +28,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.constant.Api;
 import spring.bbs.common.jwt.JwtAuthenticationFilter;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
@@ -35,6 +36,7 @@ import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.common.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import spring.bbs.common.oauth.OAuth2SuccessHandler;
 import spring.bbs.common.oauth.OAuth2UserService;
+import spring.bbs.member.domain.Authority;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
@@ -92,13 +94,27 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(request ->
             request
                 .requestMatchers(HttpMethod.DELETE,
-                    "/api/v1/members", "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.MEMBER,
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
+                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
+                    Authority.ROLE_ADMIN.getDisplayName())
                 .requestMatchers(HttpMethod.PATCH,
-                    "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
+                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
+                    Authority.ROLE_ADMIN.getDisplayName())
                 .requestMatchers(HttpMethod.POST,
-                    "/api/v1/members", "/api/v1/posts", "/api/v1/comments").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/user").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/admin").hasAnyRole("ADMIN")
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.MEMBER,
+                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
+                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
+                    Authority.ROLE_ADMIN.getDisplayName())
+                .requestMatchers(HttpMethod.GET, "/api/v1/user")
+                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
+                    Authority.ROLE_ADMIN.getDisplayName())
+                .requestMatchers(HttpMethod.GET, "/api/v1/admin")
+                .hasAnyRole(Authority.ROLE_ADMIN.getDisplayName())
                 .anyRequest().permitAll());
 
         http.exceptionHandling(exceptionHandling ->

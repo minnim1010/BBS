@@ -8,7 +8,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.web.util.WebUtils;
 import spring.bbs.common.util.CookieUtil;
 
-public class OAuth2AuthorizationRequestBasedOnCookieRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+public class OAuth2AuthorizationRequestBasedOnCookieRepository
+    implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
     private static final int COOKIE_EXPIRE_SECONDS = 18000;
@@ -21,6 +22,10 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         Cookie cookie = WebUtils.getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
+        if (cookie == null) {
+            throw new IllegalStateException("저장된 OAuth2 Authorization Request를 가져올 수 없습니다.");
+        }
+
         return CookieUtil.deserialize(cookie, OAuth2AuthorizationRequest.class);
     }
 

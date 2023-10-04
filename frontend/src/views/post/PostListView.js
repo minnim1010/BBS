@@ -7,7 +7,7 @@ import { API } from "../../api/url";
 import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
 import ApiClient from "../../api/ApiClient";
-import DateFormatter from "../../util/DateFormatter"
+import DateFormatter from "../../util/DateFormatter";
 
 function PostListView() {
   const model = useRef(proxy(new PostListModel())).current;
@@ -31,15 +31,12 @@ function PostListView() {
   };
 
   const getPostList = (params, headers) => {
-    new ApiClient()
-        .get(API.POST, params, headers)
-        .then(response => {
-          model.posts = response.content;
-          const { content, ...pageData } = response;
-          model.page = pageData
-          console.log(pageData)
-          model.loading = false;
-        })
+    new ApiClient().get(API.POST, params, headers).then((response) => {
+      model.posts = response.content;
+      const { content, ...pageData } = response;
+      model.page = pageData;
+      model.loading = false;
+    });
   };
 
   useEffect(() => {
@@ -67,7 +64,7 @@ function PostListView() {
       title: "작성일",
       dataIndex: "createdTime",
       key: "createdTime",
-      render: (text) => DateFormatter(text)
+      render: (text) => DateFormatter(text),
     },
   ];
 

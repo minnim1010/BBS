@@ -36,7 +36,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final MemberRepositoryHandler memberUtil;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Member member = memberUtil.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
@@ -44,7 +45,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             member, jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now()));
         tokenRepository.save(new RefreshToken(member.getName(), refreshToken), jwtResolver.getExpirationTime(refreshToken));
         addRefreshTokenToCookie(request, response, refreshToken);
-
+        
         String accessToken = jwtProvider.createToken(
             member, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
         String targetUrl = getTargetUrl(accessToken);

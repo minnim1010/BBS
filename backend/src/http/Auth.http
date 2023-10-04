@@ -8,15 +8,16 @@ Content-Type: application/json
 }
 
 > {%
-    client.test("Validate", function () {
-        client.assert(response.status === 200, "Response status is not 200");
-        client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
-        client.assert(response.body.accessToken.trim().length > 0);
-    });
+  client.test("Validate", function () {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
+    client.assert(response.body.accessToken.trim().length > 0);
+    client.assert(response.body.refreshToken.trim().length > 0);
+  });
 
-    client.log(response.body.accessToken);
-    client.global.set("access_token", "Bearer " + response.body.accessToken)
-    client.global.set("refresh_token", response.body.refreshToken);
+  client.log(response.body.accessToken);
+  client.global.set("access_token", "Bearer " + response.body.accessToken)
+  client.global.set("refresh_token", response.body.refreshToken);
 %}
 
 ### 2. 로그아웃

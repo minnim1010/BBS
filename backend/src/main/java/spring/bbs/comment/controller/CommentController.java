@@ -14,12 +14,13 @@ import spring.bbs.comment.service.dto.CommentCreateServiceRequest;
 import spring.bbs.comment.service.dto.CommentDeleteServiceRequest;
 import spring.bbs.comment.service.dto.CommentListServiceRequest;
 import spring.bbs.comment.service.dto.CommentUpdateServiceRequest;
+import spring.bbs.common.constant.Api;
 import spring.bbs.member.domain.Member;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/comments")
+@RequestMapping(Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT)
 @Slf4j
 public class CommentController {
 
@@ -42,7 +43,7 @@ public class CommentController {
 
         return commentService.getCommentsByPost(serviceRequest);
     }
-    
+
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
     public CommentResponse createComment(@RequestBody @Valid CommentCreateRequest req,

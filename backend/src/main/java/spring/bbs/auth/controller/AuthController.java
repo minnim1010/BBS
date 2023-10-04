@@ -1,6 +1,5 @@
 package spring.bbs.auth.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
-    public void logout(HttpServletRequest request) {
-        jwtService.logout(request.getHeader("Authorization").substring(7));
+    public void logout(@RequestHeader("Authorization") String tokenHeaderValue) {
+        jwtService.logout(tokenHeaderValue.substring(7));
     }
 }

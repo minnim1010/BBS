@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
         String requestUri = request.getRequestURI();
 
-        if (validate(token)) {
+        if (StringUtils.hasText(token) && jwtProvider.isValidToken(token) &&
+            !jwtProvider.isLogoutAccessToken(token)) {
             Authentication authentication = jwtResolver.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -49,11 +50,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return tokenHeader.substring(7);
         }
         return null;
-    }
-
-    private boolean validate(String token) {
-        return StringUtils.hasText(token) &&
-            jwtProvider.isValidToken(token) &&
-            !jwtProvider.isLogoutAccessToken(token);
     }
 }

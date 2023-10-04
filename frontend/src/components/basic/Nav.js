@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthProvider";
 import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
@@ -25,18 +25,16 @@ function Nav() {
   ];
 
   const logout = (headers) => {
-    new ApiClient()
-        .post(API.LOGOUT, null, headers)
-        .then(() => {
-          localStorage.removeItem("username");
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          setAuth(null);
-          setHeaders(null);
+    new ApiClient().post(API.LOGOUT, null, headers).then(() => {
+      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("access_token");
+      sessionStorage.removeItem("refresh_token");
+      setAuth(null);
+      setHeaders(null);
 
-          alert("로그아웃되었습니다.");
-          navigate("/");
-        })
+      alert("로그아웃되었습니다.");
+      navigate("/");
+    });
   };
 
   const onSearch = async () => {
