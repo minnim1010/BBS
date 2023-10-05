@@ -28,7 +28,8 @@ spring:
               - profile
 
 jwt:
-  header: Authorization
+  access-token-cookie-name: access_token
+  refresh-token-cookie-name: refresh_token
   access-token-duration: 1800000
   refresh-token-duration: 86400000
 

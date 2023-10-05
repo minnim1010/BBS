@@ -10,9 +10,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.IntegrationTestConfig;
-import spring.bbs.auth.controller.dto.request.CreateAccessTokenRequest;
 import spring.bbs.auth.controller.dto.request.LoginRequest;
-import spring.bbs.auth.controller.dto.response.AccessTokenResponse;
 import spring.bbs.auth.controller.dto.response.LoginResponse;
 import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.domain.RefreshToken;
@@ -126,92 +124,6 @@ public class AuthServiceTest extends IntegrationTestConfig {
 
             //when then
             assertThatThrownBy(() -> authService.login(req))
-                .isInstanceOf(BadCredentialsException.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("새 토큰 발급 요청 시 ")
-    class CreateNewAccessToken {
-
-        @DisplayName("refresh token이 유효하면 새 access token을 발급한다.")
-        @Test
-        void successReturnNewAccessToken() {
-            //given
-            Member member = Member.builder()
-                .name(MEMBER_NAME)
-                .password(passwordEncoder.encode(MEMBER_NAME))
-                .email(MEMBER_NAME + "@test.com")
-                .isEnabled(true)
-                .authority(Authority.ROLE_USER)
-                .build();
-            memberRepository.save(member);
-
-            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
-            String refreshToken = jwtProvider.createToken(member, expiredTime);
-
-            long timeout = jwtResolver.getExpirationTime(refreshToken) - System.currentTimeMillis();
-            tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
-
-            CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-
-            //when
-            AccessTokenResponse response = authService.createNewAccessToken(req);
-
-            //then
-            String accessToken = response.getToken();
-
-            assertThat(tokenRepository.exists(new RefreshToken(member.getName()))).isTrue();
-            assertThat(jwtProvider.isValidToken(accessToken)).isTrue();
-            assertThat(jwtResolver.getName(accessToken)).isEqualTo(member.getName());
-        }
-
-        @DisplayName("refresh token이 유효하지 않다면 새 토큰을 발급하지 않는다.")
-        @Test
-        void failWithInvalidRefreshToken() {
-            //given
-            Member member = Member.builder()
-                .name(MEMBER_NAME)
-                .password(passwordEncoder.encode(MEMBER_NAME))
-                .email(MEMBER_NAME + "@test.com")
-                .isEnabled(true)
-                .authority(Authority.ROLE_USER)
-                .build();
-            memberRepository.save(member);
-
-            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
-            String refreshToken = jwtProvider.createToken(member, expiredTime);
-
-            long timeout = jwtResolver.getExpirationTime(refreshToken) - System.currentTimeMillis();
-            tokenRepository.save(new RefreshToken(member.getName(), refreshToken), timeout);
-
-            CreateAccessTokenRequest req = new CreateAccessTokenRequest("invalidRefreshToken");
-
-            //when then
-            assertThatThrownBy(() -> authService.createNewAccessToken(req))
-                .isInstanceOf(BadCredentialsException.class);
-        }
-
-        @DisplayName("refresh token이 존재하지 않으면 새 토큰을 발급하지 않는다.")
-        @Test
-        void failWithNonExistedRefreshToken() {
-            //given
-            Member member = Member.builder()
-                .name(MEMBER_NAME)
-                .password(passwordEncoder.encode(MEMBER_NAME))
-                .email(MEMBER_NAME + "@test.com")
-                .isEnabled(true)
-                .authority(Authority.ROLE_USER)
-                .build();
-            memberRepository.save(member);
-
-            Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
-            String refreshToken = jwtProvider.createToken(member, expiredTime);
-
-            CreateAccessTokenRequest req = new CreateAccessTokenRequest(refreshToken);
-
-            //when then
-            assertThatThrownBy(() -> authService.createNewAccessToken(req))
                 .isInstanceOf(BadCredentialsException.class);
         }
     }

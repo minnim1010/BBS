@@ -7,28 +7,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 import spring.bbs.auth.domain.RefreshToken;
 import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.constant.Api;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
-import spring.bbs.common.jwt.JwtResolver;
 import spring.bbs.common.util.CookieUtil;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
-    public static final String REDIRECT_PATH = "/home";
+    public static final String REDIRECT_PATH = "/";
 
     private final JwtProvider jwtProvider;
-    private final JwtResolver jwtResolver;
     private final JwtProperties jwtProperties;
 
     private final TokenRepository tokenRepository;
@@ -41,36 +39,36 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Member member = memberUtil.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
-        String refreshToken = jwtProvider.createToken(
-            member, jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now()));
-        tokenRepository.save(new RefreshToken(member.getName(), refreshToken), jwtResolver.getExpirationTime(refreshToken));
-        addRefreshTokenToCookie(request, response, refreshToken);
-        
-        String accessToken = jwtProvider.createToken(
-            member, jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now()));
-        String targetUrl = getTargetUrl(accessToken);
+        String accessToken = createAccessToken(member);
+        String refreshToken = createRefreshToken(member);
+        CookieUtil.addCookie(response, jwtProperties.getAccessTokenCookieName(), accessToken,
+            jwtProperties.getAccessTokenDuration().getSeconds());
+        CookieUtil.addCookie(response, jwtProperties.getRefreshTokenCookieName(), refreshToken,
+            jwtProperties.getRefreshTokenDuration().getSeconds());
 
         clearAuthenticationAttributes(request, response);
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        getRedirectStrategy().sendRedirect(request, response, Api.FRONT_ORIGIN + REDIRECT_PATH);
     }
 
-    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
-        int cookieMaxAge = (int) jwtProperties.getRefreshTokenDuration().toSeconds();
+    private String createAccessToken(Member member) {
+        Date expiredTime = jwtProvider.calAccessTokenExpirationTime(LocalDateTime.now());
+        return jwtProvider.createToken(member, expiredTime);
+    }
 
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
-        CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
+    private String createRefreshToken(Member member) {
+        Date expiredTime = jwtProvider.calRefreshTokenExpirationTime(LocalDateTime.now());
+        String refreshToken = jwtProvider.createToken(member, expiredTime);
+
+        long timeout = expiredTime.getTime() - System.currentTimeMillis();
+        tokenRepository.save(
+            new RefreshToken(member.getName(), refreshToken), timeout);
+
+        return refreshToken;
     }
 
     private void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
-    }
-
-    private String getTargetUrl(String token) {
-        return UriComponentsBuilder.fromUriString(REDIRECT_PATH)
-            .queryParam("token", token)
-            .build()
-            .toUriString();
     }
 }

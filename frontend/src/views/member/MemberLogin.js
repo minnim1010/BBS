@@ -7,7 +7,7 @@ import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { proxy, useSnapshot } from "valtio";
 import MemberLoginModel from "../../entity/viewmodel/member/MemberLoginModel";
 import ApiClient from "../../api/ApiClient";
-import { API } from "../../api/url";
+import { API, BASE_ORIGIN } from "../../api/url";
 
 function MemberLogin() {
   const { setAuth } = useContext(AuthContext);
@@ -38,10 +38,6 @@ function MemberLogin() {
       alert(`안녕하세요, ${state.name}님!`);
       navigate(-1);
     });
-  };
-
-  const oauthLogin = () => {
-    new ApiClient(false).get(API.OAUTH_LOGIN, [], null);
   };
 
   return (
@@ -91,9 +87,10 @@ function MemberLogin() {
         >
           <Input.Password />
         </Form.Item>
-
         <Button onClick={login}>로그인</Button>
-        <Button onClick={oauthLogin}>구글 로그인</Button>
+        <a href={BASE_ORIGIN + API.GOOGLE_OAUTH_LOGIN}>
+          <Button>구글 로그인</Button>
+        </a>
       </Form>
     </div>
   );

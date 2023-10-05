@@ -9,14 +9,17 @@ import java.time.Duration;
 @ConfigurationProperties("jwt")
 @Getter
 public class JwtProperties {
-    private final String header;
+    private final String accessTokenCookieName;
+    private final String refreshTokenCookieName;
     private final String secret;
     private final Duration accessTokenDuration;
     private final Duration refreshTokenDuration;
 
     @ConstructorBinding
-    public JwtProperties(String header, String secret, Duration accessTokenDuration, Duration refreshTokenDuration) {
-        this.header = header;
+    public JwtProperties(String accessTokenCookieName, String refreshTokenCookieName,
+                         String secret, Duration accessTokenDuration, Duration refreshTokenDuration) {
+        this.accessTokenCookieName = accessTokenCookieName;
+        this.refreshTokenCookieName = refreshTokenCookieName;
         this.secret = secret;
         this.accessTokenDuration = accessTokenDuration;
         this.refreshTokenDuration = refreshTokenDuration;

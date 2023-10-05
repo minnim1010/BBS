@@ -1,19 +1,14 @@
 import axios from "axios";
-import { BASE_API_PATH, BASE_ORIGIN } from "./url";
+import { BASE_API_PATH } from "./url";
 
 class ApiClient {
   static api;
 
-  constructor(hasBaseUrl = true) {
-    if (hasBaseUrl) {
-      this.api = axios.create({
-        baseURL: BASE_API_PATH,
-      });
-    } else {
-      this.api = axios.create({
-        baseURL: BASE_ORIGIN,
-      });
-    }
+  constructor() {
+    this.api = axios.create({
+      baseURL: BASE_API_PATH,
+      withCredentials: true,
+    });
   }
 
   async get(endpoint, params, headers) {

@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class JwtResolver implements InitializingBean {
 
-    private static final String AUTHORITIES_KEY = "auth";
+    private static final String AUTHORITIES_KEY = "role";
 
     private final JwtProperties jwtProperties;
     private Key key;

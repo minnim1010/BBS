@@ -165,7 +165,6 @@ public class WebSecurityConfig {
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler() {
         return new OAuth2SuccessHandler(jwtProvider,
-            jwtResolver,
             jwtProperties,
             tokenRepository,
             oAuth2AuthorizationRequestBasedOnCookieRepository(),
@@ -174,7 +173,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider, jwtResolver);
+        return new JwtAuthenticationFilter(jwtProvider, jwtResolver, jwtProperties);
     }
 
     @Bean

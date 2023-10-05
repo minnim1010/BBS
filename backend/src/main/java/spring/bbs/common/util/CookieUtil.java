@@ -7,19 +7,34 @@ import org.springframework.util.SerializationUtils;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Optional;
 
 public class CookieUtil {
 
     private CookieUtil() {
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+    public static Optional<String> getCookieValue(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(cookies)
+            .filter(cookie -> name.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst();
+    }
+
+    public static void addCookie(HttpServletResponse response, String name, String value, long maxAge) {
         String encodedValue = getEncodedValue(value);
         Cookie cookie = new Cookie(name, encodedValue);
 
         cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(Long.valueOf(maxAge).intValue());
 
         response.addCookie(cookie);
     }

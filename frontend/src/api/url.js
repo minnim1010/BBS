@@ -3,7 +3,7 @@ export const BASE_API_PATH = BASE_ORIGIN + "/api/v1";
 
 export const API = {
   LOGIN: `/login`,
-  OAUTH_LOGIN: `/oauth2/authorization/google`,
+  GOOGLE_OAUTH_LOGIN: `/oauth2/authorization/google`,
   LOGOUT: `/logout`,
 
   MEMBER: `/members`,

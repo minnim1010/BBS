@@ -5,6 +5,8 @@ public class Api {
     private Api() {
     }
 
+    public static final String FRONT_ORIGIN = "http://localhost:8080";
+
     public static final String URI_PREFIX = "/api";
     public static final String VERSION = "/v1";
 

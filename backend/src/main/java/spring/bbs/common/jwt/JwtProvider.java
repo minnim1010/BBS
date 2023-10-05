@@ -12,12 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.repository.TokenRepository;
+import spring.bbs.common.util.TimeUtil;
 import spring.bbs.member.domain.Member;
 
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class JwtProvider implements InitializingBean {
-    private static final String AUTHORITIES_KEY = "auth";
+    private static final String AUTHORITIES_KEY = "role";
 
     private final JwtProperties jwtProperties;
     private final JwtResolver jwtResolver;
@@ -41,17 +41,13 @@ public class JwtProvider implements InitializingBean {
     }
 
     public Date calAccessTokenExpirationTime(LocalDateTime now) {
-        ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
-        long date = zdt.toInstant().toEpochMilli();
-
-        return new Date(date + jwtProperties.getAccessTokenDuration().toMillis());
+        LocalDateTime expired = now.plusSeconds(jwtProperties.getAccessTokenDuration().toSeconds());
+        return TimeUtil.convertLocalDateTimeToDate(expired, ZoneId.systemDefault());
     }
 
     public Date calRefreshTokenExpirationTime(LocalDateTime now) {
-        ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
-        long date = zdt.toInstant().toEpochMilli();
-
-        return new Date(date + jwtProperties.getRefreshTokenDuration().toMillis());
+        LocalDateTime expired = now.plusSeconds(jwtProperties.getRefreshTokenDuration().toSeconds());
+        return TimeUtil.convertLocalDateTimeToDate(expired, ZoneId.systemDefault());
     }
 
     public String createToken(Authentication authentication, Date expirationTime) {

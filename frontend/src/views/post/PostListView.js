@@ -31,7 +31,7 @@ function PostListView() {
   };
 
   const getPostList = (params, headers) => {
-    new ApiClient().get(API.POST, params, headers).then((response) => {
+    new ApiClient().get(API.POST, params, null).then((response) => {
       model.posts = response.content;
       const { content, ...pageData } = response;
       model.page = pageData;
