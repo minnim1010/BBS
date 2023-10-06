@@ -8,6 +8,7 @@ import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
 import ApiClient from "../../api/ApiClient";
 import DateFormatter from "../../util/DateFormatter";
+import { getCookie } from "../../util/CookieUtil";
 
 function PostListView() {
   const model = useRef(proxy(new PostListModel())).current;
@@ -30,7 +31,7 @@ function PostListView() {
     setParams((prevParams) => ({ ...prevParams, page }));
   };
 
-  const getPostList = (params, headers) => {
+  const getPostList = (params) => {
     new ApiClient().get(API.POST, params, null).then((response) => {
       model.posts = response.content;
       const { content, ...pageData } = response;
@@ -39,8 +40,20 @@ function PostListView() {
     });
   };
 
+  const getUserInfo = () => {
+    console.log(localStorage.getItem("username"));
+    console.log(getCookie("refresh_token"));
+    if (
+      localStorage.getItem("username") === null &&
+      getCookie("refresh_token") !== null
+    ) {
+      console.log("getUserInfo()");
+    }
+  };
+
   useEffect(() => {
-    void getPostList(params, null);
+    void getUserInfo();
+    void getPostList(params);
   }, [params.page]);
 
   const columns = [

@@ -20,7 +20,7 @@ import spring.bbs.member.domain.Member;
 import java.util.List;
 
 @RestController
-@RequestMapping(Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT)
+@RequestMapping(Api.Domain.COMMENT)
 @Slf4j
 public class CommentController {
 

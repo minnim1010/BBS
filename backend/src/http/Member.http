@@ -11,4 +11,6 @@ Content-Type: application/json
 
 ### 2. 회원 탈퇴
 DELETE http://localhost:8081/api/v1/members
-Authorization: {{access_token}}
+
+### 3. getUserInfo
+GET http://localhost:8081/api/v1/members/auth-info

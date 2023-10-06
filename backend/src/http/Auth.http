@@ -1,5 +1,5 @@
 ### 1. 로그인
-POST http://localhost:8081/api/v1/login
+POST http://localhost:8081/api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -7,27 +7,5 @@ Content-Type: application/json
   "password": "password"
 }
 
-> {%
-  client.test("Validate", function () {
-    client.assert(response.status === 200, "Response status is not 200");
-    client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
-    client.assert(response.body.accessToken.trim().length > 0);
-    client.assert(response.body.refreshToken.trim().length > 0);
-  });
-
-  client.log(response.body.accessToken);
-  client.global.set("access_token", "Bearer " + response.body.accessToken)
-  client.global.set("refresh_token", response.body.refreshToken);
-%}
-
 ### 2. 로그아웃
-GET http://localhost:8081/api/v1/logout
-Authorization: {{access_token}}
-
-### 3. access token 발급: refresh token 기반
-POST http://localhost:8081/api/v1/token
-Content-Type: application/json
-
-{
-  "refreshToken": "{{refresh_token}}"
-}
+GET http://localhost:8081/api/v1/auth/logout

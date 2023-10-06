@@ -93,29 +93,15 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(request ->
             request
-                .requestMatchers(HttpMethod.DELETE,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.MEMBER,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
-                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
-                    Authority.ROLE_ADMIN.getDisplayName())
-                .requestMatchers(HttpMethod.PATCH,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
-                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
-                    Authority.ROLE_ADMIN.getDisplayName())
+                .requestMatchers(HttpMethod.GET,
+                    Api.URI_PREFIX + Api.VERSION + "/no-auth",
+                    Api.Domain.AUTH + "/login",
+                    Api.Domain.POST, Api.Domain.COMMENT).permitAll()
                 .requestMatchers(HttpMethod.POST,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.COMMENT,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.MEMBER,
-                    Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
-                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
-                    Authority.ROLE_ADMIN.getDisplayName())
-                .requestMatchers(HttpMethod.GET, "/api/v1/user")
-                .hasAnyRole(Authority.ROLE_USER.getDisplayName(),
-                    Authority.ROLE_ADMIN.getDisplayName())
+                    Api.Domain.MEMBER).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin")
                 .hasAnyRole(Authority.ROLE_ADMIN.getDisplayName())
-                .anyRequest().permitAll());
+                .anyRequest().authenticated());
 
         http.exceptionHandling(exceptionHandling ->
             exceptionHandling

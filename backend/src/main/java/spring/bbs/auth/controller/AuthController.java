@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import spring.bbs.auth.controller.dto.request.LoginRequest;
 import spring.bbs.auth.controller.dto.response.LoginResponse;
 import spring.bbs.auth.service.AuthService;
+import spring.bbs.common.constant.Api;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.util.CookieUtil;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(Api.Domain.AUTH)
 public class AuthController {
 
     private final AuthService jwtService;
@@ -32,7 +33,7 @@ public class AuthController {
             jwtProperties.getRefreshTokenDuration().getSeconds());
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
     public void logout(HttpServletRequest request) {
         String accessToken =

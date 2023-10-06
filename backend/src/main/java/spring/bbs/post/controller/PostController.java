@@ -20,7 +20,7 @@ import spring.bbs.post.service.dto.PostUpdateServiceRequest;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(Api.URI_PREFIX + Api.VERSION + Api.Domain.POST)
+@RequestMapping(Api.Domain.POST)
 @RestController
 public class PostController {
 

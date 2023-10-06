@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import spring.bbs.auth.controller.dto.response.UserInfoResponse;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
 import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
@@ -63,7 +64,13 @@ public class MemberService {
     }
 
     private Member findByName(String authorName) {
-        return memberRepository.findByName(authorName).orElseThrow(
-            () -> new DataNotFoundException("회원을 찾을 수 없습니다."));
+        return memberRepository.findByName(authorName)
+            .orElseThrow(() -> new DataNotFoundException("회원을 찾을 수 없습니다."));
+    }
+
+    public UserInfoResponse get(String name) {
+        Member member = memberRepository.findByName(name)
+            .orElseThrow(() -> new DataNotFoundException("회원을 찾을 수 없습니다."));
+        return UserInfoResponse.of(member);
     }
 }

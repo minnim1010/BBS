@@ -1,7 +1,6 @@
 ### 1. 게시글 작성
 POST http://localhost:8081/api/v1/posts
 Content-Type: application/json
-Authorization: {{access_token}}
 
 {
   "title": "httpTestCreateTitle",
@@ -10,15 +9,14 @@ Authorization: {{access_token}}
 }
 
 > {%
-    client.test("Validate", function () {
-        client.assert(response.status === 200, "Response status is not 200");
-        client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
-    });
+  client.test("Validate", function () {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
+  });
 
-    client.log(response.body.id);
-    client.global.set("RecentPostId", response.body.id)
+  client.log(response.body.id);
+  client.global.set("RecentPostId", response.body.id)
 %}
 
 ### 2. 최근 작성된 게시글 삭제
 DELETE http://localhost:8081/api/v1/posts/{{RecentPostId}}
-Authorization: {{access_token}}

@@ -15,8 +15,9 @@ public class Api {
         private Domain() {
         }
 
-        public static final String POST = "/posts";
-        public static final String MEMBER = "/members";
-        public static final String COMMENT = "/comments";
+        public static final String AUTH = URI_PREFIX + VERSION + "/auth";
+        public static final String POST = URI_PREFIX + VERSION + "/posts";
+        public static final String MEMBER = URI_PREFIX + VERSION + "/members";
+        public static final String COMMENT = URI_PREFIX + VERSION + "/comments";
     }
 }
