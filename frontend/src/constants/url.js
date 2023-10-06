@@ -5,7 +5,7 @@ export const API = {
   LOGIN: `/auth/login`,
   GOOGLE_OAUTH_LOGIN: `/oauth2/authorization/google`,
   LOGOUT: `/auth/logout`,
-  AUTH_INFO: `/members//auth-info`,
+  AUTH_INFO: `/members/auth-info`,
 
   MEMBER: `/members`,
   POST: `/posts`,

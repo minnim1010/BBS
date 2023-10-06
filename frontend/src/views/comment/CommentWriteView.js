@@ -1,7 +1,7 @@
 import React, { useContext, useRef } from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import { proxy, useSnapshot } from "valtio";
 import Comment from "../../entity/Comment";
 import CommentWithAction from "../../components/comment/CommentWithAction";

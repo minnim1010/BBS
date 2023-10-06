@@ -5,8 +5,9 @@ import { AuthContext } from "../../context/AuthProvider";
 
 import Search from "antd/es/input/Search";
 import { Button, Select } from "antd";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import ApiClient from "../../api/ApiClient";
+import { USER_INFO_KEY } from "../../constants/LocalStorageKey";
 
 function Nav() {
   const { auth, setAuth } = useContext(AuthContext);
@@ -24,7 +25,7 @@ function Nav() {
 
   const logout = () => {
     new ApiClient().get(API.LOGOUT, null, null).then(() => {
-      localStorage.removeItem("user");
+      localStorage.removeItem(USER_INFO_KEY);
       setAuth(null);
 
       alert("로그아웃되었습니다.");

@@ -5,7 +5,7 @@ import { proxy, useSnapshot } from "valtio";
 import MemberJoinModel from "../../entity/viewmodel/member/MemberJoinModel";
 import { Button, Form, Input } from "antd";
 import ApiClient from "../../api/ApiClient";
-import {API} from "../../api/url";
+import { API } from "../../constants/url";
 
 function MemberJoin() {
   const model = useRef(proxy(new MemberJoinModel())).current;
@@ -14,18 +14,15 @@ function MemberJoin() {
   const navigate = useNavigate();
 
   const join = () => {
-
     if (!state.checkSamePassword()) {
       alert("비밀번호가 서로 다릅니다.");
       return;
     }
 
-    new ApiClient()
-        .post(API.MEMBER, state, null)
-        .then(response => {
-          alert(`${response.name}님, 회원가입이 완료되었습니다.`);
-          navigate("/login");
-        })
+    new ApiClient().post(API.MEMBER, state, null).then((response) => {
+      alert(`${response.name}님, 회원가입이 완료되었습니다.`);
+      navigate("/login");
+    });
   };
 
   const changeName = (event) => {

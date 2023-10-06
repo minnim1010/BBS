@@ -6,7 +6,8 @@ import { AuthContext } from "../../context/AuthProvider";
 import { proxy, useSnapshot } from "valtio";
 import MemberLoginModel from "../../entity/viewmodel/member/MemberLoginModel";
 import ApiClient from "../../api/ApiClient";
-import { API, BASE_ORIGIN } from "../../api/url";
+import { API, BASE_ORIGIN } from "../../constants/url";
+import { USER_INFO_KEY } from "../../constants/LocalStorageKey";
 
 function MemberLogin() {
   const { setAuth } = useContext(AuthContext);
@@ -25,11 +26,17 @@ function MemberLogin() {
   const navigate = useNavigate();
 
   const login = () => {
-    new ApiClient().post(API.LOGIN, state, null).then((response) => {
-      localStorage.setItem("user", state.name);
-      setAuth(state.name);
+    new ApiClient().post(API.LOGIN, state, null).then(() => {
+      getUserInfo();
+    });
+  };
 
-      alert(`안녕하세요, ${state.name}님!`);
+  const getUserInfo = () => {
+    new ApiClient().get(API.AUTH_INFO, null, null).then((response) => {
+      const userInfo = JSON.stringify(response);
+      localStorage.setItem(USER_INFO_KEY, userInfo);
+      setAuth(userInfo);
+      alert(`안녕하세요, ${response.username}님!`);
       navigate(-1);
     });
   };

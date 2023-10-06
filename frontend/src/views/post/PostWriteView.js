@@ -6,7 +6,7 @@ import Post from "../../entity/Post";
 import { proxy, useSnapshot } from "valtio";
 import PostWithAction from "../../components/post/PostWithAction";
 import ApiClient from "../../api/ApiClient";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 
 function PostWriteView() {
   const { auth } = useContext(AuthContext);

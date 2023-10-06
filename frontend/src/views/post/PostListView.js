@@ -1,15 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import Loading from "../../components/basic/Loading";
 import { proxy, useSnapshot } from "valtio";
 import PostListModel from "../../entity/viewmodel/post/PostListModel";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import { Pagination, Table } from "antd";
 import { Link } from "react-router-dom";
 import ApiClient from "../../api/ApiClient";
 import DateFormatter from "../../util/DateFormatter";
+import { USER_INFO_KEY } from "../../constants/LocalStorageKey";
+import { AuthContext } from "../../context/AuthProvider";
 
 function PostListView() {
+  const { auth, setAuth } = useContext(AuthContext);
+
   const model = useRef(proxy(new PostListModel())).current;
   const state = useSnapshot(model);
 
@@ -30,6 +34,17 @@ function PostListView() {
     setParams((prevParams) => ({ ...prevParams, page }));
   };
 
+  const getUserInfo = () => {
+    if (!auth) {
+      new ApiClient().get(API.AUTH_INFO, null, null).then((response) => {
+        const userInfo = JSON.stringify(response);
+        localStorage.setItem(USER_INFO_KEY, userInfo);
+        setAuth(userInfo);
+        alert(`안녕하세요, ${response.username}님!`);
+      });
+    }
+  };
+
   const getPostList = (params) => {
     new ApiClient().get(API.POST, params, null).then((response) => {
       model.posts = response.content;
@@ -40,6 +55,7 @@ function PostListView() {
   };
 
   useEffect(() => {
+    getUserInfo();
     void getPostList(params);
   }, [params]);
 

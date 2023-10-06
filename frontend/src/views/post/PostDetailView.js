@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/basic/Loading";
 import { AuthContext } from "../../context/AuthProvider";
 import PostDetail from "../../components/post/PostDetail";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import CommentView from "../comment/CommentView";
 import ApiClient from "../../api/ApiClient";
 

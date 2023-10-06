@@ -4,7 +4,7 @@ import { UserOutlined } from "@ant-design/icons";
 import CommentWriteView from "./CommentWriteView";
 import { AuthContext } from "../../context/AuthProvider";
 import CommentUpdateView from "./CommentUpdateView";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import { Button, Divider } from "antd";
 import ApiClient from "../../api/ApiClient";
 import ReplyListElementView from "./ReplyListElementView";

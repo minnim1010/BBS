@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import Post from "../../entity/Post";
 import { proxy, useSnapshot } from "valtio";
 import PostWithAction from "../../components/post/PostWithAction";

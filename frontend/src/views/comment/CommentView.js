@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 
 import CommentWriteView from "./CommentWriteView";
 import { AuthContext } from "../../context/AuthProvider";
-import { API } from "../../api/url";
+import { API } from "../../constants/url";
 import { proxy, useSnapshot } from "valtio";
 import CommentListModel from "../../entity/viewmodel/comment/CommentListModel";
 import Loading from "../../components/basic/Loading";
