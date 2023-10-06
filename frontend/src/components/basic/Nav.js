@@ -51,9 +51,9 @@ function Nav() {
   return (
     <div className="nav">
       <div className="logo">
-        <Link to="/">
+        <a href="/">
           <h2>BBS</h2>
-        </Link>
+        </a>
       </div>
       <div className="flex-vertical-center">
         <div className="searchPost">
