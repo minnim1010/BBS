@@ -23,8 +23,8 @@ function Nav() {
   ];
 
   const logout = () => {
-    new ApiClient().post(API.LOGOUT, null, null).then(() => {
-      localStorage.removeItem("username");
+    new ApiClient().get(API.LOGOUT, null, null).then(() => {
+      localStorage.removeItem("user");
       setAuth(null);
 
       alert("로그아웃되었습니다.");
@@ -78,7 +78,7 @@ function Nav() {
                 </Link>
               </div>
               <div className="logoutBtn">
-                <Button onClick={() => logout}>로그아웃</Button>
+                <Button onClick={logout}>로그아웃</Button>
               </div>
             </div>
           ) : (

@@ -25,8 +25,8 @@ function MemberLogin() {
   const navigate = useNavigate();
 
   const login = () => {
-    new ApiClient().post("/login", state, null).then((response) => {
-      localStorage.setItem("username", state.name);
+    new ApiClient().post(API.LOGIN, state, null).then((response) => {
+      localStorage.setItem("user", state.name);
       setAuth(state.name);
 
       alert(`안녕하세요, ${state.name}님!`);

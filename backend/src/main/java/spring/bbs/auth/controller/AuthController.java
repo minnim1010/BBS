@@ -35,10 +35,12 @@ public class AuthController {
 
     @GetMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
-    public void logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken =
             CookieUtil.getCookieValue(request, jwtProperties.getAccessTokenCookieName())
                 .orElseThrow(() -> new IllegalStateException("쿠키에서 access token을 가져올 수 없습니다."));
         jwtService.logout(accessToken);
+        CookieUtil.deleteCookie(request, response, jwtProperties.getAccessTokenCookieName());
+        CookieUtil.deleteCookie(request, response, jwtProperties.getRefreshTokenCookieName());
     }
 }

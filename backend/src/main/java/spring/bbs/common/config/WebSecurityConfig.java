@@ -95,9 +95,10 @@ public class WebSecurityConfig {
             request
                 .requestMatchers(HttpMethod.GET,
                     Api.URI_PREFIX + Api.VERSION + "/no-auth",
-                    Api.Domain.AUTH + "/login",
-                    Api.Domain.POST, Api.Domain.COMMENT).permitAll()
+                    Api.Domain.POST, Api.Domain.POST + "/{id}",
+                    Api.Domain.COMMENT, Api.Domain.COMMENT + "/{id}").permitAll()
                 .requestMatchers(HttpMethod.POST,
+                    Api.Domain.AUTH + "/login",
                     Api.Domain.MEMBER).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin")
                 .hasAnyRole(Authority.ROLE_ADMIN.getDisplayName())
@@ -113,7 +114,7 @@ public class WebSecurityConfig {
                     new AntPathRequestMatcher("/api/**")));
 
         http.oauth2Login()
-            .loginPage("/social-login")
+            .loginPage("/login")
             .authorizationEndpoint()
             .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
             .and()

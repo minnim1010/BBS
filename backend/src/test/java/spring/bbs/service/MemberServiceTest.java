@@ -81,7 +81,7 @@ class MemberServiceTest extends IntegrationTestConfig {
         @DisplayName("회원 이름이 이미 존재한다면 회원을 생성하지 않는다.")
         void failWithDuplicatedName() {
             //given
-            Member member = createMember(MEMBER_NAME);
+            createMember(MEMBER_NAME);
 
             JoinRequest request = new JoinRequest(
                 MEMBER_NAME,
