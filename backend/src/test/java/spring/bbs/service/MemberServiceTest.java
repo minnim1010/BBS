@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import spring.IntegrationTestConfig;
+import spring.bbs.auth.controller.dto.response.UserInfoResponse;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
 import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
@@ -119,6 +120,35 @@ class MemberServiceTest extends IntegrationTestConfig {
             //when then
             assertThatThrownBy(() ->
                 memberService.deleteMember("invalidMember"))
+                .isInstanceOf(DataNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 정보 요청 시")
+    class GetUserInfo {
+        @DisplayName("회원 정보를 반환한다.")
+        @Test
+        void returnUserInfo() {
+            //given
+            Member member = createMember(MEMBER_NAME);
+
+            //when
+            UserInfoResponse userInfoResponse = memberService.get(MEMBER_NAME);
+
+            //then
+            assertThat(userInfoResponse).isNotNull()
+                .extracting("username", "email")
+                .contains(member.getName(), member.getEmail());
+        }
+
+        @DisplayName("존재하지 않는 회원 이름이라면 예외가 발생한다.")
+        @Test
+        void failWithNonExistMember() {
+            //given
+
+            //when then
+            assertThatThrownBy(() -> memberService.get(MEMBER_NAME))
                 .isInstanceOf(DataNotFoundException.class);
         }
     }
