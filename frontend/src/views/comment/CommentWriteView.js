@@ -1,7 +1,6 @@
-import React, {useContext, useRef} from "react";
+import React, { useContext, useRef } from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { API } from "../../api/url";
 import { proxy, useSnapshot } from "valtio";
 import Comment from "../../entity/Comment";
@@ -12,21 +11,18 @@ function CommentWriteView(props) {
   const { postId, parentCommentId, refresh } = props;
 
   const { auth } = useContext(AuthContext);
-  const { headers } = useContext(HttpHeaderTokenContext);
 
   const model = useRef(proxy(new Comment(""))).current;
   const state = useSnapshot(model);
 
-  const writeComment = (content, postId, parentCommentId, headers) => {
+  const writeComment = (content, postId, parentCommentId) => {
     const params = { content, postId, parentCommentId };
 
-    new ApiClient()
-        .post(API.COMMENT, params, headers)
-        .then(() => {
-          alert("댓글이 작성되었습니다.");
-          model.content = "";
-          refresh();
-        })
+    new ApiClient().post(API.COMMENT, params, null).then(() => {
+      alert("댓글이 작성되었습니다.");
+      model.content = "";
+      refresh();
+    });
   };
 
   return (
@@ -35,7 +31,7 @@ function CommentWriteView(props) {
         <CommentWithAction
           model={model}
           state={state}
-          action={() => writeComment(state.content, postId, parentCommentId, headers)}
+          action={() => writeComment(state.content, postId, parentCommentId)}
         />
       )}
     </div>

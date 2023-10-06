@@ -3,7 +3,6 @@ import { Button, Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { proxy, useSnapshot } from "valtio";
 import MemberLoginModel from "../../entity/viewmodel/member/MemberLoginModel";
 import ApiClient from "../../api/ApiClient";
@@ -11,7 +10,6 @@ import { API, BASE_ORIGIN } from "../../api/url";
 
 function MemberLogin() {
   const { setAuth } = useContext(AuthContext);
-  const { setHeaders } = useContext(HttpHeaderTokenContext);
 
   const model = useRef(proxy(new MemberLoginModel())).current;
   const state = useSnapshot(model);
@@ -28,12 +26,8 @@ function MemberLogin() {
 
   const login = () => {
     new ApiClient().post("/login", state, null).then((response) => {
-      sessionStorage.setItem("username", state.name);
-      sessionStorage.setItem("access_token", response.accessToken);
-      sessionStorage.setItem("refresh_token", response.refreshToken);
-
+      localStorage.setItem("username", state.name);
       setAuth(state.name);
-      setHeaders({ Authorization: `Bearer ${response.accessToken}` });
 
       alert(`안녕하세요, ${state.name}님!`);
       navigate(-1);

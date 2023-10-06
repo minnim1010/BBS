@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 
 import Search from "antd/es/input/Search";
 import { Button, Select } from "antd";
@@ -11,7 +10,6 @@ import ApiClient from "../../api/ApiClient";
 
 function Nav() {
   const { auth, setAuth } = useContext(AuthContext);
-  const { headers, setHeaders } = useContext(HttpHeaderTokenContext);
 
   const [searchScope, setSearchScope] = useState("전체");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -24,13 +22,10 @@ function Nav() {
     { value: "작성자", label: "작성자" },
   ];
 
-  const logout = (headers) => {
-    new ApiClient().post(API.LOGOUT, null, headers).then(() => {
-      sessionStorage.removeItem("username");
-      sessionStorage.removeItem("access_token");
-      sessionStorage.removeItem("refresh_token");
+  const logout = () => {
+    new ApiClient().post(API.LOGOUT, null, null).then(() => {
+      localStorage.removeItem("username");
       setAuth(null);
-      setHeaders(null);
 
       alert("로그아웃되었습니다.");
       navigate("/");
@@ -83,7 +78,7 @@ function Nav() {
                 </Link>
               </div>
               <div className="logoutBtn">
-                <Button onClick={() => logout(headers)}>로그아웃</Button>
+                <Button onClick={() => logout}>로그아웃</Button>
               </div>
             </div>
           ) : (

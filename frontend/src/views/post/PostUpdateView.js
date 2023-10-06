@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API } from "../../api/url";
 import Post from "../../entity/Post";
@@ -11,7 +10,6 @@ import ApiClient from "../../api/ApiClient";
 
 function PostUpdateView() {
   const { auth } = useContext(AuthContext);
-  const { headers } = useContext(HttpHeaderTokenContext);
 
   const { prevPost } = useLocation().state;
 
@@ -29,11 +27,11 @@ function PostUpdateView() {
 
   const modifyPost = () => {
     new ApiClient()
-        .patch(`${API.POST}/${prevPost.id}`, state, headers)
-        .then(() => {
-          alert("글이 수정되었습니다.");
-          navigate(`/${prevPost.id}`);
-        })
+      .patch(`${API.POST}/${prevPost.id}`, state, null)
+      .then(() => {
+        alert("글이 수정되었습니다.");
+        navigate(`/${prevPost.id}`);
+      });
   };
 
   return <PostWithAction model={model} state={state} action={modifyPost} />;

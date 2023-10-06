@@ -1,17 +1,15 @@
 import React, { useContext, useEffect, useRef } from "react";
 
 import { AuthContext } from "../../context/AuthProvider";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import { useNavigate } from "react-router-dom";
 import Post from "../../entity/Post";
 import { proxy, useSnapshot } from "valtio";
 import PostWithAction from "../../components/post/PostWithAction";
 import ApiClient from "../../api/ApiClient";
-import {API} from "../../api/url";
+import { API } from "../../api/url";
 
 function PostWriteView() {
   const { auth } = useContext(AuthContext);
-  const { headers } = useContext(HttpHeaderTokenContext);
 
   const initPost = {
     title: "",
@@ -31,12 +29,10 @@ function PostWriteView() {
   }, []);
 
   const writePost = () => {
-    new ApiClient()
-        .post(API.POST, state, headers)
-        .then((post) => {
-          alert("글이 작성되었습니다.");
-          navigate(`/${post.id}`);
-        })
+    new ApiClient().post(API.POST, state, null).then((post) => {
+      alert("글이 작성되었습니다.");
+      navigate(`/${post.id}`);
+    });
   };
 
   return <PostWithAction model={model} state={state} action={writePost} />;

@@ -5,14 +5,12 @@ import { AuthContext } from "../../context/AuthProvider";
 import { API } from "../../api/url";
 import { proxy, useSnapshot } from "valtio";
 import CommentListModel from "../../entity/viewmodel/comment/CommentListModel";
-import { HttpHeaderTokenContext } from "../../context/HttpHeaderTokenProvider";
 import Loading from "../../components/basic/Loading";
 import CommentListElementView from "./CommentListElementView";
 import ApiClient from "../../api/ApiClient";
 
 function CommentView({ postId }) {
   const { auth } = useContext(AuthContext);
-  const { headers } = useContext(HttpHeaderTokenContext);
 
   const model = useRef(proxy(new CommentListModel())).current;
   const state = useSnapshot(model);
@@ -22,20 +20,18 @@ function CommentView({ postId }) {
   };
 
   const getCommentList = (params) => {
-      new ApiClient()
-          .get(API.COMMENT, params, null)
-          .then(response => {
-              model.comments = response;
-              model.loading = false;
-          })
+    new ApiClient().get(API.COMMENT, params, null).then((response) => {
+      model.comments = response;
+      model.loading = false;
+    });
   };
 
   const refreshCommentList = () => {
-    void getCommentList(params, headers);
+    void getCommentList(params);
   };
 
   useEffect(() => {
-    void getCommentList(params, headers);
+    void getCommentList(params);
   }, []);
 
   return (
