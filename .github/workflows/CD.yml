@@ -6,7 +6,7 @@ on:
 
 env:
   SPRING_PROFILE: dev
-  S3_BUCKET_NAME: project-bucket-v1
+  S3_BUCKET_NAME: bbs-bucket-1
   PROJECT_NAME: cicdtest
 
 jobs:
