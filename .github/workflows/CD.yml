@@ -1,0 +1,71 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  S3_BUCKET_NAME: project-bucket-v1
+  PROJECT_NAME: cicdtest
+
+jobs:
+  build:
+    name: CD
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set environment variable
+        run: |
+          echo "OAUTH_GOOGLE_ID=${{secrets.OAUTH_GOOGLE_ID}}" >> $GITHUB_ENV
+          echo "OAUTH_GOOGLE_SECRET=${{secrets.OAUTH_GOOGLE_SECRET}}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{secrets.JWT_SECRET}}" >> $GITHUB_ENV
+
+      - name: Build with gradle
+        working-directory: ./backend
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -Pprofile=$SPRING_PROFILE
+
+      - name: Store error reports
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: reports
+          path: |
+            **/build/reports/
+            **/build/test-results/
+            
+      - name: Make zip file
+        run: zip -r ./$GITHUB_SHA.zip .
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
+      - name: Copy script
+        run: cp ./scripts/*.sh ./deploy
+      
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
