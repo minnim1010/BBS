@@ -5,6 +5,7 @@ on:
     branches: [ main ]
 
 env:
+  SPRING_PROFILE: dev
   S3_BUCKET_NAME: project-bucket-v1
   PROJECT_NAME: cicdtest
 
