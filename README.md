@@ -10,3 +10,11 @@
 	- Swagger
 	- Github Actions, AWS S3, AWS EC2, AWS CodeDeploy
 
+## API
+![](image/api_list1.png)
+![](image/api_list2.png)
+
+## 화면
+![](image/post_list_page.png)
+![](image/post_detail_page.png)
+![](image/post_detail_with_comment_page.png)
