@@ -59,7 +59,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         } else if ("작성자".equals(searchScope)) {
             searchExpression = p.author.name.eq(searchKeyword);
         } else {
-            throw new IllegalStateException("해당 검색 범위를 지원하지 않습니다.");
+            throw new IllegalArgumentException(String.format("%s: 해당 검색 범위를 지원하지 않습니다.", searchScope));
         }
         return searchExpression;
     }

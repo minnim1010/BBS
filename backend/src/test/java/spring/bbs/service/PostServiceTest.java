@@ -214,7 +214,7 @@ public class PostServiceTest extends IntegrationTestConfig {
 
             //when then
             assertThatThrownBy(() -> postService.createPost(request))
-                .isInstanceOf(AccessDeniedException.class);
+                .isInstanceOf(DataNotFoundException.class);
 
             List<Post> result = postRepository.findAll();
             assertThat(result).isEmpty();

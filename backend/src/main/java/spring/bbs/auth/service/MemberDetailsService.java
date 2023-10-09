@@ -27,12 +27,12 @@ public class MemberDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return memberRepository.findByName(username)
             .map(member -> createUser(username, member))
-            .orElseThrow(() -> new UsernameNotFoundException(username + ": 회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     private User createUser(String username, Member member) {
         if (!member.isEnabled()) {
-            throw new IllegalStateException(username + ": 활성화되어있지 않은 회원입니다.");
+            throw new IllegalStateException(String.format("%s: 활성화되어있지 않은 회원입니다.", username));
         }
 
         List<GrantedAuthority> grantedAuthorities =

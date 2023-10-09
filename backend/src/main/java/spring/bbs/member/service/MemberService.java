@@ -1,14 +1,14 @@
 package spring.bbs.member.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import spring.bbs.auth.controller.dto.response.UserInfoResponse;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
-import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
+import spring.bbs.common.exceptionhandling.exception.DuplicatedMemberNameException;
 import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.controller.dto.JoinResponse;
@@ -28,9 +28,7 @@ public class MemberService {
     private final PostRepository postRepository;
 
     @Transactional
-    public JoinResponse createMember(JoinRequest req) {
-        Assert.notNull(req, "요청값이 없습니다.");
-
+    public JoinResponse createMember(@NonNull JoinRequest req) {
         validatePassword(req.getPassword(), req.getCheckPassword());
         validateName(req.getName());
 
@@ -49,15 +47,13 @@ public class MemberService {
 
     private void validateName(String name) {
         if (memberRepository.existsByName(name)) {
-            throw new ExistedMemberNameException();
+            throw new DuplicatedMemberNameException(name);
         }
     }
 
     @Transactional
-    public void deleteMember(String memberName) {
-        Assert.hasText(memberName, "회원 이름은 공백일 수 없습니다.");
-
-        Member member = findByName(memberName);
+    public void deleteMember(@NonNull String name) {
+        Member member = findByName(name);
 
         postRepository.deleteAllInBatchByAuthor(member);
         memberRepository.delete(member);
@@ -65,12 +61,12 @@ public class MemberService {
 
     private Member findByName(String authorName) {
         return memberRepository.findByName(authorName)
-            .orElseThrow(() -> new DataNotFoundException("회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new DataNotFoundException(authorName));
     }
 
     public UserInfoResponse get(String name) {
         Member member = memberRepository.findByName(name)
-            .orElseThrow(() -> new DataNotFoundException("회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new DataNotFoundException(name));
         return UserInfoResponse.of(member);
     }
 }

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import spring.bbs.common.entity.BaseTime;
 import spring.bbs.member.domain.Member;
@@ -57,9 +58,9 @@ public class Comment extends BaseTime {
         this.parent = parent;
     }
 
-    public static Comment create(String content,
-                                 Member author,
-                                 Post post) {
+    public static Comment create(@NonNull String content,
+                                 @NonNull Member author,
+                                 @NonNull Post post) {
         return Comment.builder()
             .content(content)
             .author(author)
@@ -68,14 +69,10 @@ public class Comment extends BaseTime {
             .build();
     }
 
-    public static Comment createReply(String content,
-                                      Member author,
-                                      Post post,
-                                      Comment parent) {
-        if (parent == null) {
-            throw new IllegalStateException("대댓글을 달 수 있는 댓글이 없습니다.");
-        }
-
+    public static Comment createReply(@NonNull String content,
+                                      @NonNull Member author,
+                                      @NonNull Post post,
+                                      @NonNull Comment parent) {
         return Comment.builder()
             .content(content)
             .author(author)
@@ -84,12 +81,12 @@ public class Comment extends BaseTime {
             .build();
     }
 
-    public Comment update(String content) {
+    public Comment update(@NonNull String content) {
         this.content = content;
         return this;
     }
 
-    public void addChildren(Comment child) {
+    public void addChildren(@NonNull Comment child) {
         children.add(child);
         child.parent = this;
     }

@@ -32,7 +32,7 @@ public class CommentService {
 
     public List<CommentResponse> getCommentsByParent(Long parentCommentId) {
         Comment parentComment = commentRepository.findById(parentCommentId)
-            .orElseThrow(() -> new DataNotFoundException("답글을 달 댓글이 존재하지 않습니다."));
+            .orElseThrow(() -> new DataNotFoundException(String.valueOf(parentCommentId)));
 
         List<spring.bbs.comment.repository.dto.CommentResponse> comments = commentRepository.findAllByParent(parentComment);
 
@@ -72,7 +72,8 @@ public class CommentService {
 
     public Member findByName(String authorName) {
         return memberRepository.findByName(authorName).orElseThrow(
-            () -> new AccessDeniedException("유효하지 않은 사용자입니다."));
+            () -> new AccessDeniedException(
+                String.format("%s: 유효하지 않은 사용자입니다.", authorName)));
     }
 
     @Transactional
@@ -87,7 +88,7 @@ public class CommentService {
 
     private Comment findById(long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-            () -> new DataNotFoundException("댓글이 존재하지 않습니다."));
+            () -> new DataNotFoundException(String.valueOf(commentId)));
     }
 
     private void validAuthor(String authorName, String curMemberName) {

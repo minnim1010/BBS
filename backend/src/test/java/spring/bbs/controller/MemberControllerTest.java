@@ -11,7 +11,7 @@
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.ResultActions;
-//import spring.bbs.common.exception.ExistedMemberNameException;
+//import spring.bbs.common.exception.DuplicatedMemberNameException;
 //import spring.bbs.common.exception.NotSamePasswordException;
 //import spring.bbs.member.controller.MemberController;
 //import spring.bbs.member.controller.dto.JoinRequest;
@@ -84,7 +84,7 @@
 //            //given
 //            JoinRequest req = createJoinRequest();
 //            given(memberService.createMember(any(JoinRequest.class)))
-//                .willThrow(ExistedMemberNameException.class);
+//                .willThrow(DuplicatedMemberNameException.class);
 //            //when
 //            ResultActions response = request(req);
 //            //then

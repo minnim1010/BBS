@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import spring.IntegrationTestConfig;
 import spring.bbs.auth.controller.dto.response.UserInfoResponse;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
-import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
+import spring.bbs.common.exceptionhandling.exception.DuplicatedMemberNameException;
 import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
 import spring.bbs.member.controller.dto.JoinRequest;
 import spring.bbs.member.controller.dto.JoinResponse;
@@ -92,7 +92,7 @@ class MemberServiceTest extends IntegrationTestConfig {
             //when then
             assertThatThrownBy(() ->
                 memberService.createMember(request))
-                .isInstanceOf(ExistedMemberNameException.class);
+                .isInstanceOf(DuplicatedMemberNameException.class);
         }
     }
 

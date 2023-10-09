@@ -9,7 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
-import spring.bbs.common.exceptionhandling.exception.ExistedMemberNameException;
+import spring.bbs.common.exceptionhandling.exception.DuplicatedMemberNameException;
 import spring.bbs.common.exceptionhandling.exception.NotSamePasswordException;
 import spring.bbs.common.exceptionhandling.response.ExceptionResponse;
 
@@ -48,7 +48,7 @@ public class ExceptionHandlerAdvice {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ExistedMemberNameException.class)
+    @ExceptionHandler(DuplicatedMemberNameException.class)
     public ResponseEntity<ExceptionResponse> handleExistedUserNameException(Exception ex) {
         ExceptionResponse errorResponse = createExceptionResponse(ex.getMessage());
 

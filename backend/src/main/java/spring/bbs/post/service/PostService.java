@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
+import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.controller.dto.request.PostListRequest;
@@ -81,7 +82,7 @@ public class PostService {
     public PostResponse createPost(PostServiceRequest req) {
         Member member = memberRepository
             .findByName(req.getCurMemberName())
-            .orElseThrow(() -> new AccessDeniedException("로그인해야 합니다."));
+            .orElseThrow(() -> new DataNotFoundException(req.getCurMemberName()));
 
         Post post = Post.of(req, categoryRepositoryHandler.findByName(req.getCategory()), member);
 

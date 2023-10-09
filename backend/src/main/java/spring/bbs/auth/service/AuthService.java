@@ -64,11 +64,19 @@ public class AuthService {
 
     @Transactional
     public void logout(String accessToken) {
+        String memberName = jwtResolver.getName(accessToken);
+
+        logoutAccessToken(memberName, accessToken);
+        logoutRefreshToken(memberName);
+    }
+
+    private void logoutAccessToken(String memberName, String accessToken) {
         long expiration = jwtResolver.getExpirationTime(accessToken);
         long timeout = expiration - System.currentTimeMillis();
-        String memberName = jwtResolver.getName(accessToken);
         tokenRepository.save(new AccessToken(memberName, accessToken), timeout);
+    }
 
+    private void logoutRefreshToken(String memberName) {
         tokenRepository.delete(new RefreshToken(memberName));
     }
 }
