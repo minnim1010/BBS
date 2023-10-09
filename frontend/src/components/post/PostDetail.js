@@ -7,8 +7,8 @@ import DateFormatter from "../../util/DateFormatter";
 function PostDetail(props) {
   const { post, isValidAuthor, deletePost } = props;
 
-  const createdTime = DateFormatter(post.createdTime)
-  const modifiedTime = DateFormatter(post.modifiedTime)
+  const createdTime = DateFormatter(post.createdTime);
+  const modifiedTime = DateFormatter(post.modifiedTime);
 
   return (
     <div className="post-body">
@@ -44,7 +44,7 @@ function PostDetail(props) {
       </div>
 
       <Divider />
-      <h3>{post.content}</h3>
+      <p>{post.content}</p>
       <Divider />
     </div>
   );

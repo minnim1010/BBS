@@ -25,7 +25,7 @@ function Nav() {
 
   const logout = () => {
     new ApiClient().get(API.LOGOUT, null, null).then(() => {
-      localStorage.removeItem(USER_INFO_KEY);
+      sessionStorage.removeItem(USER_INFO_KEY);
       setAuth(null);
 
       alert("로그아웃되었습니다.");

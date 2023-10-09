@@ -34,7 +34,7 @@ function MemberLogin() {
   const getUserInfo = () => {
     new ApiClient().get(API.AUTH_INFO, null, null).then((response) => {
       const userInfo = JSON.stringify(response);
-      localStorage.setItem(USER_INFO_KEY, userInfo);
+      sessionStorage.setItem(USER_INFO_KEY, userInfo);
       setAuth(userInfo);
       alert(`안녕하세요, ${response.username}님!`);
       navigate(-1);
