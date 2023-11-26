@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import spring.bbs.common.entity.BaseTime;
+import spring.bbs.common.BaseTimeEntity;
 import spring.bbs.member.controller.dto.JoinRequest;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseTime implements UserDetails {
+public class Member extends BaseTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -12,7 +12,7 @@ import spring.bbs.auth.controller.dto.response.LoginResponse;
 import spring.bbs.auth.service.AuthService;
 import spring.bbs.common.constant.Api;
 import spring.bbs.common.jwt.JwtProperties;
-import spring.bbs.common.util.CookieUtil;
+import spring.bbs.util.CookieUtil;
 
 @Slf4j
 @RequiredArgsConstructor

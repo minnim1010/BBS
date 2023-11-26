@@ -1,4 +1,4 @@
-package spring.bbs.common.entity;
+package spring.bbs.common;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
-public abstract class BaseTime {
+public abstract class BaseTimeEntity {
     @CreatedDate
     private LocalDateTime createdTime;
     @LastModifiedDate

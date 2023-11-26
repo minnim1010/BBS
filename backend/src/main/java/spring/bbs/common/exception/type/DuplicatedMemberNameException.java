@@ -1,4 +1,4 @@
-package spring.bbs.common.exceptionhandling.exception;
+package spring.bbs.common.exception.type;
 
 import java.io.Serial;
 

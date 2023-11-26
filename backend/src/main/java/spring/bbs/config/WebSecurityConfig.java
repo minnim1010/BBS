@@ -1,4 +1,4 @@
-package spring.bbs.common.config;
+package spring.bbs.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

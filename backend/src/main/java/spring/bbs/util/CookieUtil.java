@@ -1,4 +1,4 @@
-package spring.bbs.common.util;
+package spring.bbs.util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class CookieUtil {
 
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setMaxAge(Long.valueOf(maxAge).intValue());
+        cookie.setMaxAge((int) maxAge);
 
         response.addCookie(cookie);
     }

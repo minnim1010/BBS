@@ -1,4 +1,4 @@
-package spring.bbs.common.config;
+package spring.bbs.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

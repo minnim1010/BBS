@@ -1,4 +1,4 @@
-package spring.bbs.common.exceptionhandling.response;
+package spring.bbs.common.exception.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

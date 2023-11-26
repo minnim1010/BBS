@@ -1,4 +1,4 @@
-package spring.bbs.common.util;
+package spring.bbs.util;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 public class TimeUtil {
+
     private TimeUtil() {
     }
 

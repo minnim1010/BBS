@@ -1,4 +1,4 @@
-package spring.bbs.common.config;
+package spring.bbs.config;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;

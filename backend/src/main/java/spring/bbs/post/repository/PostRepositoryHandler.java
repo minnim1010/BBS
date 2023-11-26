@@ -2,7 +2,7 @@ package spring.bbs.post.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
+import spring.bbs.common.exception.type.DataNotFoundException;
 import spring.bbs.post.domain.Post;
 
 @RequiredArgsConstructor

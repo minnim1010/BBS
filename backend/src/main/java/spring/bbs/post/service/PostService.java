@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import spring.bbs.category.domain.Category;
 import spring.bbs.category.repository.CategoryRepositoryHandler;
-import spring.bbs.common.exceptionhandling.exception.DataNotFoundException;
+import spring.bbs.common.exception.type.DataNotFoundException;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepository;
 import spring.bbs.post.controller.dto.request.PostListRequest;

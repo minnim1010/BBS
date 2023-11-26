@@ -12,9 +12,9 @@ import spring.bbs.auth.repository.TokenRepository;
 import spring.bbs.common.constant.Api;
 import spring.bbs.common.jwt.JwtProperties;
 import spring.bbs.common.jwt.JwtProvider;
-import spring.bbs.common.util.CookieUtil;
 import spring.bbs.member.domain.Member;
 import spring.bbs.member.repository.MemberRepositoryHandler;
+import spring.bbs.util.CookieUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 import spring.bbs.category.domain.Category;
 import spring.bbs.comment.domain.Comment;
-import spring.bbs.common.entity.BaseTime;
+import spring.bbs.common.BaseTimeEntity;
 import spring.bbs.member.domain.Member;
 import spring.bbs.post.service.dto.PostServiceRequest;
 
@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post extends BaseTime {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

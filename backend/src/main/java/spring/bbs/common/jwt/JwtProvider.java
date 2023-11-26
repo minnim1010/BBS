@@ -12,8 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import spring.bbs.auth.domain.AccessToken;
 import spring.bbs.auth.repository.TokenRepository;
-import spring.bbs.common.util.TimeUtil;
 import spring.bbs.member.domain.Member;
+import spring.bbs.util.TimeUtil;
 
 import java.security.Key;
 import java.time.LocalDateTime;

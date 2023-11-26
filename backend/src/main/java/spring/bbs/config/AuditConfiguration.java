@@ -1,4 +1,4 @@
-package spring.bbs.common.config;
+package spring.bbs.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

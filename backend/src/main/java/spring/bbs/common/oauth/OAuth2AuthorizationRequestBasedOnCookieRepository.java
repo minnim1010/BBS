@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.web.util.WebUtils;
-import spring.bbs.common.util.CookieUtil;
+import spring.bbs.util.CookieUtil;
 
 public class OAuth2AuthorizationRequestBasedOnCookieRepository
     implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
