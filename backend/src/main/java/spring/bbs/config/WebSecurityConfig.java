@@ -94,12 +94,10 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(request ->
             request
                 .requestMatchers(HttpMethod.GET,
-                    Api.URI_PREFIX + Api.VERSION + "/no-auth",
-                    Api.Domain.POST, Api.Domain.POST + "/{id}",
+                    Api.URI_PREFIX + Api.VERSION + "/no-auth", Api.Domain.POST, Api.Domain.POST + "/{id}",
                     Api.Domain.COMMENT, Api.Domain.COMMENT + "/{id}").permitAll()
                 .requestMatchers(HttpMethod.POST,
-                    Api.Domain.AUTH + "/login",
-                    Api.Domain.MEMBER).permitAll()
+                    Api.Domain.AUTH + "/login", Api.Domain.MEMBER).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin")
                 .hasAnyRole(Authority.ROLE_ADMIN.getDisplayName())
                 .anyRequest().authenticated());
@@ -129,7 +127,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOrigin("http://localhost:*");
+        configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);

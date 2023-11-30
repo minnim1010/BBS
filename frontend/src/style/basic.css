@@ -9,6 +9,12 @@
     display: flex;
 }
 
+.flex-horizontal-center {
+    display: flex;
+    align-content: center;
+    align-items: center;
+}
+
 .flex-vertical-center {
     display: flex;
     align-items: center;
@@ -55,6 +61,14 @@
 
 .comment .profile .comment-info {
     margin-left: 1rem;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.social-media-text {
+    padding-bottom: 0.5rem;
 }
 
 .comment .profile .comment-info .username {
